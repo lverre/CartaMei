@@ -5,8 +5,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("GSHHG")]
-[assembly: AssemblyDescription("Reads GSHHG files")]
+[assembly: AssemblyTitle("CartaMei Common")]
+[assembly: AssemblyDescription("Common tools for Carta Mei (this is the library both plugins and the main application reference).")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("CartaMei")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("4b844a42-de2f-4741-873f-df44c1264e1c")]
+[assembly: Guid("38948164-d77c-43ed-a3a0-100de6d38514")]
 
 // Version information for an assembly consists of the following four values:
 //

@@ -3,10 +3,92 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:s="clr-namespace:System;assembly=mscorlib"
+        xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:local="clr-namespace:CartaMei"
+        xmlns:lwpf="clr-namespace:CartaMei.WPF"
+        xmlns:lm="clr-namespace:CartaMei.Models"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="Carta Mei">
     <Grid>
+
+        <Grid.Resources>
+
+            <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
+
+            <DataTemplate x:Key="toolbarButtonTemplate" DataType="{x:Type lm:ButtonModel}">
+                <Button Command="{Binding}" 
+                        Content="{Binding Name}" 
+                        ToolTip="{Binding Description}" 
+                        IsEnabled="{Binding IsEnabled}"
+                        Style="{DynamicResource ResourceKey={x:Static ToolBar.ButtonStyleKey}}" />
+            </DataTemplate>
+            <DataTemplate x:Key="toolbarSeparatorTemplate">
+                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+            </DataTemplate>
+            <lwpf:ItemTemplateSelector x:Key="toolBarItemTemplateSelector"
+                                       ButtonTemplate="{StaticResource toolbarButtonTemplate}" 
+                                       SeparatorTemplate="{StaticResource toolbarSeparatorTemplate}" />
+
+        </Grid.Resources>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Menu Grid.Row="0" 
+              IsMainMenu="True"
+              ItemsSource="{Binding Path=Menu}">
+            <Menu.ItemContainerStyle>
+                <Style TargetType="{x:Type MenuItem}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsSeparator}" Value="False">
+                            <Setter Property="MenuItem.Command" Value="{Binding}" />
+                            <Setter Property="MenuItem.Header" Value="{Binding Name}" />
+                            <Setter Property="MenuItem.ToolTip" Value="{Binding Description}" />
+                            <Setter Property="MenuItem.Icon" Value="{Binding Path=Icon}" />
+                            <Setter Property="MenuItem.IsCheckable" Value="{Binding Path=IsCheckable}" />
+                            <Setter Property="MenuItem.IsChecked" Value="{Binding Path=IsChecked}" />
+                            <Setter Property="MenuItem.IsEnabled" Value="{Binding IsEnabled}" />
+                            <Setter Property="MenuItem.ItemsSource" Value="{Binding Children}" />
+                            <Setter Property="MenuItem.Visibility" 
+                                    Value="{Binding Path=IsVisible, Converter={StaticResource booleanToVisibilityConverter}}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding IsSeparator}" Value="True">
+                            <Setter Property="MenuItem.Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type MenuItem}">
+                                        <Separator Style="{DynamicResource {x:Static MenuItem.SeparatorStyleKey}}"/>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Menu.ItemContainerStyle>
+        </Menu>
+
+        <ToolBarTray Grid.Row="1">
+            <ToolBar ItemsSource="{Binding Path=Tools}"
+                     ItemTemplateSelector="{StaticResource toolBarItemTemplateSelector}">
+            </ToolBar>
+        </ToolBarTray>
+
+        <xcad:DockingManager Grid.Row="2"
+                             DataContext="{Binding}"
+                             DocumentsSource="{Binding Documents}"
+                             AnchorablesSource="{Binding Anchorables}" >
+
+            <xcad:DockingManager.LayoutItemContainerStyle>
+                <Style TargetType="{x:Type xcad:LayoutItem}" >
+                    <Setter Property="Title" Value="{Binding Model.Title}" />
+                </Style>
+            </xcad:DockingManager.LayoutItemContainerStyle>
+
+        </xcad:DockingManager>
         
     </Grid>
 </Window>
