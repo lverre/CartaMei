@@ -28,7 +28,7 @@ namespace CartaMei.Common
 
         bool? IsEnabled { get; }
         
-        ObservableCollection<ButtonModel> Children { get; }
+        ObservableCollection<IButtonModel> Children { get; }
 
         bool IsSeparator { get; }
         
@@ -186,8 +186,8 @@ namespace CartaMei.Common
             }
         }
 
-        private ObservableCollection<ButtonModel> _children;
-        public ObservableCollection<ButtonModel> Children
+        private ObservableCollection<IButtonModel> _children;
+        public ObservableCollection<IButtonModel> Children
         {
             get { return _children; }
             set

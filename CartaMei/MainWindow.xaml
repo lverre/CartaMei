@@ -81,7 +81,7 @@
         <xcad:DockingManager Grid.Row="2"
                              DataContext="{Binding}"
                              DocumentsSource="{Binding Documents}"
-                             AnchorablesSource="{Binding Anchorables}" >
+                             AnchorablesSource="{Binding Anchorables}">
 
             <xcad:DockingManager.LayoutItemContainerStyle>
                 <Style TargetType="{x:Type xcad:LayoutItem}" >
@@ -89,6 +89,14 @@
                 </Style>
             </xcad:DockingManager.LayoutItemContainerStyle>
 
+            <xcad:LayoutRoot>
+                <xcad:LayoutPanel Orientation="Horizontal">
+                    <xcad:LayoutAnchorablePane DockWidth="250"></xcad:LayoutAnchorablePane>
+                    <xcad:LayoutDocumentPane/>
+                    <xcad:LayoutAnchorablePane DockWidth="250"></xcad:LayoutAnchorablePane>
+                </xcad:LayoutPanel>
+            </xcad:LayoutRoot>
+            
         </xcad:DockingManager>
         
     </Grid>

@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartaMei", "CartaMei\CartaMei.csproj", "{E6FFE0D3-0571-46F3-8F16-48FF306235E0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4B844A42-DE2F-4741-873F-DF44C1264E1C} = {4B844A42-DE2F-4741-873F-DF44C1264E1C}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GSHHG", "GSHHG\GSHHG.csproj", "{4B844A42-DE2F-4741-873F-DF44C1264E1C}"
 EndProject

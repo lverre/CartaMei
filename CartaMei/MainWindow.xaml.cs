@@ -25,7 +25,9 @@ namespace CartaMei
         #region Fields
 
         private MainWindowModel _model;
-        private MapModel _document;
+        private MapModel _map;
+        private LayersPanelModel _layers;
+        private PropertiesPanelModel _properties;
 
         #endregion
 
@@ -40,8 +42,7 @@ namespace CartaMei
 
             this.DataContext = _model;
 
-            var pluginsManager = new PluginManager();
-            pluginsManager.Reload();
+            PluginManager.Instance.Reload();
         }
 
         #endregion
@@ -64,7 +65,7 @@ namespace CartaMei
                 {
                     Name = "_File",
                     IsEnabled = true,
-                    Children = new System.Collections.ObjectModel.ObservableCollection<ButtonModel>()
+                    Children = new System.Collections.ObjectModel.ObservableCollection<IButtonModel>()
                     {
                         new ButtonModel() { Name = "New", IsEnabled = true },
                         new ButtonModel() { Name = "Open", IsEnabled = false },
@@ -94,16 +95,27 @@ namespace CartaMei
 
         private void rebuildDocument()
         {
-            _document = new MapModel() { Title = "My Map" };
-            _model.Document = _document;
+            _map = new MapModel()
+            {
+                Name = "My Map",
+                OLayers = new System.Collections.ObjectModel.ObservableCollection<ILayer>()
+                {
+                    // TODO: test with two background layers
+                }
+            };
+            _map.ActiveObject = _map;
+            _model.Document = _map;
+
         }
 
         private void rebuildAnchorables()
         {
+            _layers = new LayersPanelModel() { Map = _map };
+            _properties = new PropertiesPanelModel() { Map = _map };
             _model.Anchorables = new System.Collections.ObjectModel.ObservableCollection<IToolPanelModel>()
             {
-                new LayersPanelModel(),
-                new PropertiesPanelModel() 
+                _layers,
+                _properties
             };
         }
 

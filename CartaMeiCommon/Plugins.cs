@@ -31,6 +31,11 @@ namespace CartaMei.Common
         IEnumerable<IProjection> ProjectionProviders { get; }
 
         /// <summary>
+        /// Gets a list of anchorable tools.
+        /// </summary>
+        IDictionary<IAnchorableTool, DataTemplate> AnchorableTools { get; }
+
+        /// <summary>
         /// Gets an object that shows and can change the plugin's settings.
         /// </summary>
         object Settings { get; }
@@ -74,16 +79,25 @@ namespace CartaMei.Common
         #region Properties
 
         [DefaultValue(null)]
-        string License { get; }
-
-        [DefaultValue(null)]
         string Name { get; }
 
         [DefaultValue(null)]
         string Description { get; }
 
         [DefaultValue(null)]
+        string Version { get; }
+
+        [DefaultValue(null)]
         string Author { get; }
+
+        [DefaultValue(null)]
+        string Copyright { get; }
+
+        [DefaultValue(null)]
+        string Trademark { get; }
+
+        [DefaultValue(null)]
+        string License { get; }
 
         [DefaultValue(null)]
         string Link { get; }
@@ -110,6 +124,12 @@ namespace CartaMei.Common
         public string Description { get; set; }
 
         public string Author { get; set; }
+
+        public string Copyright { get; set; }
+
+        public string Trademark { get; set; }
+
+        public string Version { get; set; }
 
         public string Link { get; set; }
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace CartaMei.Common
 {
@@ -22,7 +18,7 @@ namespace CartaMei.Common
 
         string License { get; set; }
 
-        string version { get; set; }
+        string Version { get; set; }
 
         #endregion
 
@@ -30,7 +26,7 @@ namespace CartaMei.Common
 
         IProjection Projection { get; set; }
 
-        SortedSet<ILayer> Layers { get; set; }
+        ICollection<ILayer> Layers { get; set; }
 
         #endregion
 

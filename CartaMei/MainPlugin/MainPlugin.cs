@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace CartaMei.MainPlugin
 {
-    [Plugin(Name = "Main Plugin", Description = "Provides basic tools and the main menus.", License = "blah")]
+    [Plugin(Name = "Main Plugin", Description = "Provides basic tools and the main menus.", License = "MIT")]
     public class MainPlugin : IPlugin
     {
         #region IPlugin
@@ -41,6 +42,14 @@ namespace CartaMei.MainPlugin
             get
             {
                 return null;// TODO: identity projection
+            }
+        }
+
+        public IDictionary<IAnchorableTool, DataTemplate> AnchorableTools
+        {
+            get
+            {
+                return null;// TODO: layers, properties
             }
         }
 

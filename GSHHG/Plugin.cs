@@ -5,10 +5,11 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace CartaMei.GSHHG
 {
-    [Plugin(License = "blah")]
+    [Plugin(License = "MIT")]
     public class GSHHGPlugin : IPlugin
     {
         #region IPlugin
@@ -21,11 +22,14 @@ namespace CartaMei.GSHHG
         {
             get
             {
+                // The layers should allow presets (for the brush for example)
                 return null;// TODO: provide ShorelinesLayer, ...
             }
         }
 
         public IEnumerable<IProjection> ProjectionProviders { get { return null; } }
+
+        public IDictionary<IAnchorableTool, DataTemplate> AnchorableTools { get { return null; } }
 
         public object Settings
         {
