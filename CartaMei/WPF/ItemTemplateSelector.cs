@@ -10,7 +10,7 @@ namespace CartaMei.WPF
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
-            var button = item as Models.ButtonModel;
+            var button = item as Common.ButtonModel;
             return button != null && button.IsSeparator ? SeparatorTemplate : ButtonTemplate;
         }
     }

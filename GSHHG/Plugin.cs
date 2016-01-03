@@ -13,6 +13,28 @@ namespace CartaMei.GSHHG
     {
         #region IPlugin
         
+        public PluginMenu Menu { get { return null; } }
+
+        public IEnumerable<IButtonModel> Toolbar { get { return null; } }
+
+        public IEnumerable<ILayer> LayerProviders
+        {
+            get
+            {
+                return null;// TODO: provide ShorelinesLayer, ...
+            }
+        }
+
+        public IEnumerable<IProjection> ProjectionProviders { get { return null; } }
+
+        public object Settings
+        {
+            get
+            {
+                return null;// TODO
+            }
+        }
+
         #endregion
     }
 }

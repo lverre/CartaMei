@@ -2,36 +2,92 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace CartaMei.Models
+namespace CartaMei.Common
 {
-    public class ButtonModel : NotifyPropertyChangedBase, ICommand
+    public interface IButtonModel : INotifyPropertyChanged, ICommand
+    {
+        #region Properties
+        
+        string Name { get; }
+
+        string Icon { get; }
+
+        string Description { get; }
+
+        bool IsCheckable { get; }
+
+        bool IsChecked { get; }
+
+        bool IsVisible { get; }
+
+        bool? IsEnabled { get; }
+        
+        ObservableCollection<ButtonModel> Children { get; }
+
+        bool IsSeparator { get; }
+        
+        #endregion
+
+        #region Events
+
+        event EventHandler Click;
+
+        #endregion
+    }
+
+    public class ButtonModel : IButtonModel, INotifyPropertyChanged, ICommand
     {
         #region Constructor
 
         public ButtonModel()
         {
-            this.Children = null;
-            this.Description = null;
-            this.Icon = null;
-            this.IsCheckable = false;
-            this.IsChecked = false;
-            this.IsEnabled = null;
-            this.IsSeparator = false;
             this.IsVisible = true;
-            this.Name = null;
         }
 
         #endregion
-        
+
+        #region INotifyPropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void onPropetyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
+        {
+            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        #endregion
+
+        #region ICommand
+
+        public event EventHandler CanExecuteChanged;
+
+        protected virtual void onCanExecuteChanged()
+        {
+            this.CanExecuteChanged?.Invoke(this, new EventArgs());
+        }
+
+        public virtual bool CanExecute(object parameter)
+        {
+            return this.IsEnabled ?? false;
+        }
+
+        public virtual void Execute(object parameter)
+        {
+            this.Click?.Invoke(this, new EventArgs());
+        }
+
+        #endregion
+
+        #region IButtonModel
+
         #region Properties
-
-        #region Observable
-
+        
         private string _name;
         public string Name
         {
@@ -157,9 +213,7 @@ namespace CartaMei.Models
                 }
             }
         }
-
-        #endregion
-
+        
         #endregion
 
         #region Events
@@ -167,25 +221,6 @@ namespace CartaMei.Models
         public event EventHandler Click;
 
         #endregion
-
-        #region ICommand
-
-        public event EventHandler CanExecuteChanged;
-
-        protected virtual void onCanExecuteChanged()
-        {
-            this.CanExecuteChanged?.Invoke(this, new EventArgs());
-        }
-
-        public virtual bool CanExecute(object parameter)
-        {
-            return this.IsEnabled ?? false;
-        }
-
-        public virtual void Execute(object parameter)
-        {
-            this.Click?.Invoke(this, new EventArgs());
-        }
 
         #endregion
     }

@@ -37,6 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -80,11 +81,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Models\ButtonModel.cs" />
     <Compile Include="Models\PropertiesPanelModel.cs" />
     <Compile Include="Models\LayersPanelModel.cs" />
     <Compile Include="Models\IToolPanelModel.cs" />
     <Compile Include="Models\MapModel.cs" />
+    <Compile Include="PluginManager.cs" />
+    <Compile Include="MainPlugin\MainPlugin.cs" />
     <Compile Include="WPF\ItemTemplateSelector.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

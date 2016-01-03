@@ -2,63 +2,70 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+using System.Windows;
 
 namespace CartaMei.Common
 {
-    public class PluginManager
+    public interface IPlugin
     {
-        #region Fields
+        #region Properties
 
-        private CompositionContainer _container;
+        /// <summary>
+        /// Gets the menu buttons this plugin provides.
+        /// </summary>
+        PluginMenu Menu { get; }
+
+        /// <summary>
+        /// Gets the toolbar buttons this plugin provides.
+        /// </summary>
+        IEnumerable<IButtonModel> Toolbar { get; }
+
+        /// <summary>
+        /// Gets the type of layers this plugin provides.
+        /// </summary>
+        IEnumerable<ILayer> LayerProviders { get; }
+
+        /// <summary>
+        /// Gets the map projections this plugin provides.
+        /// </summary>
+        IEnumerable<IProjection> ProjectionProviders { get; }
+
+        /// <summary>
+        /// Gets an object that shows and can change the plugin's settings.
+        /// </summary>
+        object Settings { get; }
+        
+        #endregion
+    }
+
+    public class PluginMenu
+    {
+        #region Enums
+
+        public enum PluginMenuLocation
+        {
+            TopLevel,
+            ToolsMenu,
+            ToolsSubmenu
+        }
 
         #endregion
 
         #region Constructor
 
-        public PluginManager()
+        public PluginMenu()
         {
-            var mainAsm = Assembly.GetExecutingAssembly();
-
-            var pluginsDir = Path.Combine(Path.GetDirectoryName(mainAsm.Location), "Plugins");
-            if (!Directory.Exists(pluginsDir))
-            {
-                Directory.CreateDirectory(pluginsDir);
-            }
-
-            var catalog = new AggregateCatalog();
-            catalog.Catalogs.Add(new AssemblyCatalog(mainAsm));
-            catalog.Catalogs.Add(new DirectoryCatalog(pluginsDir, "*.dll"));
-
-            _container = new CompositionContainer(catalog);
+            this.ItemsLocation = PluginMenuLocation.ToolsSubmenu;
         }
 
         #endregion
 
         #region Properties
 
-        [ImportMany]
-        public Lazy<IPlugin, IPluginMetadata>[] Plugins { get; set; }
+        public PluginMenuLocation ItemsLocation { get; set; }
 
-        #endregion
-        
-        #region Public Functions
+        public IEnumerable<IButtonModel> Items { get; set; }
 
-        public void Reload()
-        {
-            _container.ComposeParts(this);
-        }
-
-        #endregion
-    }
-
-    public interface IPlugin
-    {
-        #region Properties
-        
         #endregion
     }
 

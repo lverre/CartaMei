@@ -9,6 +9,7 @@
         xmlns:local="clr-namespace:CartaMei"
         xmlns:lwpf="clr-namespace:CartaMei.WPF"
         xmlns:lm="clr-namespace:CartaMei.Models"
+        xmlns:lc="clr-namespace:CartaMei.Common;assembly=CartaMeiCommon"
         mc:Ignorable="d"
         Title="Carta Mei">
     <Grid>
@@ -17,7 +18,7 @@
 
             <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
 
-            <DataTemplate x:Key="toolbarButtonTemplate" DataType="{x:Type lm:ButtonModel}">
+            <DataTemplate x:Key="toolbarButtonTemplate" DataType="{x:Type lc:ButtonModel}">
                 <Button Command="{Binding}" 
                         Content="{Binding Name}" 
                         ToolTip="{Binding Description}" 
