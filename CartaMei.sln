@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GSHHG", "GSHHG\GSHHG.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartaMeiCommon", "CartaMeiCommon\CartaMeiCommon.csproj", "{38948164-D77C-43ED-A3A0-100DE6D38514}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{B829CA23-B30F-48B9-B87D-84C306E31DBE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4B844A42-DE2F-4741-873F-DF44C1264E1C} = {B829CA23-B30F-48B9-B87D-84C306E31DBE}
 	EndGlobalSection
 EndGlobal

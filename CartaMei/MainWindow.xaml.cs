@@ -1,4 +1,5 @@
-﻿using CartaMei.Models;
+﻿using CartaMei.Common;
+using CartaMei.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,9 @@ namespace CartaMei
             InitializeComponent();
 
             this.DataContext = _model;
+
+            var pluginsManager = new PluginManager();
+            pluginsManager.Reload();
         }
 
         #endregion
