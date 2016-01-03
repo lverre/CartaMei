@@ -33,10 +33,7 @@ namespace CartaMei.GSHHG
 
         public object Settings
         {
-            get
-            {
-                return null;// TODO
-            }
+            get { return PluginSettings.Instance; }
         }
 
         #endregion

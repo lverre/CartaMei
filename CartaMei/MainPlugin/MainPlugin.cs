@@ -17,7 +17,11 @@ namespace CartaMei.MainPlugin
         {
             get
             {
-                return null;// TODO: file, edit, etc.
+                return new PluginMenu()
+                {
+                    ItemsLocation = PluginMenu.PluginMenuLocation.TopLevel,
+                    Items = new IButtonModel[] { Buttons.File, Buttons.Edit, Buttons.View, Buttons.Tools, Buttons.Help }
+                };
             }
         }
 
@@ -25,7 +29,7 @@ namespace CartaMei.MainPlugin
         {
             get
             {
-                return null;// TODO: new, open, save, etc.
+                return new IButtonModel[] { Buttons.NewMap, Buttons.OpenMap, Buttons.SaveMap, new ButtonModel() { IsSeparator = true }, Buttons.Options };
             }
         }
 
@@ -55,10 +59,7 @@ namespace CartaMei.MainPlugin
 
         public object Settings
         {
-            get
-            {
-                return null;// TODO
-            }
+            get { return MainPluginSettings.Instance; }
         }
 
         #endregion
