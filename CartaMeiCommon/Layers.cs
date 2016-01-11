@@ -12,11 +12,11 @@ namespace CartaMei.Common
     {
         #region Properties
 
-        string Name { get; }
+        string Name { get; set; }
 
-        IMapObject Root { get; }
+        IMapObject Root { get; set; }
 
-        DrawingVisual Canvas { get; }
+        DrawingVisual Canvas { get; set; }
 
         #endregion
 

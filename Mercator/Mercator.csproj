@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{38948164-D77C-43ED-A3A0-100DE6D38514}</ProjectGuid>
+    <ProjectGuid>{51521CE9-BC34-41C9-8AB6-B175942D3519}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CartaMei.Common</RootNamespace>
-    <AssemblyName>CartaMeiCommon</AssemblyName>
+    <RootNamespace>CartaMei.Mercator</RootNamespace>
+    <AssemblyName>Mercator</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -31,8 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -44,18 +42,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ButtonModel.cs" />
-    <Compile Include="Coordinates.cs" />
-    <Compile Include="Current.cs" />
-    <Compile Include="Datum.cs" />
-    <Compile Include="Delegates.cs" />
-    <Compile Include="IAnchorableTool.cs" />
-    <Compile Include="Layers.cs" />
-    <Compile Include="IMap.cs" />
-    <Compile Include="IMapObject.cs" />
-    <Compile Include="Projections.cs" />
-    <Compile Include="Plugins.cs" />
+    <Compile Include="AMercatorFormulae.cs" />
+    <Compile Include="MercatorProjection.cs" />
+    <Compile Include="SphericalMercator.cs" />
+    <Compile Include="EllipsoidMercator.cs" />
+    <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CartaMeiCommon\CartaMeiCommon.csproj">
+      <Project>{38948164-d77c-43ed-a3a0-100de6d38514}</Project>
+      <Name>CartaMeiCommon</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -6,6 +6,9 @@ using System.Windows;
 
 namespace CartaMei.Common
 {
+    /// <summary>
+    /// Describes what a plugin shall provide.
+    /// </summary>
     public interface IPlugin
     {
         #region Properties
@@ -21,25 +24,109 @@ namespace CartaMei.Common
         IEnumerable<IButtonModel> Toolbar { get; }
 
         /// <summary>
-        /// Gets the type of layers this plugin provides.
-        /// </summary>
-        IEnumerable<ILayer> LayerProviders { get; }
-
-        /// <summary>
         /// Gets the map projections this plugin provides.
         /// </summary>
-        IEnumerable<IProjection> ProjectionProviders { get; }
+        IEnumerable<PluginItemProvider<IProjection>> ProjectionProviders { get; }
 
         /// <summary>
-        /// Gets a list of anchorable tools.
+        /// Gets the datums this plugin provides.
         /// </summary>
-        IDictionary<IAnchorableTool, DataTemplate> AnchorableTools { get; }
+        IEnumerable<Datum> Datums { get; }
 
         /// <summary>
         /// Gets an object that shows and can change the plugin's settings.
         /// </summary>
         object Settings { get; }
         
+        #endregion
+    }
+
+    /// <summary>
+    /// Describes what a plugin that has graphical capabilities shall provide.
+    /// </summary>
+    public interface IGraphicalPlugin : IPlugin
+    {
+        #region Properties
+
+        /// <summary>
+        /// Gets the type of layers this plugin provides.
+        /// </summary>
+        IEnumerable<PluginItemProvider<ILayer>> LayerProviders { get; }
+
+        /// <summary>
+        /// Gets a list of anchorable tools.
+        /// </summary>
+        IDictionary<IAnchorableTool, DataTemplate> AnchorableTools { get; }
+
+        #endregion
+    }
+
+    public abstract class PluginBase : IPlugin
+    {
+        #region IPlugin
+
+        /// <summary>
+        /// Gets the menu buttons this plugin provides.
+        /// </summary>
+        /// <remarks>Returns always <c>null</c>.</remarks>
+        public virtual PluginMenu Menu { get { return null; } }
+
+        /// <summary>
+        /// Gets the toolbar buttons this plugin provides.
+        /// </summary>
+        /// <remarks>Returns always <c>null</c>.</remarks>
+        public virtual IEnumerable<IButtonModel> Toolbar { get { return null; } }
+
+        /// <summary>
+        /// Gets the map projections this plugin provides.
+        /// </summary>
+        /// <remarks>Returns always <c>null</c>.</remarks>
+        public virtual IEnumerable<PluginItemProvider<IProjection>> ProjectionProviders { get { return null; } }
+
+        /// <summary>
+        /// Gets the datums this plugin provides.
+        /// </summary>
+        /// <remarks>Returns always <c>null</c>.</remarks>
+        public virtual IEnumerable<Datum> Datums { get { return null; } }
+        
+        /// <summary>
+        /// Gets an object that shows and can change the plugin's settings.
+        /// </summary>
+        /// <remarks>Returns always <c>null</c>.</remarks>
+        public virtual object Settings { get { return null; } }
+
+        #endregion
+    }
+
+    public abstract class GraphicalPluginBase : PluginBase, IGraphicalPlugin
+    {
+        #region IGraphicalPlugin
+
+        /// <summary>
+        /// Gets the type of layers this plugin provides.
+        /// </summary>
+        /// <remarks>Returns always <c>null</c>.</remarks>
+        public virtual IEnumerable<PluginItemProvider<ILayer>> LayerProviders { get { return null; } }
+
+        /// <summary>
+        /// Gets a list of anchorable tools.
+        /// </summary>
+        /// <remarks>Returns always <c>null</c>.</remarks>
+        public virtual IDictionary<IAnchorableTool, DataTemplate> AnchorableTools { get { return null; } }
+
+        #endregion
+    }
+
+    public class PluginItemProvider<T>
+    {
+        #region Properties
+
+        public virtual string Name { get; set; }
+
+        public virtual string Description { get; set; }
+
+        public virtual Func<T> Creator { get; set; }
+
         #endregion
     }
 

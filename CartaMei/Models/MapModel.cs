@@ -99,10 +99,24 @@ namespace CartaMei.Models
                 }
             }
         }
-        
+
         #endregion
 
         #region Map
+
+        private Datum _datum;
+        public Datum Datum
+        {
+            get { return _datum; }
+            set
+            {
+                if (_datum != value)
+                {
+                    _datum = value;
+                    onPropetyChanged();
+                }
+            }
+        }
 
         private IProjection _projection;
         public IProjection Projection
@@ -131,6 +145,20 @@ namespace CartaMei.Models
                         olayer = new ObservableCollection<ILayer>(value);
                     }
                     this.OLayers = olayer;
+                }
+            }
+        }
+
+        private LatLonBoundaries _boundaries;
+        public LatLonBoundaries Boundaries
+        {
+            get { return _boundaries; }
+            set
+            {
+                if (_boundaries != value)
+                {
+                    _boundaries = value;
+                    onPropetyChanged();
                 }
             }
         }

@@ -9,11 +9,17 @@ using System.Windows;
 namespace CartaMei.MainPlugin
 {
     [Plugin(Name = "Main Plugin", Description = "Provides basic tools and the main menus.", License = "MIT")]
-    public class MainPlugin : IPlugin
+    public class MainPlugin : GraphicalPluginBase
     {
-        #region IPlugin
+        #region Constants
 
-        public PluginMenu Menu
+        private static readonly Datum[] _datums = new Datum[] { Datum.WGS84 };
+
+        #endregion
+
+        #region GraphicalPluginBase
+
+        public override PluginMenu Menu
         {
             get
             {
@@ -25,7 +31,7 @@ namespace CartaMei.MainPlugin
             }
         }
 
-        public IEnumerable<IButtonModel> Toolbar
+        public override IEnumerable<IButtonModel> Toolbar
         {
             get
             {
@@ -33,23 +39,9 @@ namespace CartaMei.MainPlugin
             }
         }
 
-        public IEnumerable<ILayer> LayerProviders
-        {
-            get
-            {
-                return null;// TODO: background layer
-            }
-        }
+        public override IEnumerable<Datum> Datums { get { return _datums; } }
 
-        public IEnumerable<IProjection> ProjectionProviders
-        {
-            get
-            {
-                return null;// TODO: identity projection
-            }
-        }
-
-        public IDictionary<IAnchorableTool, DataTemplate> AnchorableTools
+        public override IDictionary<IAnchorableTool, DataTemplate> AnchorableTools
         {
             get
             {
@@ -57,7 +49,7 @@ namespace CartaMei.MainPlugin
             }
         }
 
-        public object Settings
+        public override object Settings
         {
             get { return MainPluginSettings.Instance; }
         }

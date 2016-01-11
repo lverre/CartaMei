@@ -65,9 +65,9 @@ namespace CartaMei
 
         public IList<Tuple<string, IEnumerable<IButtonModel>>> Toolbar { get; private set; }
 
-        public IEnumerable<ILayer> LayerProviders { get; private set; }
+        public IEnumerable<PluginItemProvider<ILayer>> LayerProviders { get; private set; }
 
-        public IEnumerable<IProjection> ProjectionProviders { get; private set; }
+        public IEnumerable<PluginItemProvider<IProjection>> ProjectionProviders { get; private set; }
 
         public IDictionary<IAnchorableTool, DataTemplate> AnchorableTools { get; private set; }
 
@@ -86,8 +86,8 @@ namespace CartaMei
             IButtonModel toolsMenu = null;
             var toolPluginMenus = new List<IButtonModel>();
             var toolbar = new List<Tuple<string, IEnumerable<IButtonModel>>>();
-            var layerProviders = new List<ILayer>();
-            var projectionProviders = new List<IProjection>();
+            var layerProviders = new List<PluginItemProvider<ILayer>>();
+            var projectionProviders = new List<PluginItemProvider<IProjection>>();
             var anchorableTools = new Dictionary<IAnchorableTool, DataTemplate>();
             var pluginsSettings = new Dictionary<IPlugin, object>();
 
@@ -128,31 +128,35 @@ namespace CartaMei
                     toolbar.Add(new Tuple<string, IEnumerable<IButtonModel>>(metadata.Name, plugin.Toolbar));
                 }
 
-                var pLayerProviders = plugin.LayerProviders;
-                if (pLayerProviders != null && pLayerProviders.Any())
-                {
-                    layerProviders.AddRange(pLayerProviders);
-                }
-
                 var pProjectionProviders = plugin.ProjectionProviders;
                 if (pProjectionProviders != null && pProjectionProviders.Any())
                 {
                     projectionProviders.AddRange(pProjectionProviders);
                 }
 
-                var pAnchorableTools = plugin.AnchorableTools;
-                if (pAnchorableTools != null && pAnchorableTools.Any())
-                {
-                    foreach (var tool in pAnchorableTools)
-                    {
-                        anchorableTools[tool.Key] = tool.Value;
-                    }
-                }
-
                 var pSettings = plugin.Settings;
                 if (pSettings != null)
                 {
                     pluginsSettings.Add(plugin, pSettings);
+                }
+
+                var gPlugin = plugin as IGraphicalPlugin;
+                if (gPlugin != null)
+                {
+                    var pLayerProviders = gPlugin.LayerProviders;
+                    if (pLayerProviders != null && pLayerProviders.Any())
+                    {
+                        layerProviders.AddRange(pLayerProviders);
+                    }
+
+                    var pAnchorableTools = gPlugin.AnchorableTools;
+                    if (pAnchorableTools != null && pAnchorableTools.Any())
+                    {
+                        foreach (var tool in pAnchorableTools)
+                        {
+                            anchorableTools[tool.Key] = tool.Value;
+                        }
+                    }
                 }
             }
 

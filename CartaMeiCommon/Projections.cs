@@ -12,11 +12,15 @@ namespace CartaMei.Common
 
         string Name { get; }
 
+        IMap Map { get; set; }
+        
         #endregion
 
         #region Functions
 
-        double GetPixelCoordinates(double lat, double lon);
+        Coordinates2D LatLonToPixel(Coordinates2D latLonCoordinates);
+
+        Coordinates2D PixelToLatLon(Coordinates2D pixelCoordinates);
 
         // TODO: we probably need a function to draw a line as well (the line gets distorted with the projection)
 

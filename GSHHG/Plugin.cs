@@ -10,15 +10,11 @@ using System.Windows;
 namespace CartaMei.GSHHG
 {
     [Plugin(License = "MIT")]
-    public class GSHHGPlugin : IPlugin
+    public class GSHHGPlugin : GraphicalPluginBase
     {
         #region IPlugin
         
-        public PluginMenu Menu { get { return null; } }
-
-        public IEnumerable<IButtonModel> Toolbar { get { return null; } }
-
-        public IEnumerable<ILayer> LayerProviders
+        public override IEnumerable<PluginItemProvider<ILayer>> LayerProviders
         {
             get
             {
@@ -27,14 +23,7 @@ namespace CartaMei.GSHHG
             }
         }
 
-        public IEnumerable<IProjection> ProjectionProviders { get { return null; } }
-
-        public IDictionary<IAnchorableTool, DataTemplate> AnchorableTools { get { return null; } }
-
-        public object Settings
-        {
-            get { return PluginSettings.Instance; }
-        }
+        public override object Settings { get { return PluginSettings.Instance; } }
 
         #endregion
     }

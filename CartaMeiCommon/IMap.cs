@@ -24,9 +24,13 @@ namespace CartaMei.Common
 
         #region Map
 
+        Datum Datum { get; set; }
+
         IProjection Projection { get; set; }
 
         ICollection<ILayer> Layers { get; set; }
+
+        LatLonBoundaries Boundaries { get; set; }
 
         #endregion
 
