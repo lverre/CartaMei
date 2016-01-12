@@ -8,9 +8,25 @@ namespace CartaMei.Common
 {
     public static class Current
     {
+        #region Map
+
+        private static IMap _map;
+
         public static IMap Map
         {
-            get { return null; }
+            get { return _map; }
+            set
+            {
+                if (_map != value)
+                {
+                    _map = value;
+                    Current.MapChanged?.Invoke(null, null);
+                }
+            }
         }
+
+        public static event EventHandler MapChanged;
+
+        #endregion
     }
 }

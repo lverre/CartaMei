@@ -35,7 +35,7 @@ namespace CartaMei.MainPlugin
         {
             get
             {
-                return new IButtonModel[] { Buttons.NewMap, Buttons.OpenMap, Buttons.SaveMap, new ButtonModel() { IsSeparator = true }, Buttons.Options };
+                return new IButtonModel[] { Buttons.NewMapTool, Buttons.OpenMapTool, Buttons.SaveMapTool, new ButtonModel() { IsSeparator = true }, Buttons.OptionsTool };
             }
         }
 

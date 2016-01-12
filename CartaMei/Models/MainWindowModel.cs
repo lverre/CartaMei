@@ -14,8 +14,8 @@ namespace CartaMei.Models
     {
         #region Properties
 
-        private IEnumerable<ButtonModel> _menu;
-        public IEnumerable<ButtonModel> Menu
+        private IEnumerable<IButtonModel> _menu;
+        public IEnumerable<IButtonModel> Menu
         {
             get { return _menu; }
             set
@@ -28,8 +28,8 @@ namespace CartaMei.Models
             }
         }
 
-        private IEnumerable<ButtonModel> _tools;
-        public IEnumerable<ButtonModel> Tools
+        private IEnumerable<IButtonModel> _tools;
+        public IEnumerable<IButtonModel> Tools
         {
             get { return _tools; }
             set
@@ -42,8 +42,8 @@ namespace CartaMei.Models
             }
         }
 
-        private MapModel _document;
-        public MapModel Document
+        private IMap _document;
+        public IMap Document
         {
             get { return _document; }
             set
@@ -56,7 +56,7 @@ namespace CartaMei.Models
                 }
             }
         }
-        public IEnumerable<MapModel> Documents { get { return new MapModel[] { this.Document }; } }
+        public IEnumerable<IMap> Documents { get { return new IMap[] { this.Document }; } }
 
         private ObservableCollection<IToolPanelModel> _anchorables;
         public ObservableCollection<IToolPanelModel> Anchorables

@@ -202,4 +202,79 @@ namespace CartaMei.Models
 
         #endregion
     }
+
+    public class NewMapModel : NotifyPropertyChangedBase
+    {
+        #region Properties
+
+        private string _name;
+        public string Name
+        {
+            get { return _name; }
+            set
+            {
+                if (_name != value)
+                {
+                    _name = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private Datum _datum;
+        public Datum Datum
+        {
+            get { return _datum; }
+            set
+            {
+                if (_datum != value)
+                {
+                    _datum = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        public IEnumerable<Datum> Datums { get { return PluginManager.Instance.Datums; } }
+
+        private PluginItemProvider<IProjection> _projection;
+        public PluginItemProvider<IProjection> Projection
+        {
+            get { return _projection; }
+            set
+            {
+                if (_projection != value)
+                {
+                    _projection = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        public IEnumerable<PluginItemProvider<IProjection>> Projections { get { return PluginManager.Instance.ProjectionProviders; } }
+
+        #endregion
+
+        #region Functions
+
+        public MapModel CreateMap()
+        {
+            return new MapModel()
+            {
+                ActiveObject = null,
+                Author = Environment.UserName,
+                Boundaries = new LatLonBoundaries(-90, 90, -180, 180),
+                CreatedOn = DateTime.Now.ToShortDateString(),
+                Datum = this.Datum,
+                Description = null,
+                Layers = new List<ILayer>(),
+                License = null,
+                Name = this.Name,
+                Projection = this.Projection.Create(),
+                Version = "1.0"
+            };
+        }
+
+        #endregion
+    }
 }

@@ -125,7 +125,16 @@ namespace CartaMei.Common
 
         public virtual string Description { get; set; }
 
-        public virtual Func<T> Creator { get; set; }
+        public virtual Func<T> Create { get; set; }
+
+        #endregion
+
+        #region Object
+
+        public override string ToString()
+        {
+            return this.Name;
+        }
 
         #endregion
     }

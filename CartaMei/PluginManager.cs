@@ -69,6 +69,8 @@ namespace CartaMei
 
         public IEnumerable<PluginItemProvider<IProjection>> ProjectionProviders { get; private set; }
 
+        public IEnumerable<Datum> Datums { get; private set; }
+
         public IDictionary<IAnchorableTool, DataTemplate> AnchorableTools { get; private set; }
 
         public IDictionary<IPlugin, object> PluginsSettings { get; private set; }
@@ -88,6 +90,7 @@ namespace CartaMei
             var toolbar = new List<Tuple<string, IEnumerable<IButtonModel>>>();
             var layerProviders = new List<PluginItemProvider<ILayer>>();
             var projectionProviders = new List<PluginItemProvider<IProjection>>();
+            var datums = new List<Datum>();
             var anchorableTools = new Dictionary<IAnchorableTool, DataTemplate>();
             var pluginsSettings = new Dictionary<IPlugin, object>();
 
@@ -132,6 +135,12 @@ namespace CartaMei
                 if (pProjectionProviders != null && pProjectionProviders.Any())
                 {
                     projectionProviders.AddRange(pProjectionProviders);
+                }
+
+                var pDatums = plugin.Datums;
+                if (pDatums != null && pDatums.Any())
+                {
+                    datums.AddRange(pDatums);
                 }
 
                 var pSettings = plugin.Settings;
@@ -181,6 +190,7 @@ namespace CartaMei
             this.Toolbar = toolbar;
             this.LayerProviders = layerProviders;
             this.ProjectionProviders = projectionProviders;
+            this.Datums = datums;
             this.AnchorableTools = anchorableTools;
             this.PluginsSettings = pluginsSettings;
         }

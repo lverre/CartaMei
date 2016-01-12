@@ -10,7 +10,7 @@ namespace CartaMei.Common
     {
         #region Constants
 
-        public static readonly Datum WGS84 = new Datum("GS84", 6378137, 298.257223563);
+        public static readonly Datum WGS84 = new Datum("WGS84", 6378137, 298.257223563);
 
         #endregion
         
@@ -79,6 +79,11 @@ namespace CartaMei.Common
         #endregion
 
         #region Object, Operators
+
+        public override string ToString()
+        {
+            return this.Name;
+        }
 
         public override bool Equals(object obj)
         {

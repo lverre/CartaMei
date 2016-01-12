@@ -9,66 +9,156 @@ namespace CartaMei.MainPlugin
 {
     internal static class Buttons
     {
-        #region Main Menus
+        #region Static Constructor
 
-        internal static readonly ButtonModel File = new ButtonModel()
+        static Buttons()
         {
-            Name = "_File",
-            Children = new System.Collections.ObjectModel.ObservableCollection<IButtonModel>()
+            NewMap = new ButtonModel()
             {
-                NewMap,
-                OpenMap,
-                SaveMap
-            }
-        };
-
-        internal static readonly ButtonModel Edit = new ButtonModel()
-        {
-            Name = "_Edit"
-        };
-
-        internal static readonly ButtonModel View = new ButtonModel()
-        {
-            Name = "_View"
-        };
-
-        internal static readonly ButtonModel Tools = new ButtonModel()
-        {
-            Name = "_Tools",
-            Children = new System.Collections.ObjectModel.ObservableCollection<IButtonModel>()
+                Name = "_New Map",
+                IsEnabled = true
+            };
+            NewMap.Click += onNewMap;
+            NewMapTool = new ButtonModel()
             {
-                Options
-            }
-        };
+                Name = "New Map",
+                IsEnabled = true
+            };
+            NewMapTool.Click += onNewMap;
 
-        internal static readonly ButtonModel Help = new ButtonModel()
-        {
-            Name = "_Help"
-        };
+            OpenMap = new ButtonModel()
+            {
+                Name = "_Open Map",
+                IsEnabled = true
+            };
+            OpenMap.Click += onOpenMap;
+            OpenMapTool = new ButtonModel()
+            {
+                Name = "Open Map",
+                IsEnabled = true
+            };
+            OpenMapTool.Click += onOpenMap;
+
+            SaveMap = new ButtonModel()
+            {
+                Name = "_Save Map",
+                IsEnabled = isSaveEnabled()
+            };
+            SaveMap.Click += onSaveMap;
+            SaveMapTool = new ButtonModel()
+            {
+                Name = "Save Map",
+                IsEnabled = isSaveEnabled()
+            };
+            SaveMapTool.Click += onSaveMap;
+            Current.MapChanged += delegate (object sender, EventArgs e)
+            {
+                SaveMap.IsEnabled = isSaveEnabled();
+                SaveMapTool.IsEnabled = isSaveEnabled();
+            };
+
+            Options = new ButtonModel()
+            {
+                Name = "_Options",
+                IsEnabled = true
+            };
+            Options.Click += onOptions;
+            OptionsTool = new ButtonModel()
+            {
+                Name = "Options",
+                IsEnabled = true
+            };
+            OptionsTool.Click += onOptions;
+
+            File = new ButtonModel()
+            {
+                Name = "_File",
+                IsEnabled = true,
+                Children = new System.Collections.ObjectModel.ObservableCollection<IButtonModel>()
+                {
+                    NewMap,
+                    OpenMap,
+                    SaveMap
+                }
+            };
+
+            Edit = new ButtonModel()
+            {
+                Name = "_Edit",
+                IsEnabled = true
+            };
+
+            View = new ButtonModel()
+            {
+                Name = "_View",
+                IsEnabled = true
+            };
+
+            Tools = new ButtonModel()
+            {
+                Name = "_Tools",
+                IsEnabled = true,
+                Children = new System.Collections.ObjectModel.ObservableCollection<IButtonModel>()
+                {
+                    Options
+                }
+            };
+
+            Help = new ButtonModel()
+            {
+                Name = "_Help",
+                IsEnabled = true
+            };
+        }
+
+        #endregion
+
+        #region Menus
+
+        internal static readonly ButtonModel NewMap;
+        internal static readonly ButtonModel OpenMap;
+        internal static readonly ButtonModel SaveMap;
+        internal static readonly ButtonModel Options;
+
+        internal static readonly ButtonModel File;
+        internal static readonly ButtonModel Edit;
+        internal static readonly ButtonModel View;
+        internal static readonly ButtonModel Tools;
+        internal static readonly ButtonModel Help;
+
+        #endregion
+
+        #region Toolbar
+
+        internal static readonly ButtonModel NewMapTool;
+        internal static readonly ButtonModel OpenMapTool;
+        internal static readonly ButtonModel SaveMapTool;
+        internal static readonly ButtonModel OptionsTool;
 
         #endregion
 
         #region Tools
 
-        internal static readonly ButtonModel NewMap = new ButtonModel()
+        private static void onNewMap(object sender, EventArgs args)
         {
-            Name = "_New Map"
-        };
+        }
 
-        internal static readonly ButtonModel OpenMap = new ButtonModel()
+        private static void onOpenMap(object sender, EventArgs args)
         {
-            Name = "_Open Map"
-        };
+        }
 
-        internal static readonly ButtonModel SaveMap = new ButtonModel()
+        private static void onSaveMap(object sender, EventArgs args)
         {
-            Name = "_Save Map"
-        };
+        }
 
-        internal static readonly ButtonModel Options = new ButtonModel()
+        private static void onOptions(object sender, EventArgs args)
         {
-            Name = "_Options"
-        };
+        }
+
+        private static bool? isSaveEnabled()
+        {
+            return Current.Map != null;
+        }
 
         #endregion
     }

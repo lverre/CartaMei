@@ -43,6 +43,7 @@ namespace CartaMei
             this.DataContext = _model;
 
             PluginManager.Instance.Reload();
+            rebuildModel();
         }
 
         #endregion
@@ -59,38 +60,22 @@ namespace CartaMei
 
         private void rebuildMenu()
         {
-            _model.Menu = new ButtonModel[]
-            {
-                new ButtonModel()
-                {
-                    Name = "_File",
-                    IsEnabled = true,
-                    Children = new System.Collections.ObjectModel.ObservableCollection<IButtonModel>()
-                    {
-                        new ButtonModel() { Name = "New", IsEnabled = true },
-                        new ButtonModel() { Name = "Open", IsEnabled = false },
-                        new ButtonModel() { Name = "Save", IsEnabled = true },
-                        new ButtonModel() { IsSeparator = true },
-                        new ButtonModel() { Name = "New Layer", IsEnabled = true }
-                    }
-                },
-                new ButtonModel() { Name = "_Edit", IsEnabled = true },
-                new ButtonModel() { Name = "_View", IsEnabled = true },
-                new ButtonModel() { Name = "_Tools", IsEnabled = true },
-                new ButtonModel() { Name = "_Help", IsEnabled = true }
-            };
+            _model.Menu = PluginManager.Instance.Menus;
         }
 
         private void rebuildToolbar()
         {
-            _model.Tools = new ButtonModel[]
+            var tools = new List<IButtonModel>();
+            if (PluginManager.Instance.Toolbar != null)
             {
-                new ButtonModel() { Name = "New", IsEnabled = true },
-                new ButtonModel() { Name = "Open", IsEnabled = false },
-                new ButtonModel() { Name = "Save", IsEnabled = true },
-                new ButtonModel() { IsSeparator = true },
-                new ButtonModel() { Name = "New Layer", IsEnabled = true }
-            };
+                var isFirst = true;
+                foreach (var item in PluginManager.Instance.Toolbar)
+                {
+                    tools.AddRange(item.Item2);
+                    if (!isFirst) tools.Add(new ButtonModel() { IsSeparator = true });
+                }
+            }
+            _model.Tools = tools;
         }
 
         private void rebuildDocument()
