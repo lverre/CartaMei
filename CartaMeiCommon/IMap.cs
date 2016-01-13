@@ -34,9 +34,11 @@ namespace CartaMei.Common
 
         #endregion
 
-        #region Misc
+        #region File
 
         string FileName { get; set; }
+
+        bool IsDirty { get; set; }
 
         #endregion
 

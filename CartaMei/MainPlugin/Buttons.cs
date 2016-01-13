@@ -1,5 +1,7 @@
 ﻿using CartaMei.Common;
+using CartaMei.Models;
 using CartaMei.Tools;
+using CartaMei.Dialogs;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -7,6 +9,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.ComponentModel;
+using System.Windows;
 
 namespace CartaMei.MainPlugin
 {
@@ -54,28 +58,37 @@ namespace CartaMei.MainPlugin
             SaveMap = new ButtonModel()
             {
                 Name = "Save Map",
-                IsEnabled = isSaveEnabled(),
                 Shortcut = new KeyGesture(Key.S, ModifierKeys.Control)
             };
             SaveMap.Click += onSaveMap;
             SaveMapTool = new ButtonModel()
             {
-                Name = "Save Map",
-                IsEnabled = isSaveEnabled()
+                Name = "Save Map"
             };
             SaveMapTool.Click += onSaveMap;
-            Current.MapChanged += delegate (object sender, EventArgs e)
-            {
-                SaveMap.IsEnabled = isSaveEnabled();
-                SaveMapTool.IsEnabled = isSaveEnabled();
-            };
 
             SaveMapAs = new ButtonModel()
             {
-                Name = "Save Map As",
-                IsEnabled = isSaveEnabled()
+                Name = "Save Map As"
             };
             SaveMapAs.Click += onSaveMapAs;
+
+            Current.MapChanged += delegate (object sender, EventArgs e)
+            {
+                var map = Current.Map as INotifyPropertyChanged;
+                if (map != null)
+                {
+                    map.PropertyChanged += delegate(object sender2, PropertyChangedEventArgs e2)
+                    {
+                        if (e2.PropertyName == nameof(IMap.IsDirty))
+                        {
+                            updateSaveEnabled();
+                        }
+                    };
+                }
+                updateSaveEnabled();
+            };
+            updateSaveEnabled();
 
             Options = new ButtonModel()
             {
@@ -131,7 +144,7 @@ namespace CartaMei.MainPlugin
                 IsEnabled = true
             };
         }
-
+        
         #endregion
 
         #region Menus
@@ -161,15 +174,51 @@ namespace CartaMei.MainPlugin
 
         #region Tools
 
+        private static bool saveDirty()
+        {
+            if (Current.Map?.IsDirty == true)
+            {
+                var result = MessageBox.Show("The current map has been modified since it was last changed. If you continue, you will lose your changes.\nDo you wish to save it?", "Unsaved Map", MessageBoxButton.YesNoCancel, MessageBoxImage.Exclamation);
+                switch (result)
+                {
+                    case MessageBoxResult.Cancel:
+                    case MessageBoxResult.None:
+                    default:
+                        return false;
+                    case MessageBoxResult.No:
+                        return true;
+                    case MessageBoxResult.Yes:
+                    case MessageBoxResult.OK:
+                        onSaveMap(null, null);
+                        return true;
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+
         private static void onNewMap(object sender, EventArgs args)
         {
-            System.Windows.Window dialog = null;// TODO
-            dialog.Owner = Utils.MainWindow;
-            dialog.ShowDialog();
+            if (!saveDirty()) return;
+
+            var model = new NewMapModel();
+            var dialog = new NewMap()
+            {
+                Owner = Utils.MainWindow,
+                DataContext = model
+            };
+            if (dialog.ShowDialog() == true)
+            {
+                Utils.Current.SetMap(model.CreateMap());
+            }
         }
 
         private static void onOpenMap(object sender, EventArgs args)
         {
+            if (!saveDirty()) return;
+
             var openDialog = new OpenFileDialog()
             {
                 AddExtension = true,
@@ -219,13 +268,17 @@ namespace CartaMei.MainPlugin
             }
         }
 
-        private static void onOptions(object sender, EventArgs args)
+        private static void updateSaveEnabled()
         {
+            var map = Current.Map;
+            var isSaveEnabled = map != null && (map.IsDirty || map.FileName == null);
+            SaveMap.IsEnabled = isSaveEnabled;
+            SaveMapTool.IsEnabled = isSaveEnabled;
+            SaveMapAs.IsEnabled = isSaveEnabled;
         }
 
-        private static bool? isSaveEnabled()
+        private static void onOptions(object sender, EventArgs args)
         {
-            return Current.Map != null;
         }
 
         #endregion

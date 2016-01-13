@@ -165,7 +165,7 @@ namespace CartaMei.Models
 
         #endregion
 
-        #region Misc
+        #region File
 
         private string _fileName;
         public string FileName
@@ -176,6 +176,20 @@ namespace CartaMei.Models
                 if (_fileName != value)
                 {
                     _fileName = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private bool _isDirty;
+        public bool IsDirty
+        {
+            get { return _isDirty; }
+            set
+            {
+                if (_isDirty != value)
+                {
+                    _isDirty = value;
                     onPropetyChanged();
                 }
             }
@@ -223,6 +237,17 @@ namespace CartaMei.Models
 
     public class NewMapModel : NotifyPropertyChangedBase
     {
+        #region Constructor
+
+        public NewMapModel()
+        {
+            this.Name = null;
+            this.Projection = this.ProjectionList.FirstOrDefault();
+            this.Datum = this.DatumList.FirstOrDefault();
+        }
+
+        #endregion
+
         #region Properties
 
         private string _name;
@@ -253,7 +278,7 @@ namespace CartaMei.Models
             }
         }
 
-        public IEnumerable<Datum> Datums { get { return PluginManager.Instance.Datums; } }
+        public IEnumerable<Datum> DatumList { get { return PluginManager.Instance.Datums; } }
 
         private PluginItemProvider<IProjection> _projection;
         public PluginItemProvider<IProjection> Projection
@@ -269,7 +294,7 @@ namespace CartaMei.Models
             }
         }
 
-        public IEnumerable<PluginItemProvider<IProjection>> Projections { get { return PluginManager.Instance.ProjectionProviders; } }
+        public IEnumerable<PluginItemProvider<IProjection>> ProjectionList { get { return PluginManager.Instance.ProjectionProviders; } }
 
         #endregion
 

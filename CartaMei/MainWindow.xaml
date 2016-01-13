@@ -11,7 +11,7 @@
         xmlns:lm="clr-namespace:CartaMei.Models"
         xmlns:lc="clr-namespace:CartaMei.Common;assembly=CartaMeiCommon"
         mc:Ignorable="d"
-        Title="Carta Mei">
+        Title="{Binding Title}">
     <Grid>
 
         <Grid.Resources>

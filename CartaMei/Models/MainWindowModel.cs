@@ -12,7 +12,47 @@ namespace CartaMei.Models
 {
     public class MainWindowModel : NotifyPropertyChangedBase
     {
+        #region Constructor
+
+        public MainWindowModel()
+        {
+            Current.MapChanged += delegate (object sender, EventArgs e)
+            {
+                this.Document = Current.Map;
+
+                var map = Current.Map as INotifyPropertyChanged;
+                if (map != null)
+                {
+                    map.PropertyChanged += delegate (object sender2, PropertyChangedEventArgs e2)
+                    {
+                        if (e2.PropertyName == nameof(IMap.IsDirty))
+                        {
+                            updateTitle();
+                        }
+                    };
+                }
+                updateTitle();
+            };
+            updateTitle();
+        }
+
+        #endregion
+
         #region Properties
+
+        private string _title;
+        public string Title
+        {
+            get { return _title; }
+            set
+            {
+                if (_title != value)
+                {
+                    _title = value;
+                    onPropetyChanged();
+                }
+            }
+        }
 
         private IEnumerable<IButtonModel> _menu;
         public IEnumerable<IButtonModel> Menu
@@ -70,6 +110,24 @@ namespace CartaMei.Models
                     onPropetyChanged();
                 }
             }
+        }
+
+        #endregion
+
+        #region Tools
+
+        private void updateTitle()
+        {
+            var title = "Carta Mei";
+            if (this.Document != null)
+            {
+                title += " - " + this.Document.Name;
+                if (this.Document.IsDirty)
+                {
+                    title += "*";
+                }
+            }
+            this.Title = title;
         }
 
         #endregion

@@ -55,7 +55,6 @@ namespace CartaMei
         {
             rebuildMenu();
             rebuildToolbar();
-            rebuildDocument();
             rebuildAnchorables();
         }
 
@@ -96,22 +95,7 @@ namespace CartaMei
             }
             _model.Tools = tools;
         }
-
-        private void rebuildDocument()
-        {
-            _map = new MapModel()
-            {
-                Name = "My Map",
-                OLayers = new System.Collections.ObjectModel.ObservableCollection<ILayer>()
-                {
-                    // TODO: test with two background layers
-                }
-            };
-            _map.ActiveObject = _map;
-            _model.Document = _map;
-
-        }
-
+        
         private void rebuildAnchorables()
         {
             _layers = new LayersPanelModel() { Map = _map };
