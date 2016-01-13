@@ -35,13 +35,14 @@ namespace CartaMei
 
         public MainWindow()
         {
+            Tools.Utils.Touch();// We need to do that before any plugin is loaded so we "own" Current.
+            Tools.Utils.MainWindow = this;
+
             _model = new Models.MainWindowModel();
-            rebuildModel();
-
-            InitializeComponent();
-
             this.DataContext = _model;
 
+            this.InitializeComponent();
+            
             PluginManager.Instance.Reload();
             rebuildModel();
         }
@@ -61,6 +62,24 @@ namespace CartaMei
         private void rebuildMenu()
         {
             _model.Menu = PluginManager.Instance.Menus;
+            this.InputBindings.Clear();
+            addInputBindings(_model.Menu);
+        }
+
+        private void addInputBindings(IEnumerable<IButtonModel> items)
+        {
+            if (items != null)
+            {
+                foreach (var item in items)
+                {
+                    var shortcut = item.Shortcut;
+                    if (shortcut != null)
+                    {
+                        this.InputBindings.Add(new InputBinding(item, shortcut));
+                    }
+                    addInputBindings(item.Children);
+                }
+            }
         }
 
         private void rebuildToolbar()

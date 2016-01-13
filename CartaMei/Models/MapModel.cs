@@ -165,6 +165,24 @@ namespace CartaMei.Models
 
         #endregion
 
+        #region Misc
+
+        private string _fileName;
+        public string FileName
+        {
+            get { return _fileName; }
+            set
+            {
+                if (_fileName != value)
+                {
+                    _fileName = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #endregion

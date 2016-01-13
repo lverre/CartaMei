@@ -89,6 +89,7 @@
     <Compile Include="Models\MapModel.cs" />
     <Compile Include="PluginManager.cs" />
     <Compile Include="MainPlugin\MainPlugin.cs" />
+    <Compile Include="Tools\Tools.cs" />
     <Compile Include="Tools\Extensions.cs" />
     <Compile Include="WPF\ItemTemplateSelector.cs" />
     <Page Include="MainWindow.xaml">

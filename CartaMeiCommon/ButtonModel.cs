@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,6 +33,8 @@ namespace CartaMei.Common
 
         bool IsSeparator { get; }
         
+        InputGesture Shortcut { get; }
+
         #endregion
 
         #region Events
@@ -213,7 +216,26 @@ namespace CartaMei.Common
                 }
             }
         }
-        
+
+        private InputGesture _shortcut;
+        public InputGesture Shortcut
+        {
+            get { return _shortcut; }
+            set
+            {
+                if (_shortcut != value)
+                {
+                    _shortcut = value;
+                    onPropetyChanged();
+                    onPropetyChanged("ShortcutText");
+                }
+            }
+        }
+        public string ShortcutText
+        {
+            get { return (this.Shortcut as KeyGesture)?.GetDisplayStringForCulture(CultureInfo.CurrentUICulture); }
+        }
+
         #endregion
 
         #region Events

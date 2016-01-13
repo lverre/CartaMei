@@ -49,6 +49,7 @@
                         <DataTrigger Binding="{Binding IsSeparator}" Value="False">
                             <Setter Property="MenuItem.Command" Value="{Binding}" />
                             <Setter Property="MenuItem.Header" Value="{Binding Name}" />
+                            <Setter Property="MenuItem.InputGestureText" Value="{Binding ShortcutText}" />
                             <Setter Property="MenuItem.ToolTip" Value="{Binding Description}" />
                             <Setter Property="MenuItem.Icon" Value="{Binding Path=Icon}" />
                             <Setter Property="MenuItem.IsCheckable" Value="{Binding Path=IsCheckable}" />

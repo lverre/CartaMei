@@ -1,22 +1,33 @@
 ﻿using CartaMei.Common;
+using CartaMei.Tools;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace CartaMei.MainPlugin
 {
     internal static class Buttons
     {
+        #region Constants
+
+        private const string MapExtension = "cmm";
+        private const string MapExtensionFilter = "CartaMei Maps (*.cmm)|*.cmm";
+
+        #endregion
+
         #region Static Constructor
 
         static Buttons()
         {
             NewMap = new ButtonModel()
             {
-                Name = "_New Map",
-                IsEnabled = true
+                Name = "New Map",
+                IsEnabled = true,
+                Shortcut = new KeyGesture(Key.N, ModifierKeys.Control)
             };
             NewMap.Click += onNewMap;
             NewMapTool = new ButtonModel()
@@ -28,8 +39,9 @@ namespace CartaMei.MainPlugin
 
             OpenMap = new ButtonModel()
             {
-                Name = "_Open Map",
-                IsEnabled = true
+                Name = "Open Map",
+                IsEnabled = true,
+                Shortcut = new KeyGesture(Key.O, ModifierKeys.Control)
             };
             OpenMap.Click += onOpenMap;
             OpenMapTool = new ButtonModel()
@@ -41,8 +53,9 @@ namespace CartaMei.MainPlugin
 
             SaveMap = new ButtonModel()
             {
-                Name = "_Save Map",
-                IsEnabled = isSaveEnabled()
+                Name = "Save Map",
+                IsEnabled = isSaveEnabled(),
+                Shortcut = new KeyGesture(Key.S, ModifierKeys.Control)
             };
             SaveMap.Click += onSaveMap;
             SaveMapTool = new ButtonModel()
@@ -57,9 +70,16 @@ namespace CartaMei.MainPlugin
                 SaveMapTool.IsEnabled = isSaveEnabled();
             };
 
+            SaveMapAs = new ButtonModel()
+            {
+                Name = "Save Map As",
+                IsEnabled = isSaveEnabled()
+            };
+            SaveMapAs.Click += onSaveMapAs;
+
             Options = new ButtonModel()
             {
-                Name = "_Options",
+                Name = "Options",
                 IsEnabled = true
             };
             Options.Click += onOptions;
@@ -78,7 +98,8 @@ namespace CartaMei.MainPlugin
                 {
                     NewMap,
                     OpenMap,
-                    SaveMap
+                    SaveMap,
+                    SaveMapAs
                 }
             };
 
@@ -118,6 +139,7 @@ namespace CartaMei.MainPlugin
         internal static readonly ButtonModel NewMap;
         internal static readonly ButtonModel OpenMap;
         internal static readonly ButtonModel SaveMap;
+        internal static readonly ButtonModel SaveMapAs;
         internal static readonly ButtonModel Options;
 
         internal static readonly ButtonModel File;
@@ -141,14 +163,60 @@ namespace CartaMei.MainPlugin
 
         private static void onNewMap(object sender, EventArgs args)
         {
+            System.Windows.Window dialog = null;// TODO
+            dialog.Owner = Utils.MainWindow;
+            dialog.ShowDialog();
         }
 
         private static void onOpenMap(object sender, EventArgs args)
         {
+            var openDialog = new OpenFileDialog()
+            {
+                AddExtension = true,
+                CheckFileExists = true,
+                DefaultExt = "*." + MapExtension,
+                Filter = MapExtensionFilter,
+                Multiselect = false,
+                RestoreDirectory = true,
+                Title = "Open CartaMei Map"
+            };
+            if (openDialog.ShowDialog() == true)
+            {
+                // TODO: open file
+            }
         }
 
         private static void onSaveMap(object sender, EventArgs args)
         {
+            if (System.IO.File.Exists(Current.Map.FileName))
+            {
+                // TODO: save file
+            }
+            else
+            {
+                onSaveMapAs(sender, args);
+            }
+        }
+
+        private static void onSaveMapAs(object sender, EventArgs args)
+        {
+            var saveDialog = new SaveFileDialog()
+            {
+                AddExtension = true,
+                CheckPathExists = true,
+                FileName = Current.Map.FileName ?? Current.Map.Name,
+                DefaultExt = "*." + MapExtension,
+                Filter = MapExtensionFilter,
+                OverwritePrompt = true,
+                RestoreDirectory = true,
+                Title = "Save CartaMei Map"
+            };
+            
+            if (saveDialog.ShowDialog() == true)
+            {
+                Current.Map.FileName = saveDialog.FileName;
+                onSaveMap(sender, args);
+            }
         }
 
         private static void onOptions(object sender, EventArgs args)

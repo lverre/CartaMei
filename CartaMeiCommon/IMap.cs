@@ -34,6 +34,12 @@ namespace CartaMei.Common
 
         #endregion
 
+        #region Misc
+
+        string FileName { get; set; }
+
+        #endregion
+
         #endregion
     }
 }

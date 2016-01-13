@@ -6,24 +6,42 @@ using System.Threading.Tasks;
 
 namespace CartaMei.Common
 {
-    public static class Current
+    public class Current
     {
-        #region Map
+        #region Owner
 
-        private static IMap _map;
+        private static Current _instance;
+        private Current() { }
 
-        public static IMap Map
+        public static Current Create()
         {
-            get { return _map; }
-            set
+            if (_instance == null)
             {
-                if (_map != value)
-                {
-                    _map = value;
-                    Current.MapChanged?.Invoke(null, null);
-                }
+                _instance = new Current();
+                return _instance;
+            }
+            else
+            {
+                return null;
             }
         }
+
+        #endregion
+
+        #region Map
+
+        private IMap _map;
+
+        public void SetMap(IMap value)
+        {
+            if (_map != value)
+            {
+                _map = value;
+                Current.MapChanged?.Invoke(null, null);
+            }
+        }
+
+        public static IMap Map { get { return _instance._map; } }
 
         public static event EventHandler MapChanged;
 
