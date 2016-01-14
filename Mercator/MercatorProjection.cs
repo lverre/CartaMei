@@ -91,7 +91,16 @@ namespace CartaMei.Mercator
             }
             _formulae.Projection = this;
         }
-        
+
+        #endregion
+
+        #region Object
+
+        public override string ToString()
+        {
+            return this.Name;
+        }
+
         #endregion
     }
 }

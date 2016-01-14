@@ -50,9 +50,11 @@
     <Compile Include="Datum.cs" />
     <Compile Include="Delegates.cs" />
     <Compile Include="IAnchorableTool.cs" />
+    <Compile Include="Interfaces.cs" />
     <Compile Include="Layers.cs" />
     <Compile Include="IMap.cs" />
     <Compile Include="IMapObject.cs" />
+    <Compile Include="NotifyPropertyChangedBase.cs" />
     <Compile Include="Projections.cs" />
     <Compile Include="Plugins.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

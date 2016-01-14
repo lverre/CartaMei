@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace CartaMei.MainPlugin
 {
@@ -41,11 +42,19 @@ namespace CartaMei.MainPlugin
 
         public override IEnumerable<Datum> Datums { get { return _datums; } }
 
-        public override IDictionary<IAnchorableTool, DataTemplate> AnchorableTools
+        public override IEnumerable<Tuple<IAnchorableTool, DataTemplate>> AnchorableTools
         {
             get
             {
-                return null;// TODO: layers, properties
+                yield return new Tuple<IAnchorableTool, DataTemplate>(new Models.LayersPanelModel(), new DataTemplate()
+                {
+                    VisualTree = new FrameworkElementFactory(typeof(Templates.LayersTemplate))
+                });
+                yield return new Tuple<IAnchorableTool, DataTemplate>(new Models.PropertiesPanelModel(), new DataTemplate()
+                {
+                    VisualTree = new FrameworkElementFactory(typeof(Templates.PropertiesTemplate))
+                });
+                yield break;
             }
         }
 

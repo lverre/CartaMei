@@ -1,4 +1,5 @@
 ﻿using CartaMei.Common;
+using CartaMei.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,5 +20,7 @@ namespace CartaMei.Tools
         internal static Current Current { get; private set; }
 
         internal static MainWindow MainWindow { get; set; }
+
+        internal static MainWindowModel MainWindowModel { get; set; }
     }
 }

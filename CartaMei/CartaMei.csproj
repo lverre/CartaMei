@@ -85,16 +85,22 @@
     <Compile Include="MainPlugin\MainPluginSettings.cs" />
     <Compile Include="Models\PropertiesPanelModel.cs" />
     <Compile Include="Models\LayersPanelModel.cs" />
-    <Compile Include="Models\IToolPanelModel.cs" />
     <Compile Include="Models\MapModel.cs" />
     <Compile Include="PluginManager.cs" />
     <Compile Include="MainPlugin\MainPlugin.cs" />
+    <Compile Include="Templates\LayersTemplate.xaml.cs">
+      <DependentUpon>LayersTemplate.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Templates\PropertiesTemplate.xaml.cs">
+      <DependentUpon>PropertiesTemplate.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Tools\Tools.cs" />
     <Compile Include="Tools\Extensions.cs" />
     <Compile Include="Dialogs\NewMap.xaml.cs">
       <DependentUpon>NewMap.xaml</DependentUpon>
     </Compile>
-    <Compile Include="WPF\ItemTemplateSelector.cs" />
+    <Compile Include="WPF\AvalonDockItemTemplateSelector.cs" />
+    <Compile Include="WPF\MenuItemTemplateSelector.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -111,10 +117,17 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Templates\LayersTemplate.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Templates\PropertiesTemplate.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\MainWindowModel.cs" />
-    <Compile Include="Models\NotifyPropertyChangedBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -151,6 +164,7 @@
       <Name>CartaMeiCommon</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace CartaMei.Common
 {
-    public interface IMap
+    public interface IMap : INotifyPropertyChanged
     {
         #region Properties
 
@@ -28,9 +30,11 @@ namespace CartaMei.Common
 
         IProjection Projection { get; set; }
 
-        ICollection<ILayer> Layers { get; set; }
+        ObservableCollection<ILayer> Layers { get; set; }
 
         LatLonBoundaries Boundaries { get; set; }
+
+        object ActiveObject { get; set; }
 
         #endregion
 

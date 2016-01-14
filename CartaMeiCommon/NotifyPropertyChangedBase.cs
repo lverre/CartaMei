@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace CartaMei.Models
+namespace CartaMei.Common
 {
     public class NotifyPropertyChangedBase : INotifyPropertyChanged
     {

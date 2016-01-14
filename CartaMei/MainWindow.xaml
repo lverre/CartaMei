@@ -12,28 +12,30 @@
         xmlns:lc="clr-namespace:CartaMei.Common;assembly=CartaMeiCommon"
         mc:Ignorable="d"
         Title="{Binding Title}">
-    <Grid>
 
-        <Grid.Resources>
+    <Window.Resources>
 
-            <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
+        <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
 
-            <DataTemplate x:Key="toolbarButtonTemplate" DataType="{x:Type lc:ButtonModel}">
-                <Button Command="{Binding}" 
+        <DataTemplate x:Key="toolbarButtonTemplate" DataType="{x:Type lc:ButtonModel}">
+            <Button Command="{Binding}" 
                         Content="{Binding Name}" 
                         ToolTip="{Binding Description}" 
                         IsEnabled="{Binding IsEnabled}"
                         Style="{DynamicResource ResourceKey={x:Static ToolBar.ButtonStyleKey}}" />
-            </DataTemplate>
-            <DataTemplate x:Key="toolbarSeparatorTemplate">
-                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
-            </DataTemplate>
-            <lwpf:ItemTemplateSelector x:Key="toolBarItemTemplateSelector"
+        </DataTemplate>
+        <DataTemplate x:Key="toolbarSeparatorTemplate">
+            <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+        </DataTemplate>
+        <lwpf:MenuItemTemplateSelector x:Key="toolBarItemTemplateSelector"
                                        ButtonTemplate="{StaticResource toolbarButtonTemplate}" 
                                        SeparatorTemplate="{StaticResource toolbarSeparatorTemplate}" />
 
-        </Grid.Resources>
-        
+        <lwpf:AvalonDockItemTemplateSelector x:Key="adTemplateSelector" />
+
+    </Window.Resources>
+
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -82,11 +84,12 @@
         <xcad:DockingManager Grid.Row="2"
                              DataContext="{Binding}"
                              DocumentsSource="{Binding Documents}"
-                             AnchorablesSource="{Binding Anchorables}">
+                             AnchorablesSource="{Binding Anchorables}"
+                             LayoutItemTemplateSelector="{StaticResource adTemplateSelector}">
 
             <xcad:DockingManager.LayoutItemContainerStyle>
-                <Style TargetType="{x:Type xcad:LayoutItem}" >
-                    <Setter Property="Title" Value="{Binding Model.Title}" />
+                <Style TargetType="{x:Type xcad:LayoutItem}">
+                    <Setter Property="Title" Value="{Binding Model.Name}" />
                 </Style>
             </xcad:DockingManager.LayoutItemContainerStyle>
 

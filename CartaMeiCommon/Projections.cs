@@ -6,12 +6,10 @@ using System.Threading.Tasks;
 
 namespace CartaMei.Common
 {
-    public interface IProjection
+    public interface IProjection : IHasName
     {
         #region Properties
-
-        string Name { get; }
-
+        
         IMap Map { get; set; }
         
         #endregion

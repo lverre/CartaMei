@@ -1,33 +1,39 @@
-﻿using System;
+﻿using CartaMei.Common;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace CartaMei.Models
 {
-    public class LayersPanelModel : NotifyPropertyChangedBase, IToolPanelModel
+    public class LayersPanelModel : NotifyPropertyChangedBase, IAnchorableTool
     {
-        #region IToolPanelModel
+        #region Constructor
 
-        public string Title
+        public LayersPanelModel()
+        {
+            Current.MapChanged += delegate (object sender, EventArgs e)
+            {
+                onPropetyChanged(nameof(LayersPanelModel.Layers));
+            };
+        }
+        
+        #endregion
+
+        #region IAnchorableTool
+
+        public string Name
         {
             get { return "Layers"; }
         }
 
-        private MapModel _map;
-        public MapModel Map
-        {
-            get { return _map; }
-            set
-            {
-                if (_map != value)
-                {
-                    _map = value;
-                    onPropetyChanged();
-                }
-            }
-        }
+        #endregion
+
+        #region Properties
+
+        public ObservableCollection<ILayer> Layers { get { return Current.Map?.Layers; } }
 
         #endregion
     }

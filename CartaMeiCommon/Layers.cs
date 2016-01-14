@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -8,12 +9,21 @@ using System.Windows.Media;
 
 namespace CartaMei.Common
 {
-    public interface ILayer : INotifyPropertyChanged
+    public interface ILayerItem : INotifyPropertyChanged
     {
         #region Properties
 
         string Name { get; set; }
 
+        ObservableCollection<ILayerItem> Children { get; }
+
+        #endregion
+    }
+
+    public interface ILayer : ILayerItem, INotifyPropertyChanged
+    {
+        #region Properties
+        
         IMapObject Root { get; set; }
 
         DrawingVisual Canvas { get; set; }
@@ -74,29 +84,97 @@ namespace CartaMei.Common
         #endregion
     }
 
-    public class LatLonBoundaries
+    public class LatLonBoundaries : NotifyPropertyChangedBase
     {
-        #region Constructor
+        #region Properties
 
-        public LatLonBoundaries(double latMin, double latMax, double lonMin, double lonMax)
+        private double _latMin;
+        [Description("The southernmost latitude.")]
+        [DisplayName("South Latitude")]
+        public double LatMin
         {
-            this.LatMin = latMin;
-            this.LatMax = latMax;
-            this.LonMin = lonMin;
-            this.LonMax = lonMax;
+            get { return _latMin; }
+            set
+            {
+                if (_latMin != value)
+                {
+                    _latMin = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private double _latMax;
+        [Description("The northernmost latitude.")]
+        [DisplayName("North Latitude")]
+        public double LatMax
+        {
+            get { return _latMax; }
+            set
+            {
+                if (_latMax != value)
+                {
+                    _latMax = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private double _lonMin;
+        [Description("The westernmost longitude.")]
+        [DisplayName("West Longitude")]
+        public double LonMin
+        {
+            get { return _lonMin; }
+            set
+            {
+                if (_lonMin != value)
+                {
+                    _lonMin = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private double _lonMax;
+        [Description("The easternmost longitude.")]
+        [DisplayName("East Longitude")]
+        public double LonMax
+        {
+            get { return _lonMax; }
+            set
+            {
+                if (_lonMax != value)
+                {
+                    _lonMax = value;
+                    onPropetyChanged();
+                }
+            }
         }
 
         #endregion
 
-        #region Properties
+        #region Object
 
-        public double LatMin { get; private set; }
+        public override string ToString()
+        {
+            return 
+                getHumanReadable(this.LatMin, true) + " " + getHumanReadable(this.LonMin, false) + " / " +
+                getHumanReadable(this.LatMax, true) + " " + getHumanReadable(this.LonMax, false);
+        }
 
-        public double LatMax { get; private set; }
+        #endregion
 
-        public double LonMin { get; private set; }
+        #region Tools
 
-        public double LonMax { get; private set; }
+        private string getHumanReadable(double coordinate, bool isLatitude)
+        {
+            var isNegative = coordinate < 0;
+            var cardinal = isLatitude
+                ? (isNegative ? "S" : "N")
+                : (isNegative ? "W" : "E");
+            return Math.Round(Math.Abs(coordinate), 5) + "º" + cardinal;
+        }
 
         #endregion
     }

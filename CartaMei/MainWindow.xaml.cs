@@ -1,5 +1,6 @@
 ﻿using CartaMei.Common;
 using CartaMei.Models;
+using CartaMei.WPF;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,9 +26,6 @@ namespace CartaMei
         #region Fields
 
         private MainWindowModel _model;
-        private MapModel _map;
-        private LayersPanelModel _layers;
-        private PropertiesPanelModel _properties;
 
         #endregion
 
@@ -40,18 +38,19 @@ namespace CartaMei
 
             _model = new Models.MainWindowModel();
             this.DataContext = _model;
+            Tools.Utils.MainWindowModel = _model;
 
             this.InitializeComponent();
             
             PluginManager.Instance.Reload();
-            rebuildModel();
+            rebuild();
         }
 
         #endregion
 
         #region Tools
 
-        private void rebuildModel()
+        private void rebuild()
         {
             rebuildMenu();
             rebuildToolbar();
@@ -95,16 +94,32 @@ namespace CartaMei
             }
             _model.Tools = tools;
         }
-        
+
         private void rebuildAnchorables()
         {
-            _layers = new LayersPanelModel() { Map = _map };
-            _properties = new PropertiesPanelModel() { Map = _map };
-            _model.Anchorables = new System.Collections.ObjectModel.ObservableCollection<IToolPanelModel>()
+            var anchorables = new List<IAnchorableTool>();
+            var templates = new Dictionary<Type, DataTemplate>()
             {
-                _layers,
-                _properties
+                { typeof(IMap), null }// TODO
             };
+            if (PluginManager.Instance.AnchorableTools != null)
+            {
+                foreach (var item in PluginManager.Instance.AnchorableTools)
+                {
+                    if (item.Item1 != null)
+                    {
+                        anchorables.Add(item.Item1);
+                        templates[item.Item1.GetType()] = item.Item2;
+                    }
+                }
+            }
+            var adTemplateSelector = (AvalonDockItemTemplateSelector)this.Resources["adTemplateSelector"];
+            if (adTemplateSelector != null)
+            {
+                adTemplateSelector.Templates = templates;
+            }
+
+            _model.Anchorables = new System.Collections.ObjectModel.ObservableCollection<IAnchorableTool>(anchorables);
         }
 
         #endregion

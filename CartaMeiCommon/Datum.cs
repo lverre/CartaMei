@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CartaMei.Common
 {
-    public struct Datum
+    public struct Datum : IHasName
     {
         #region Constants
 
@@ -30,12 +30,16 @@ namespace CartaMei.Common
 
         #endregion
 
-        #region Properties
+        #region IHasName
 
         /// <summary>
         /// Gets the name of the datum.
         /// </summary>
         public string Name { get; private set; }
+
+        #endregion
+
+        #region Properties
 
         /// <summary>
         /// Gets the inverse flattening of the spheroid.

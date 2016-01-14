@@ -56,7 +56,7 @@ namespace CartaMei.Common
         /// <summary>
         /// Gets a list of anchorable tools.
         /// </summary>
-        IDictionary<IAnchorableTool, DataTemplate> AnchorableTools { get; }
+        IEnumerable<Tuple<IAnchorableTool, DataTemplate>> AnchorableTools { get; }
 
         #endregion
     }
@@ -112,7 +112,7 @@ namespace CartaMei.Common
         /// Gets a list of anchorable tools.
         /// </summary>
         /// <remarks>Returns always <c>null</c>.</remarks>
-        public virtual IDictionary<IAnchorableTool, DataTemplate> AnchorableTools { get { return null; } }
+        public virtual IEnumerable<Tuple<IAnchorableTool, DataTemplate>> AnchorableTools { get { return null; } }
 
         #endregion
     }

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CartaMei.Common;
+using System.Windows;
 
 namespace CartaMei.Models
 {
@@ -16,18 +17,22 @@ namespace CartaMei.Models
 
         public MainWindowModel()
         {
-            Current.MapChanged += delegate (object sender, EventArgs e)
+            Current.MapChanged += delegate (object s1, EventArgs e1)
             {
                 this.Document = Current.Map;
-
+                
                 var map = Current.Map as INotifyPropertyChanged;
                 if (map != null)
                 {
-                    map.PropertyChanged += delegate (object sender2, PropertyChangedEventArgs e2)
+                    map.PropertyChanged += delegate (object s2, PropertyChangedEventArgs e2)
                     {
-                        if (e2.PropertyName == nameof(IMap.IsDirty))
+                        switch (e2.PropertyName)
                         {
-                            updateTitle();
+                            case nameof(IMap.FileName):
+                            case nameof(IMap.IsDirty):
+                            case nameof(IMap.Name):
+                                updateTitle();
+                                break;
                         }
                     };
                 }
@@ -98,8 +103,8 @@ namespace CartaMei.Models
         }
         public IEnumerable<IMap> Documents { get { return new IMap[] { this.Document }; } }
 
-        private ObservableCollection<IToolPanelModel> _anchorables;
-        public ObservableCollection<IToolPanelModel> Anchorables
+        private ObservableCollection<IAnchorableTool> _anchorables;
+        public ObservableCollection<IAnchorableTool> Anchorables
         {
             get { return _anchorables; }
             set

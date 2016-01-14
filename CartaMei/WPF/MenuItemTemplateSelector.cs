@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace CartaMei.WPF
 {
-    public class ItemTemplateSelector : DataTemplateSelector
+    public class MenuItemTemplateSelector : DataTemplateSelector
     {
         public DataTemplate ButtonTemplate { get; set; }
         public DataTemplate SeparatorTemplate { get; set; }

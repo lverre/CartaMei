@@ -5,9 +5,14 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel;
+using System.Windows.Media;
+using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace CartaMei.Models
 {
+    [CategoryOrder("General", 0)]
+    [CategoryOrder("Map", 1)]
     public class MapModel : NotifyPropertyChangedBase, IMap
     {
         #region IMap
@@ -17,6 +22,10 @@ namespace CartaMei.Models
         #region Metadata
 
         private string _name;
+        [Category("General")]
+        [Description("The name of the map.")]
+        [DisplayName("Name")]
+        [PropertyOrder(0)]
         public string Name
         {
             get { return _name; }
@@ -31,6 +40,10 @@ namespace CartaMei.Models
         }
         
         private string _description;
+        [Category("General")]
+        [Description("A description of the map.")]
+        [DisplayName("Description")]
+        [PropertyOrder(2)]
         public string Description
         {
             get { return _description; }
@@ -45,6 +58,10 @@ namespace CartaMei.Models
         }
         
         private string _author;
+        [Category("General")]
+        [Description("The author of the map.")]
+        [DisplayName("Author")]
+        [PropertyOrder(3)]
         public string Author
         {
             get { return _author; }
@@ -59,6 +76,10 @@ namespace CartaMei.Models
         }
         
         private string _createdOn;
+        [Category("General")]
+        [Description("The date the map was created.")]
+        [DisplayName("Created On")]
+        [PropertyOrder(4)]
         public string CreatedOn
         {
             get { return _createdOn; }
@@ -73,6 +94,10 @@ namespace CartaMei.Models
         }
         
         private string _license;
+        [Category("General")]
+        [Description("The license of map.")]
+        [DisplayName("License")]
+        [PropertyOrder(5)]
         public string License
         {
             get { return _license; }
@@ -87,6 +112,10 @@ namespace CartaMei.Models
         }
         
         private string _version;
+        [Category("General")]
+        [Description("The version of the map.")]
+        [DisplayName("Version")]
+        [PropertyOrder(6)]
         public string Version
         {
             get { return _version; }
@@ -105,6 +134,11 @@ namespace CartaMei.Models
         #region Map
 
         private Datum _datum;
+        [Category("Map")]
+        [Description("The datum used on this map (if you don't know which one to chose, use WGS84).")]
+        [DisplayName("Datum")]
+        [ReadOnly(true)]
+        [PropertyOrder(2)]
         public Datum Datum
         {
             get { return _datum; }
@@ -119,6 +153,11 @@ namespace CartaMei.Models
         }
 
         private IProjection _projection;
+        [Category("Map")]
+        [Description("The projection used on this map (if you don't know which one to chose, use Mercator).")]
+        [DisplayName("Projection")]
+        [ReadOnly(true)]
+        [PropertyOrder(1)]
         public IProjection Projection
         {
             get { return _projection; }
@@ -131,25 +170,28 @@ namespace CartaMei.Models
                 }
             }
         }
-        
-        public ICollection<ILayer> Layers
+
+        private ObservableCollection<ILayer> _layers;
+        [Browsable(false)]
+        public ObservableCollection<ILayer> Layers
         {
-            get { return this.OLayers; }
+            get { return _layers; }
             set
             {
-                if (this.OLayers != value)
+                if (_layers != value)
                 {
-                    var olayer = value as ObservableCollection<ILayer>;
-                    if (olayer == null && value != null)
-                    {
-                        olayer = new ObservableCollection<ILayer>(value);
-                    }
-                    this.OLayers = olayer;
+                    _layers = value;
+                    onPropetyChanged();
                 }
             }
         }
 
         private LatLonBoundaries _boundaries;
+        [Category("Map")]
+        [Description("The boundaries of map (latitude and longitude limits).")]
+        [DisplayName("Boundaries")]
+        [ExpandableObject]
+        [PropertyOrder(0)]
         public LatLonBoundaries Boundaries
         {
             get { return _boundaries; }
@@ -163,11 +205,30 @@ namespace CartaMei.Models
             }
         }
 
+        private object _activeObject;
+        [Browsable(false)]
+        public object ActiveObject
+        {
+            get { return _activeObject; }
+            set
+            {
+                if (_activeObject != value)
+                {
+                    _activeObject = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
         #endregion
 
         #region File
 
         private string _fileName;
+        [Category("General")]
+        [Description("The path of the file this map is saved in.")]
+        [DisplayName("File Name")]
+        [ReadOnly(true)]
         public string FileName
         {
             get { return _fileName; }
@@ -182,6 +243,7 @@ namespace CartaMei.Models
         }
 
         private bool _isDirty;
+        [Browsable(false)]
         public bool IsDirty
         {
             get { return _isDirty; }
@@ -201,35 +263,11 @@ namespace CartaMei.Models
 
         #endregion
 
-        #region Properties
+        #region Object
 
-        private ObservableCollection<ILayer> _layers;
-        public ObservableCollection<ILayer> OLayers
+        public override string ToString()
         {
-            get { return _layers; }
-            set
-            {
-                if (_layers != value)
-                {
-                    _layers = value;
-                    onPropetyChanged();
-                    onPropetyChanged("Layers");
-                }
-            }
-        }
-
-        private object _activeObject;
-        public object ActiveObject
-        {
-            get { return _activeObject; }
-            set
-            {
-                if (_activeObject != value)
-                {
-                    _activeObject = value;
-                    onPropetyChanged();
-                }
-            }
+            return this.Name;
         }
 
         #endregion
@@ -306,11 +344,17 @@ namespace CartaMei.Models
             {
                 ActiveObject = null,
                 Author = Environment.UserName,
-                Boundaries = new LatLonBoundaries(-90, 90, -180, 180),
+                Boundaries = new LatLonBoundaries()
+                {
+                    LatMax = 90,
+                    LatMin = -90,
+                    LonMax = 180,
+                    LonMin = -180
+                },
                 CreatedOn = DateTime.Now.ToShortDateString(),
                 Datum = this.Datum,
                 Description = null,
-                Layers = new List<ILayer>(),
+                Layers = new ObservableCollection<ILayer>(),
                 License = null,
                 Name = this.Name,
                 Projection = this.Projection.Create(),
