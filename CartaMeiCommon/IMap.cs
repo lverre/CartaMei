@@ -34,6 +34,8 @@ namespace CartaMei.Common
 
         LatLonBoundaries Boundaries { get; set; }
 
+        PixelSize Size { get; set; }
+
         object ActiveObject { get; set; }
 
         #endregion

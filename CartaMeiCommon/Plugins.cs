@@ -125,7 +125,7 @@ namespace CartaMei.Common
 
         public virtual string Description { get; set; }
 
-        public virtual Func<T> Create { get; set; }
+        public virtual Func<IMap, T> Create { get; set; }
 
         #endregion
 

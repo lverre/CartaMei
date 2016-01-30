@@ -44,6 +44,19 @@ namespace CartaMei
             
             PluginManager.Instance.Reload();
             rebuild();
+
+            var map = new MapModel()
+            {
+                Boundaries = new LatLonBoundaries() { LatMax = 85, LatMin = -85, LonMax = 180, LonMin = -180 },
+                Size = new PixelSize() { Height = 600, Width = 800 },
+                Datum = PluginManager.Instance.Datums.First()
+            };
+            map.Projection = PluginManager.Instance.ProjectionProviders.First().Create(map);
+            var toto = map.Projection.LatLonToPixel(new LatLonCoordinates() { Latitude = 0, Longitude = 0 });
+            var tata = map.Projection.LatLonToPixel(new LatLonCoordinates() { Latitude = 0, Longitude = 0 });
+            var titi = map.Projection.LatLonToPixel(new LatLonCoordinates() { Latitude = 0, Longitude = 0 });
+            var tutu = map.Projection.LatLonToPixel(new LatLonCoordinates() { Latitude = 0, Longitude = 0 });
+            tutu = null;
         }
 
         #endregion
@@ -100,7 +113,13 @@ namespace CartaMei
             var anchorables = new List<IAnchorableTool>();
             var templates = new Dictionary<Type, DataTemplate>()
             {
-                { typeof(IMap), null }// TODO
+                {
+                    typeof(IMap),
+                    new DataTemplate()
+                    {
+                        VisualTree = new FrameworkElementFactory(typeof(Canvas))// TODO
+                    }
+                }
             };
             if (PluginManager.Instance.AnchorableTools != null)
             {

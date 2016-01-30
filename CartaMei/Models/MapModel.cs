@@ -138,7 +138,7 @@ namespace CartaMei.Models
         [Description("The datum used on this map (if you don't know which one to chose, use WGS84).")]
         [DisplayName("Datum")]
         [ReadOnly(true)]
-        [PropertyOrder(2)]
+        [PropertyOrder(3)]
         public Datum Datum
         {
             get { return _datum; }
@@ -157,7 +157,7 @@ namespace CartaMei.Models
         [Description("The projection used on this map (if you don't know which one to chose, use Mercator).")]
         [DisplayName("Projection")]
         [ReadOnly(true)]
-        [PropertyOrder(1)]
+        [PropertyOrder(2)]
         public IProjection Projection
         {
             get { return _projection; }
@@ -200,6 +200,25 @@ namespace CartaMei.Models
                 if (_boundaries != value)
                 {
                     _boundaries = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private PixelSize _size;
+        [Category("Map")]
+        [Description("The boundaries of map (latitude and longitude limits).")]
+        [DisplayName("Boundaries")]
+        [ExpandableObject]
+        [PropertyOrder(1)]
+        public PixelSize Size
+        {
+            get { return _size; }
+            set
+            {
+                if (_size != value)
+                {
+                    _size = value;
                     onPropetyChanged();
                 }
             }
@@ -262,7 +281,7 @@ namespace CartaMei.Models
         #endregion
 
         #endregion
-
+        
         #region Object
 
         public override string ToString()
@@ -340,7 +359,7 @@ namespace CartaMei.Models
 
         public MapModel CreateMap()
         {
-            return new MapModel()
+            var mapModel = new MapModel()
             {
                 ActiveObject = null,
                 Author = Environment.UserName,
@@ -357,9 +376,10 @@ namespace CartaMei.Models
                 Layers = new ObservableCollection<ILayer>(),
                 License = null,
                 Name = this.Name,
-                Projection = this.Projection.Create(),
                 Version = "1.0"
             };
+            mapModel.Projection = this.Projection.Create(mapModel);
+            return mapModel;
         }
 
         #endregion

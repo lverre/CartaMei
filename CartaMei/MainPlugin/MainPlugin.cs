@@ -40,6 +40,20 @@ namespace CartaMei.MainPlugin
             }
         }
 
+        public override IEnumerable<PluginItemProvider<IProjection>> ProjectionProviders
+        {
+            get
+            {
+                yield return new PluginItemProvider<IProjection>()
+                {
+                    Name = EquirectangularProjection.ProjectionName,
+                    Description = EquirectangularProjection.ProjectionDescription,
+                    Create = delegate (IMap map) { return new EquirectangularProjection() { Map = map }; }
+                };
+                yield break;
+            }
+        }
+
         public override IEnumerable<Datum> Datums { get { return _datums; } }
 
         public override IEnumerable<Tuple<IAnchorableTool, DataTemplate>> AnchorableTools

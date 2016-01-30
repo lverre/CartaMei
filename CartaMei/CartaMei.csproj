@@ -82,6 +82,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="MainPlugin\Buttons.cs" />
+    <Compile Include="MainPlugin\EquirectangularProjection.cs" />
     <Compile Include="MainPlugin\MainPluginSettings.cs" />
     <Compile Include="Models\PropertiesPanelModel.cs" />
     <Compile Include="Models\LayersPanelModel.cs" />

@@ -11,14 +11,16 @@ namespace CartaMei.Common
         #region Properties
         
         IMap Map { get; set; }
+
+        LatLonBoundaries LimitBoundaries { get; }
         
         #endregion
 
         #region Functions
 
-        Coordinates2D LatLonToPixel(Coordinates2D latLonCoordinates);
+        PixelCoordinates LatLonToPixel(LatLonCoordinates latLonCoordinates);
 
-        Coordinates2D PixelToLatLon(Coordinates2D pixelCoordinates);
+        LatLonCoordinates PixelToLatLon(PixelCoordinates pixelCoordinates);
 
         // TODO: we probably need a function to draw a line as well (the line gets distorted with the projection)
 
