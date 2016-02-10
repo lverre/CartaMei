@@ -207,8 +207,8 @@ namespace CartaMei.Models
 
         private PixelSize _size;
         [Category("Map")]
-        [Description("The boundaries of map (latitude and longitude limits).")]
-        [DisplayName("Boundaries")]
+        [Description("The size of the map (in pixels).")]
+        [DisplayName("Size")]
         [ExpandableObject]
         [PropertyOrder(1)]
         public PixelSize Size
@@ -376,6 +376,7 @@ namespace CartaMei.Models
                 Layers = new ObservableCollection<ILayer>(),
                 License = null,
                 Name = this.Name,
+                Size = new PixelSize(),
                 Version = "1.0"
             };
             mapModel.Projection = this.Projection.Create(mapModel);

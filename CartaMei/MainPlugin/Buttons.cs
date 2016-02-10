@@ -73,6 +73,27 @@ namespace CartaMei.MainPlugin
             };
             SaveMapAs.Click += onSaveMapAs;
 
+            AddLayer = new ButtonModel()
+            {
+                Name = "Add Layer",
+                IsEnabled = true
+            };
+            AddLayerTool = new ButtonModel()
+            {
+                Name = "Add Layer"
+            };
+
+            RemoveLayer = new ButtonModel()
+            {
+                Name = "Remove Layer"
+            };
+            AddLayer.Click += onRemoveLayer;
+            RemoveLayerTool = new ButtonModel()
+            {
+                Name = "Remove Layer"
+            };
+            RemoveLayerTool.Click += onRemoveLayer;
+
             Current.MapChanged += delegate (object sender, EventArgs e)
             {
                 var map = Current.Map as INotifyPropertyChanged;
@@ -86,8 +107,10 @@ namespace CartaMei.MainPlugin
                         }
                     };
                 }
+                updateMapChanged();
                 updateSaveEnabled();
             };
+            updateMapChanged();
             updateSaveEnabled();
 
             Options = new ButtonModel()
@@ -128,6 +151,17 @@ namespace CartaMei.MainPlugin
                 IsEnabled = true
             };
 
+            Layers = new ButtonModel()
+            {
+                Name = "_Layers",
+                IsEnabled = true,
+                Children = new System.Collections.ObjectModel.ObservableCollection<IButtonModel>()
+                {
+                    AddLayer,
+                    RemoveLayer
+                }
+            };
+
             Tools = new ButtonModel()
             {
                 Name = "_Tools",
@@ -143,8 +177,10 @@ namespace CartaMei.MainPlugin
                 Name = "_Help",
                 IsEnabled = true
             };
+
+            PluginManager.Instance.Reloaded += pluginsReloaded;
         }
-        
+
         #endregion
 
         #region Menus
@@ -153,11 +189,14 @@ namespace CartaMei.MainPlugin
         internal static readonly ButtonModel OpenMap;
         internal static readonly ButtonModel SaveMap;
         internal static readonly ButtonModel SaveMapAs;
+        internal static readonly ButtonModel AddLayer;
+        internal static readonly ButtonModel RemoveLayer;
         internal static readonly ButtonModel Options;
 
         internal static readonly ButtonModel File;
         internal static readonly ButtonModel Edit;
         internal static readonly ButtonModel View;
+        internal static readonly ButtonModel Layers;
         internal static readonly ButtonModel Tools;
         internal static readonly ButtonModel Help;
 
@@ -168,6 +207,8 @@ namespace CartaMei.MainPlugin
         internal static readonly ButtonModel NewMapTool;
         internal static readonly ButtonModel OpenMapTool;
         internal static readonly ButtonModel SaveMapTool;
+        internal static readonly ButtonModel AddLayerTool;
+        internal static readonly ButtonModel RemoveLayerTool;
         internal static readonly ButtonModel OptionsTool;
 
         #endregion
@@ -269,6 +310,13 @@ namespace CartaMei.MainPlugin
             }
         }
 
+        private static void updateMapChanged()
+        {
+            var hasMap = Current.Map != null;
+            AddLayer.IsEnabled = hasMap;
+            AddLayerTool.IsEnabled = hasMap;
+        }
+
         private static void updateSaveEnabled()
         {
             var map = Current.Map;
@@ -277,11 +325,46 @@ namespace CartaMei.MainPlugin
             SaveMapTool.IsEnabled = isSaveEnabled;
             SaveMapAs.IsEnabled = isSaveEnabled;
         }
+        
+        private static void onRemoveLayer(object sender, EventArgs args)
+        {
+        }
 
         private static void onOptions(object sender, EventArgs args)
         {
         }
 
+        #endregion
+
+        #region Event Handlers
+
+        private static void pluginsReloaded(object sender, EventArgs e)
+        {
+            AddLayer.Children = new System.Collections.ObjectModel.ObservableCollection<IButtonModel>();
+            AddLayerTool.Children = new System.Collections.ObjectModel.ObservableCollection<IButtonModel>();
+            var layersProviders = PluginManager.Instance.LayerProviders;
+            foreach (var lp in layersProviders)
+            {
+                AddLayer.Children.Add(getButton(lp));
+                AddLayerTool.Children.Add(getButton(lp));
+            }
+        }
+
+        private static IButtonModel getButton(PluginItemProvider<ILayer> lp)
+        {
+            var button = new ButtonModel()
+            {
+                Name = lp.Name,
+                Description = lp.Description,
+                IsEnabled = true
+            };
+            button.Click += delegate (object sender, EventArgs e)
+            {
+                Current.Map.Layers.Add(lp.Create(Current.Map));
+            };
+            return button;
+        }
+        
         #endregion
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CartaMei.Common;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace CartaMei.GSHHG
 
         private static string toString<THeader, TPoint>(IPolygon<THeader, TPoint> polygon, bool showChildren, bool showPoints, int level)
             where THeader : IPolygonHeader
-            where TPoint : IPolygonPoint
+            where TPoint : LatLonCoordinates
         {
             var indentation = "";
             for (int i = 0; i < level; i++) indentation += "\t";
@@ -23,9 +24,7 @@ namespace CartaMei.GSHHG
             {
                 foreach (var point in polygon.Points)
                 {
-                    result += Environment.NewLine + indentation + "\t" +
-                        Math.Abs(point.X) + " º" + (point.X >= 0 ? "W" : "E") + " " +
-                        Math.Abs(point.Y) + " º" + (point.Y >= 0 ? "N" : "S");
+                    result += Environment.NewLine + indentation + "\t" + point.ToString();
                 }
             }
             if (showChildren)
@@ -40,7 +39,7 @@ namespace CartaMei.GSHHG
 
         public static string ToString<THeader, TPoint>(this IPolygon<THeader, TPoint> polygon, bool showChildren, bool showPoints)
             where THeader : IPolygonHeader
-            where TPoint : IPolygonPoint
+            where TPoint : LatLonCoordinates
         {
             return toString(polygon, showChildren, showPoints, 0);
         }

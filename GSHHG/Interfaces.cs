@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using CartaMei.Common;
+using System.Collections.Generic;
 
 namespace CartaMei.GSHHG
 {
     public interface IGSHHGVersion<THeader, TPoint>
         where THeader : IPolygonHeader
-        where TPoint : IPolygonPoint
+        where TPoint : LatLonCoordinates
     {
         #region Properties
 
@@ -27,11 +28,11 @@ namespace CartaMei.GSHHG
         #endregion
     }
 
-    public interface IGSHHGVersion<THeader> : IGSHHGVersion<THeader, PolygonPoint> where THeader : IPolygonHeader { }
+    public interface IGSHHGVersion<THeader> : IGSHHGVersion<THeader, LatLonCoordinates> where THeader : IPolygonHeader { }
 
     public interface IGSHHGReader<THeader, TPoint>
         where THeader : IPolygonHeader
-        where TPoint : IPolygonPoint
+        where TPoint : LatLonCoordinates
     {
         #region Functions
 
@@ -40,11 +41,11 @@ namespace CartaMei.GSHHG
         #endregion
     }
 
-    public interface IGSHHGReader<THeader> : IGSHHGReader<THeader, PolygonPoint> where THeader : IPolygonHeader { }
+    public interface IGSHHGReader<THeader> : IGSHHGReader<THeader, LatLonCoordinates> where THeader : IPolygonHeader { }
 
     public interface IPolygonDatabase<THeader, TPoint>
         where THeader : IPolygonHeader
-        where TPoint : IPolygonPoint
+        where TPoint : LatLonCoordinates
     {
         #region Properties
         
@@ -57,11 +58,11 @@ namespace CartaMei.GSHHG
         #endregion
     }
 
-    public interface IPolygonDatabase<THeader> : IPolygonDatabase<THeader, PolygonPoint> where THeader : IPolygonHeader { }
+    public interface IPolygonDatabase<THeader> : IPolygonDatabase<THeader, LatLonCoordinates> where THeader : IPolygonHeader { }
 
     public interface IPolygon<THeader, TPoint>
         where THeader : IPolygonHeader
-        where TPoint : IPolygonPoint
+        where TPoint : LatLonCoordinates
     {
         #region Properties
 
@@ -76,7 +77,7 @@ namespace CartaMei.GSHHG
         #endregion
     }
 
-    public interface IPolygon<THeader> : IPolygon<THeader, PolygonPoint> where THeader : IPolygonHeader { }
+    public interface IPolygon<THeader> : IPolygon<THeader, LatLonCoordinates> where THeader : IPolygonHeader { }
 
     public interface IPolygonHeader
     {
@@ -86,26 +87,9 @@ namespace CartaMei.GSHHG
 
         int ContainerId { get; }
         
-        CoordinatesRectangle Limits { get; }
+        LatLonBoundaries Boundaries { get; }
         
         int PointsCount { get; }
-
-        #endregion
-    }
-
-    public interface IPolygonPoint
-    {
-        #region Properties
-
-        /// <summary>
-        /// Gets the x (longitude) coordinate, in degrees, of the point.
-        /// </summary>
-        double X { get; }
-
-        /// <summary>
-        /// Gets the y (latitude) coordinate, in degrees, of the point.
-        /// </summary>
-        double Y { get; }
 
         #endregion
     }

@@ -77,6 +77,12 @@ namespace CartaMei
 
         #endregion
 
+        #region Events
+
+        public event EventHandler Reloaded;
+
+        #endregion
+
         #region Public Functions
 
         public void Reload()
@@ -193,6 +199,8 @@ namespace CartaMei
             this.Datums = datums;
             this.AnchorableTools = anchorableTools;
             this.PluginsSettings = pluginsSettings;
+
+            this.Reloaded?.Invoke(this, new EventArgs());
         }
 
         #endregion

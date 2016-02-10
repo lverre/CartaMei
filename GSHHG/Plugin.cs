@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,8 +19,22 @@ namespace CartaMei.GSHHG
         {
             get
             {
-                // The layers should allow presets (for the brush for example)
-                return null;// TODO: provide ShorelinesLayer, ...
+                yield return new PluginItemProvider<ILayer>()
+                {
+                    Name = ShorelineLayer.LayerName,
+                    Description = ShorelineLayer.LayerDescription,
+                    Create = delegate (IMap map)
+                    {
+                        if (!Directory.Exists(PluginSettings.Instance.MapsDirectory?.FullName))
+                        {
+                            // TODO: alert + show options window
+                            PluginSettings.Instance.MapsDirectory = new DirectoryInfo(@"C:\Users\Laurian\Downloads\indy maps\gshhg-bin-2.3.4");
+                        }
+                        return new ShorelineLayer(map);
+                    }
+                };
+                // TODO: provide other kind of layers provided by gshhg data
+                yield break;
             }
         }
 

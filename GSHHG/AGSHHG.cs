@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CartaMei.Common;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -9,7 +10,7 @@ namespace CartaMei.GSHHG
     {
         #region IGSHHGReader
 
-        public IPolygonDatabase<TPolygonHeader, PolygonPoint> Read(string fileName, PolygonType type, Resolution resolution)
+        public IPolygonDatabase<TPolygonHeader, LatLonCoordinates> Read(string fileName, PolygonType type, Resolution resolution)
         {
             if (!File.Exists(fileName) && Directory.Exists(fileName))
             {
@@ -21,8 +22,8 @@ namespace CartaMei.GSHHG
                 throw new FileNotFoundException();
             }
 
-            var polygons = new Dictionary<int, IPolygon<TPolygonHeader, PolygonPoint>>();
-            var result = new PolygonDatabase<TPolygonHeader, PolygonPoint>(fileName, type, resolution, polygons);
+            var polygons = new Dictionary<int, IPolygon<TPolygonHeader, LatLonCoordinates>>();
+            var result = new PolygonDatabase<TPolygonHeader, LatLonCoordinates>(fileName, type, resolution, polygons);
 
             using (var stream = File.OpenRead(fileName))
             {
@@ -131,7 +132,7 @@ namespace CartaMei.GSHHG
         {
             var result = getNewPolygon();
             result.Header = readPolygonHeader(reader);
-            var points = new PolygonPoint[result.Header.PointsCount];
+            var points = new LatLonCoordinates[result.Header.PointsCount];
             for (int i = 0; i < points.Length; i++)
             {
                 points[i] = readPoint(reader);
@@ -142,15 +143,15 @@ namespace CartaMei.GSHHG
 
         protected abstract TPolygonHeader readPolygonHeader(BinaryReader reader);
 
-        protected virtual PolygonPoint readPoint(BinaryReader reader)
+        protected virtual LatLonCoordinates readPoint(BinaryReader reader)
         {
             var x = reader.ReadInt32BE();
             var y = reader.ReadInt32BE();
 
-            return new PolygonPoint()
+            return new LatLonCoordinates()
             {
-                X = x / 1000000d,
-                Y = y / 1000000d
+                Longitude = x / 1000000d,
+                Latitude = y / 1000000d
             };
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CartaMei.Common;
+using System;
 using System.Collections.Generic;
 
 namespace CartaMei.GSHHG
@@ -16,7 +17,7 @@ namespace CartaMei.GSHHG
 
     public class PolygonDatabase<THeader, TPoint> : IPolygonDatabase<THeader, TPoint>
         where THeader : IPolygonHeader
-        where TPoint : IPolygonPoint
+        where TPoint : LatLonCoordinates
     {
         #region Constructors
 
@@ -49,7 +50,7 @@ namespace CartaMei.GSHHG
     
     public class Polygon<THeader, TPoint> : IPolygon<THeader, TPoint>
         where THeader : IPolygonHeader
-        where TPoint : IPolygonPoint
+        where TPoint : LatLonCoordinates
     {
         #region IPolygon
 
@@ -82,164 +83,8 @@ namespace CartaMei.GSHHG
         #endregion
     }
 
-    public class Polygon<THeader> : Polygon<THeader, PolygonPoint>, IPolygon<THeader> where THeader : IPolygonHeader { }
-
-    public class PolygonPoint : IPolygonPoint
-    {
-        #region Properties
-
-        /// <summary>
-        /// Gets or sets the x (longitude) coordinate, in degrees, of the point.
-        /// </summary>
-        public virtual double X { get; set; }
-
-        /// <summary>
-        /// Gets or sets the y (latitude) coordinate, in degrees, of the point.
-        /// </summary>
-        public virtual double Y { get; set; }
-
-        #endregion
-
-        #region Object
-
-        /// <summary>
-        /// Gets a string representation of this object: X ºE/W Y ºN/S.
-        /// </summary>
-        /// <returns>A string representation of this object.</returns>
-        public override string ToString()
-        {
-            return 
-                Math.Abs(this.X) + " º" + (this.X >= 0 ? "W" : "E") + " " +
-                Math.Abs(this.Y) + " º" + (this.Y >= 0 ? "N" : "S");
-        }
-
-        #endregion
-    }
-
-    public class CoordinatesRectangle
-    {
-        #region Constructor
-        
-        /// <summary>
-        /// Creates a coordinates rectangle object.
-        /// </summary>
-        /// <param name="east">The east limit coordinates, in micro-degrees.</param>
-        /// <param name="west">The west limit coordinates, in micro-degrees.</param>
-        /// <param name="south">The south limit coordinates, in micro-degrees.</param>
-        /// <param name="north">The north limit coordinates, in micro-degrees.</param>
-        public CoordinatesRectangle(int east, int west, int south, int north)
-            : this(east / Constants.Million, west / Constants.Million, south / Constants.Million, north / Constants.Million)
-        { }
-
-        /// <summary>
-        /// Creates a limits object.
-        /// </summary>
-        /// <param name="east">The east limit coordinates, in degrees.</param>
-        /// <param name="west">The west limit coordinates, in degrees.</param>
-        /// <param name="south">The south limit coordinates, in degrees.</param>
-        /// <param name="north">The north limit coordinates, in degrees.</param>
-        public CoordinatesRectangle(double east, double west, double south, double north)
-        {
-            this.East = fixCoordinate(east, 180);
-            this.West = fixCoordinate(west, 180);
-            this.North = fixCoordinate(north, 90);
-            this.South = fixCoordinate(south, 90);
-        }
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// Gets the east limit coordinates, in degrees.
-        /// </summary>
-        public virtual double East { get; private set; }
-
-        /// <summary>
-        /// Gets the west limit coordinates, in degrees.
-        /// </summary>
-        public virtual double West { get; private set; }
-
-        /// <summary>
-        /// Gets the south limit coordinates, in degrees.
-        /// </summary>
-        public virtual double South { get; private set; }
-
-        /// <summary>
-        /// Gets the north limit coordinates, in degrees.
-        /// </summary>
-        public virtual double North { get; private set; }
-
-        #endregion
-
-        #region Functions
-
-        /// <summary>
-        /// Checks whether a point is within these limits.
-        /// </summary>
-        /// <param name="point">The point to test.</param>
-        /// <returns>true if <paramref name="point"/> is within these limits, false otherwise.</returns>
-        public bool Contains(PolygonPoint point)
-        {
-            return
-                isBetween(point.X, this.West, this.East) &&
-                isBetween(point.Y, this.South, this.North);
-        }
-
-        /// <summary>
-        /// Checks whether a rectangle intersects with this one..
-        /// </summary>
-        /// <param name="rectangle">The rectangle to test.</param>
-        /// <returns>true if <paramref name="rectangle"/> intersects with this one, false otherwise.</returns>
-        public bool Intersects(CoordinatesRectangle rectangle)
-        {
-            return
-                isBetween(rectangle.East, this.West, this.East) ||
-                isBetween(rectangle.West, this.West, this.East) ||
-                isBetween(rectangle.South, this.South, this.North) ||
-                isBetween(rectangle.North, this.South, this.North);
-        }
-
-        private static bool isBetween(double x, double min, double max)
-        {
-            return x >= min && x <= max;
-        }
-
-        #endregion
-
-        #region Object
-
-        /// <summary>
-        /// Gets a string representation of this object: show NW / SE.
-        /// </summary>
-        /// <returns>A string representation of this object.</returns>
-        public override string ToString()
-        {
-            return 
-                new PolygonPoint() { X = this.West, Y = this.North }.ToString() + " / " +
-                new PolygonPoint() { X = this.East, Y = this.South }.ToString();
-        }
-
-        #endregion
-
-        #region Tools
-
-        private static double fixCoordinate(double coordinate, int max)
-        {
-            if (coordinate > max)
-            {
-                coordinate = (coordinate % (max * 2)) - (max * 2);
-            }
-            else if (coordinate < (0 - max))
-            {
-                coordinate = (coordinate % (max * 2)) + (max * 2);
-            }
-            return coordinate;
-        }
-
-        #endregion
-    }
-
+    public class Polygon<THeader> : Polygon<THeader, LatLonCoordinates>, IPolygon<THeader> where THeader : IPolygonHeader { }
+    
     #endregion
 
     #region Enums

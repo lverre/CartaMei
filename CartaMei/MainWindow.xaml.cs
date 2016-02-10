@@ -44,19 +44,6 @@ namespace CartaMei
             
             PluginManager.Instance.Reload();
             rebuild();
-
-            var map = new MapModel()
-            {
-                Boundaries = new LatLonBoundaries() { LatMax = 85, LatMin = -85, LonMax = 180, LonMin = -180 },
-                Size = new PixelSize() { Height = 600, Width = 800 },
-                Datum = PluginManager.Instance.Datums.First()
-            };
-            map.Projection = PluginManager.Instance.ProjectionProviders.First().Create(map);
-            var toto = map.Projection.LatLonToPixel(new LatLonCoordinates() { Latitude = 0, Longitude = 0 });
-            var tata = map.Projection.LatLonToPixel(new LatLonCoordinates() { Latitude = 0, Longitude = 0 });
-            var titi = map.Projection.LatLonToPixel(new LatLonCoordinates() { Latitude = 0, Longitude = 0 });
-            var tutu = map.Projection.LatLonToPixel(new LatLonCoordinates() { Latitude = 0, Longitude = 0 });
-            tutu = null;
         }
 
         #endregion
@@ -132,6 +119,10 @@ namespace CartaMei
                     }
                 }
             }
+            templates[typeof(MapModel)] = new DataTemplate()
+            {
+                VisualTree = new FrameworkElementFactory(typeof(WPF.LayersContainer))
+            };
             var adTemplateSelector = (AvalonDockItemTemplateSelector)this.Resources["adTemplateSelector"];
             if (adTemplateSelector != null)
             {

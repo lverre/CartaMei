@@ -27,7 +27,7 @@ namespace CartaMei.MainPlugin
                 return new PluginMenu()
                 {
                     ItemsLocation = PluginMenu.PluginMenuLocation.TopLevel,
-                    Items = new IButtonModel[] { Buttons.File, Buttons.Edit, Buttons.View, Buttons.Tools, Buttons.Help }
+                    Items = new IButtonModel[] { Buttons.File, Buttons.Edit, Buttons.View, Buttons.Layers, Buttons.Tools, Buttons.Help }
                 };
             }
         }
@@ -36,7 +36,14 @@ namespace CartaMei.MainPlugin
         {
             get
             {
-                return new IButtonModel[] { Buttons.NewMapTool, Buttons.OpenMapTool, Buttons.SaveMapTool, new ButtonModel() { IsSeparator = true }, Buttons.OptionsTool };
+                return new IButtonModel[]
+                {
+                    Buttons.NewMapTool, Buttons.OpenMapTool, Buttons.SaveMapTool,
+                    new ButtonModel() { IsSeparator = true },
+                    Buttons.AddLayerTool, Buttons.RemoveLayerTool, 
+                    new ButtonModel() { IsSeparator = true },
+                    Buttons.OptionsTool
+                };
             }
         }
 

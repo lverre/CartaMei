@@ -25,8 +25,8 @@ namespace CartaMei.MainPlugin
         {
             return new PixelCoordinates()
             {
-                X = (latLonCoordinates.Longitude - this.Map.Boundaries.LonMin) * this.Map.Size.Width / (this.Map.Boundaries.LonMax - this.Map.Boundaries.LonMin),
-                Y = (latLonCoordinates.Latitude - this.Map.Boundaries.LatMin) * this.Map.Size.Height / (this.Map.Boundaries.LatMax - this.Map.Boundaries.LatMin)
+                X = this.Map.Size.Width * (latLonCoordinates.Longitude - this.Map.Boundaries.LonMin) / (this.Map.Boundaries.LonMax - this.Map.Boundaries.LonMin),
+                Y = this.Map.Size.Height * (this.Map.Boundaries.LatMax - latLonCoordinates.Latitude) / (this.Map.Boundaries.LatMax - this.Map.Boundaries.LatMin)
             };
         }
 
@@ -35,7 +35,7 @@ namespace CartaMei.MainPlugin
             return new LatLonCoordinates()
             {
                 Longitude = this.Map.Boundaries.LonMin + pixelCoordinates.X * (this.Map.Boundaries.LonMax - this.Map.Boundaries.LonMin) / this.Map.Size.Width,
-                Latitude = this.Map.Boundaries.LatMin + pixelCoordinates.Y * (this.Map.Boundaries.LatMax - this.Map.Boundaries.LatMin) / this.Map.Size.Height
+                Latitude = this.Map.Boundaries.LatMax - pixelCoordinates.Y * (this.Map.Boundaries.LatMax - this.Map.Boundaries.LatMin) / this.Map.Size.Height
             };
         }
 

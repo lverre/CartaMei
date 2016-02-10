@@ -42,13 +42,14 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ButtonModel.cs" />
     <Compile Include="Current.cs" />
     <Compile Include="Datum.cs" />
     <Compile Include="Delegates.cs" />
-    <Compile Include="Extensions.cs" />
+    <Compile Include="Tools.cs" />
     <Compile Include="IAnchorableTool.cs" />
     <Compile Include="Interfaces.cs" />
     <Compile Include="Layers.cs" />

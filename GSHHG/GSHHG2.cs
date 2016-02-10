@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CartaMei.Common;
+using System;
 using System.IO;
 
 namespace CartaMei.GSHHG
@@ -65,7 +66,7 @@ read and write the data.";
             }
         }
 
-        public IGSHHGReader<GSHHG2PolygonHeader, PolygonPoint> Reader { get { return _reader; } }
+        public IGSHHGReader<GSHHG2PolygonHeader, LatLonCoordinates> Reader { get { return _reader; } }
 
         #endregion
 
@@ -179,7 +180,7 @@ read and write the data.";
 
         public int ContainerId { get { return this.container; } }
         
-        public CoordinatesRectangle Limits { get; private set; }
+        public LatLonBoundaries Boundaries { get; private set; }
 
         public int PointsCount { get { return this.n; } }
 
@@ -314,7 +315,13 @@ read and write the data.";
             result.area_full = area_full;
             result.container = container;
             result.ancestor = ancestor;
-            result.Limits = new CoordinatesRectangle(east, west, south, north);
+            result.Boundaries = new LatLonBoundaries()
+            {
+                LatMax = north / Constants.Million,
+                LatMin = south / Constants.Million,
+                LonMax = east / Constants.Million,
+                LonMin = west / Constants.Million
+            };
             return result;
         }
 
