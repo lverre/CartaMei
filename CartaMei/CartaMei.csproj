@@ -100,8 +100,9 @@
     <Compile Include="Dialogs\NewMap.xaml.cs">
       <DependentUpon>NewMap.xaml</DependentUpon>
     </Compile>
-    <Compile Include="WPF\AvalonDockItemTemplateSelector.cs" />
+    <Compile Include="WPF\StatusBarItemTemplateSelector.cs" />
     <Compile Include="WPF\LayersContainer.cs" />
+    <Compile Include="WPF\DictionaryTemplateSelector.cs" />
     <Compile Include="WPF\MenuItemTemplateSelector.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

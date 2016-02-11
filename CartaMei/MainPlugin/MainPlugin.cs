@@ -32,7 +32,7 @@ namespace CartaMei.MainPlugin
             }
         }
 
-        public override IEnumerable<IButtonModel> Toolbar
+        public override IEnumerable<IButtonModel> ToolBar
         {
             get
             {
@@ -43,6 +43,17 @@ namespace CartaMei.MainPlugin
                     Buttons.AddLayerTool, Buttons.RemoveLayerTool, 
                     new ButtonModel() { IsSeparator = true },
                     Buttons.OptionsTool
+                };
+            }
+        }
+
+        public override IEnumerable<IStatusItem> StatusBar
+        {
+            get
+            {
+                return new IStatusItem[]
+                {
+                    // TODO: progress bar for save/load, text
                 };
             }
         }

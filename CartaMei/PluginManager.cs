@@ -65,6 +65,8 @@ namespace CartaMei
 
         public IList<Tuple<string, IEnumerable<IButtonModel>>> Toolbar { get; private set; }
 
+        public IList<Tuple<string, IEnumerable<IStatusItem>>> StatusItems { get; private set; }
+
         public IEnumerable<PluginItemProvider<ILayer>> LayerProviders { get; private set; }
 
         public IEnumerable<PluginItemProvider<IProjection>> ProjectionProviders { get; private set; }
@@ -94,6 +96,7 @@ namespace CartaMei
             IButtonModel toolsMenu = null;
             var toolPluginMenus = new List<IButtonModel>();
             var toolbar = new List<Tuple<string, IEnumerable<IButtonModel>>>();
+            var statusItems = new List<Tuple<string, IEnumerable<IStatusItem>>>();
             var layerProviders = new List<PluginItemProvider<ILayer>>();
             var projectionProviders = new List<PluginItemProvider<IProjection>>();
             var datums = new List<Datum>();
@@ -131,10 +134,16 @@ namespace CartaMei
                     }
                 }
 
-                var pToolbar = plugin.Toolbar;
+                var pToolbar = plugin.ToolBar;
                 if (pToolbar != null && pToolbar.Any())
                 {
-                    toolbar.Add(new Tuple<string, IEnumerable<IButtonModel>>(metadata.Name, plugin.Toolbar));
+                    toolbar.Add(new Tuple<string, IEnumerable<IButtonModel>>(metadata.Name, plugin.ToolBar));
+                }
+
+                var pStatusBar = plugin.StatusBar;
+                if (pStatusBar != null && pStatusBar.Any())
+                {
+                    statusItems.Add(new Tuple<string, IEnumerable<IStatusItem>>(metadata.Name, plugin.StatusBar));
                 }
 
                 var pProjectionProviders = plugin.ProjectionProviders;
@@ -194,6 +203,7 @@ namespace CartaMei
             this.Plugins = plugins;
             this.Menus = menus;
             this.Toolbar = toolbar;
+            this.StatusItems = statusItems;
             this.LayerProviders = layerProviders;
             this.ProjectionProviders = projectionProviders;
             this.Datums = datums;

@@ -14,7 +14,7 @@ namespace CartaMei.GSHHG
     public class GSHHGPlugin : GraphicalPluginBase
     {
         #region IPlugin
-        
+
         public override IEnumerable<PluginItemProvider<ILayer>> LayerProviders
         {
             get
@@ -34,6 +34,16 @@ namespace CartaMei.GSHHG
                     }
                 };
                 // TODO: provide other kind of layers provided by gshhg data
+                yield break;
+            }
+        }
+
+        public override IEnumerable<IStatusItem> StatusBar
+        {
+            get
+            {
+                yield return Utils.Instance.StatusText;
+                yield return Utils.Instance.StatusProgress;
                 yield break;
             }
         }

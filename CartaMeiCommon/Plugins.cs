@@ -21,7 +21,12 @@ namespace CartaMei.Common
         /// <summary>
         /// Gets the toolbar buttons this plugin provides.
         /// </summary>
-        IEnumerable<IButtonModel> Toolbar { get; }
+        IEnumerable<IButtonModel> ToolBar { get; }
+
+        /// <summary>
+        /// Gets the status bar items this plugin provides.
+        /// </summary>
+        IEnumerable<IStatusItem> StatusBar { get; }
 
         /// <summary>
         /// Gets the map projections this plugin provides.
@@ -75,7 +80,13 @@ namespace CartaMei.Common
         /// Gets the toolbar buttons this plugin provides.
         /// </summary>
         /// <remarks>Returns always <c>null</c>.</remarks>
-        public virtual IEnumerable<IButtonModel> Toolbar { get { return null; } }
+        public virtual IEnumerable<IButtonModel> ToolBar { get { return null; } }
+
+        /// <summary>
+        /// Gets the status bar items this plugin provides.
+        /// </summary>
+        /// <remarks>Returns always <c>null</c>.</remarks>
+        public virtual IEnumerable<IStatusItem> StatusBar { get { return null; } }
 
         /// <summary>
         /// Gets the map projections this plugin provides.

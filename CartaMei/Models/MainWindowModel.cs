@@ -87,6 +87,20 @@ namespace CartaMei.Models
             }
         }
 
+        private IEnumerable<object> _statusItems;
+        public IEnumerable<object> StatusItems
+        {
+            get { return _statusItems; }
+            set
+            {
+                if (_statusItems != value)
+                {
+                    _statusItems = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
         private IMap _document;
         public IMap Document
         {

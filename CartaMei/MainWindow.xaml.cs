@@ -54,6 +54,7 @@ namespace CartaMei
         {
             rebuildMenu();
             rebuildToolbar();
+            rebuildStatusBar();
             rebuildAnchorables();
         }
 
@@ -95,6 +96,21 @@ namespace CartaMei
             _model.Tools = tools;
         }
 
+        private void rebuildStatusBar()
+        {
+            var statusItems = new List<IStatusItem>();
+            if (PluginManager.Instance.StatusItems != null)
+            {
+                var isFirst = true;
+                foreach (var item in PluginManager.Instance.StatusItems)
+                {
+                    statusItems.AddRange(item.Item2);
+                    if (!isFirst) statusItems.Add(new SeparatorStatusItem() { IsVisible = true });
+                }
+            }
+            _model.StatusItems = statusItems;
+        }
+        
         private void rebuildAnchorables()
         {
             var anchorables = new List<IAnchorableTool>();
@@ -123,7 +139,7 @@ namespace CartaMei
             {
                 VisualTree = new FrameworkElementFactory(typeof(WPF.LayersContainer))
             };
-            var adTemplateSelector = (AvalonDockItemTemplateSelector)this.Resources["adTemplateSelector"];
+            var adTemplateSelector = (DictionaryTemplateSelector)this.Resources["adTemplateSelector"];
             if (adTemplateSelector != null)
             {
                 adTemplateSelector.Templates = templates;

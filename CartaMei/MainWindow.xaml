@@ -31,7 +31,25 @@
                                        ButtonTemplate="{StaticResource toolbarButtonTemplate}" 
                                        SeparatorTemplate="{StaticResource toolbarSeparatorTemplate}" />
 
-        <lwpf:AvalonDockItemTemplateSelector x:Key="adTemplateSelector" />
+        <DataTemplate x:Key="statusTextTemplate">
+            <TextBlock Text="{Binding Text}" 
+                       Visibility="{Binding IsVisible, Converter={StaticResource booleanToVisibilityConverter}}" />
+        </DataTemplate>
+        <DataTemplate x:Key="statusProgressTemplate">
+            <ProgressBar Value="{Binding Percentage}" 
+                         IsIndeterminate="{Binding IsMarquee}"
+                         Visibility="{Binding IsVisible, Converter={StaticResource booleanToVisibilityConverter}}"
+                         Orientation="Horizontal" />
+        </DataTemplate>
+        <DataTemplate x:Key="statusSeparatorTemplate">
+            <Separator Visibility="{Binding IsVisible, Converter={StaticResource booleanToVisibilityConverter}}" />
+        </DataTemplate>
+        <lwpf:StatusBarItemTemplateSelector x:Key="statusBarItemTemplateSelector"
+                                            TextTemplate="{StaticResource statusTextTemplate}"
+                                            ProgressBarTemplate="{StaticResource statusProgressTemplate}"
+                                            SeparatorTemplate="{StaticResource statusSeparatorTemplate}" />
+
+        <lwpf:DictionaryTemplateSelector x:Key="adTemplateSelector" />
 
     </Window.Resources>
 
@@ -40,6 +58,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <Menu Grid.Row="0" 
@@ -76,7 +95,7 @@
         </Menu>
 
         <ToolBarTray Grid.Row="1">
-            <ToolBar ItemsSource="{Binding Path=Tools}"
+            <ToolBar ItemsSource="{Binding Tools}"
                      ItemTemplateSelector="{StaticResource toolBarItemTemplateSelector}">
             </ToolBar>
         </ToolBarTray>
@@ -102,6 +121,11 @@
             </xcad:LayoutRoot>
             
         </xcad:DockingManager>
+
+        <StatusBar Grid.Row="3" 
+                   ItemsSource="{Binding StatusItems}"
+                   ItemTemplateSelector="{StaticResource statusBarItemTemplateSelector}">
+        </StatusBar>
         
     </Grid>
 </Window>

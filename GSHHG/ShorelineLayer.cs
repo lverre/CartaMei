@@ -29,7 +29,7 @@ namespace CartaMei.GSHHG
 
         private IDictionary<int, ShorelinePolygonObject> _polygonObjects = null;
 
-        private Canvas _container = new Canvas();
+        private Canvas _container = null;
 
         #endregion
 
@@ -38,6 +38,12 @@ namespace CartaMei.GSHHG
         public ShorelineLayer(IMap map)
         {
             _map = map;
+
+            _container = new Canvas()
+            {
+                Background = PluginSettings.Instance.ShorelinesWaterFill
+            };
+            _container.MouseMove += mouseMove;
         }
 
         #endregion
@@ -109,6 +115,12 @@ namespace CartaMei.GSHHG
                 toRemove.Clear();
             }
 
+            if (context.RedrawType == RedrawType.Reset || context.RedrawType == RedrawType.Resize)
+            {
+                _container.Width = _map.Size.Width;
+                _container.Height = _map.Size.Height;
+            }
+
             if (_polygons != null)
             {
                 foreach (var item in _polygons)
@@ -155,6 +167,17 @@ namespace CartaMei.GSHHG
 
         #endregion
 
+        #region Event Handlers
+
+        private void mouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        {
+            var point = e.GetPosition(_container.Parent as IInputElement);
+            var latLon = _map.Projection.PixelToLatLon(point);
+            Utils.Instance.SetStatus(latLon.ToString());
+        }
+
+        #endregion
+
         #region Tools
 
         private void resetMapData(IDrawContext context)
@@ -173,8 +196,10 @@ namespace CartaMei.GSHHG
                 this.Resolution = resolution;
                 _mapsDir = mapsDir;
 
+                Utils.Instance.SetStatus("Loading map...", true, true);
                 var reader = new GSHHG2Reader();
                 _polygons = reader.Read(PluginSettings.Instance.MapsDirectory.FullName, PolygonType.ShoreLine, Resolution.Crude).Polygons;
+                Utils.Instance.HideStatus();
                 _polygonObjects = new Dictionary<int, ShorelinePolygonObject>();
             }
         }

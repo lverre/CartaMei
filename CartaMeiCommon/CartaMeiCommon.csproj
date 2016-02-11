@@ -49,6 +49,7 @@
     <Compile Include="Current.cs" />
     <Compile Include="Datum.cs" />
     <Compile Include="Delegates.cs" />
+    <Compile Include="IStatusItem.cs" />
     <Compile Include="Tools.cs" />
     <Compile Include="IAnchorableTool.cs" />
     <Compile Include="Interfaces.cs" />
