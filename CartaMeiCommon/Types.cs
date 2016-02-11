@@ -69,28 +69,18 @@ namespace CartaMei.Common
             get { return _longitude; }
             set
             {
+                _longitude = value;
                 var val = value.FixCoordinate(180);
-                if (_longitude != val)
+                if (this.SafeLongitude != val)
                 {
-                    _longitude = val;
+                    this.SafeLongitude = val;
                 }
             }
         }
-
-        private double _latitude;
-        public double Latitude
-        {
-            get { return _latitude; }
-            set
-            {
-                var val = value.FixCoordinate(90);
-                if (_latitude != val)
-                {
-                    _latitude = val;
-                }
-            }
-        }
+        public double SafeLongitude { get; private set; }
         
+        public double Latitude { get; set; }
+
         #endregion
 
         #region Object
@@ -102,13 +92,13 @@ namespace CartaMei.Common
 
         public override int GetHashCode()
         {
-            return (int)(this.Longitude + this.Latitude * short.MaxValue);
+            return (int)(this.SafeLongitude + this.Latitude * short.MaxValue);
         }
 
         public override bool Equals(object obj)
         {
             var other = obj as LatLonCoordinates;
-            return other != null && other.Longitude == this.Latitude && other.Longitude == this.Latitude;
+            return other != null && other.SafeLongitude == this.SafeLongitude && other.Latitude == this.Latitude;
         }
 
         public static bool operator ==(LatLonCoordinates x, LatLonCoordinates y)
@@ -340,7 +330,7 @@ namespace CartaMei.Common
         public bool Contains(LatLonCoordinates coordinates)
         {
             return 
-                coordinates.Longitude >= this.LonMin && coordinates.Longitude <= this.SafeLonMax &&
+                coordinates.SafeLongitude >= this.LonMin && coordinates.SafeLongitude <= this.SafeLonMax &&
                 coordinates.Latitude >= this.LatMin && coordinates.Latitude <= this.LatMax;
         }
 

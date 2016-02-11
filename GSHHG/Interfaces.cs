@@ -68,7 +68,7 @@ namespace CartaMei.GSHHG
 
         THeader Header { get; set; }
 
-        IEnumerable<TPoint> Points { get; set; }
+        TPoint[] Points { get; set; }
 
         IPolygon<THeader, TPoint> Parent { get; set; }
 

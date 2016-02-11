@@ -1,14 +1,12 @@
 ﻿using CartaMei.Common;
-using System;
+using CartaMei.GSHHG;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Windows.Media;
-using System.Windows.Controls;
+using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace CartaMei.GSHHG
 {
@@ -126,7 +124,7 @@ namespace CartaMei.GSHHG
                         }
                         else
                         {
-                            var visualPolygon = new System.Windows.Shapes.Polygon()
+                            var visualPolygon = new System.Windows.Shapes.Path()
                             {
                                 Stroke = PluginSettings.Instance.ShorelinesBrush,
                                 StrokeThickness = PluginSettings.Instance.ShorelinesThickness,
@@ -142,7 +140,7 @@ namespace CartaMei.GSHHG
                                 IsActive = true,
                                 Layer = this,
                                 Name = "Polygon #" + id,
-                                PolygonVisual = visualPolygon
+                                VisualShape = visualPolygon
                             };
                             updatePolygonPoints(polygonObject, context);
                             _polygonObjects.Add(id, polygonObject);
@@ -196,19 +194,39 @@ namespace CartaMei.GSHHG
                 var item = _polygonObjects[id];
                 _polygonObjects.Remove(id);
                 this.Root.Items.Remove(item);
-                _container.Children.Remove(item.PolygonVisual);
+                _container.Children.Remove(item.VisualShape);
             }
         }
 
         private void updatePolygonPoints(ShorelinePolygonObject polygonObject, IDrawContext context)
         {
             var projection = context.Projection;
-            var points = new List<System.Windows.Point>();
-            foreach (var item in polygonObject.Polygon.Points)
+            var points = polygonObject.Polygon.Points?.Select(point => (Point)projection.LatLonToPixel(point));
+            var polygon = polygonObject.VisualShape as System.Windows.Shapes.Polygon;
+            if (polygon != null)
             {
-                points.Add(projection.LatLonToPixel(item));
+                polygon.Points = new PointCollection(points);
             }
-            polygonObject.PolygonVisual.Points = new PointCollection(points);
+            else
+            {
+                var bezier = new PolyBezierSegment()
+                {
+                    IsSmoothJoin = true,// TODO: check what that means
+                    IsStroked = true,// TODO: check what that means
+                    Points = new PointCollection(points)
+                };
+                var path = polygonObject.VisualShape as System.Windows.Shapes.Path;
+                path.Data = new PathGeometry(new PathFigureCollection()
+                {
+                    new PathFigure()
+                    {
+                        IsClosed = true,
+                        IsFilled = true,// TODO: check what that means
+                        Segments = new PathSegmentCollection() { bezier },
+                        StartPoint = points.First()
+                    }
+                });
+            }
         }
 
         #endregion
@@ -228,7 +246,7 @@ namespace CartaMei.GSHHG
         public IPolygon<GSHHG2PolygonHeader, LatLonCoordinates> Polygon { get; set; }
 
         [Browsable(false)]
-        public System.Windows.Shapes.Polygon PolygonVisual { get; set; }
+        public System.Windows.Shapes.Shape VisualShape { get; set; }
 
         #endregion
     }
