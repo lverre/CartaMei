@@ -100,6 +100,10 @@
     <Compile Include="Dialogs\NewMap.xaml.cs">
       <DependentUpon>NewMap.xaml</DependentUpon>
     </Compile>
+    <Compile Include="WPF\EnumerableToVisibilityConverter.cs" />
+    <Compile Include="WPF\SplitButton.xaml.cs">
+      <DependentUpon>SplitButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="WPF\StatusBarItemTemplateSelector.cs" />
     <Compile Include="WPF\LayersContainer.cs" />
     <Compile Include="WPF\DictionaryTemplateSelector.cs" />
@@ -125,6 +129,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Templates\PropertiesTemplate.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WPF\SplitButton.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

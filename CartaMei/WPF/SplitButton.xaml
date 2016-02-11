@@ -1,0 +1,27 @@
+﻿<Button x:Class="CartaMei.WPF.SplitButton"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:lwpf="clr-namespace:CartaMei.WPF"
+        mc:Ignorable="d" 
+        ContextMenuService.IsEnabled="False">
+
+    <Button.Resources>
+        <lwpf:EnumerableToVisibilityConverter x:Key="enumerableToVisibilityConverter" />
+    </Button.Resources>
+    
+    <Button.Content>
+        <StackPanel Orientation="Horizontal">
+            <!-- TODO: Icon instead of text -->
+            <TextBlock Text="{Binding Name}"/>
+            <Path Margin="4" VerticalAlignment="Center" Width="6" Fill="#FF527DB5" Stretch="Uniform" HorizontalAlignment="Right" Data="F1 M 301.14,-189.041L 311.57,-189.041L 306.355,-182.942L 301.14,-189.041 Z"
+                              Visibility="{Binding Children, Converter={StaticResource enumerableToVisibilityConverter}}" />
+        </StackPanel>
+    </Button.Content>
+    
+    <Button.ContextMenu>
+        <ContextMenu />
+    </Button.ContextMenu>
+    
+</Button>

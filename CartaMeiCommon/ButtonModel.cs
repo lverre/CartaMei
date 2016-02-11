@@ -44,7 +44,7 @@ namespace CartaMei.Common
         #endregion
     }
 
-    public class ButtonModel : IButtonModel, INotifyPropertyChanged, ICommand
+    public class ButtonModel : NotifyPropertyChangedBase, IButtonModel, ICommand
     {
         #region Constructor
 
@@ -54,18 +54,7 @@ namespace CartaMei.Common
         }
 
         #endregion
-
-        #region INotifyPropertyChanged
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void onPropetyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = "")
-        {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        #endregion
-
+        
         #region ICommand
 
         public event EventHandler CanExecuteChanged;
@@ -185,6 +174,7 @@ namespace CartaMei.Common
                 {
                     _isEnabled = value;
                     onPropetyChanged();
+                    onCanExecuteChanged();
                 }
             }
         }
