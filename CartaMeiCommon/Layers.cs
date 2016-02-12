@@ -36,10 +36,8 @@ namespace CartaMei.Common
 
         LatLonBoundaries Boundaries { get; }
 
-        bool IsDesign { get; }
-
-        bool IsExport { get; }
-
+        DisplayType DisplayType { get; }
+        
         long AnimationStep { get; }
         
         #endregion
@@ -49,14 +47,17 @@ namespace CartaMei.Common
     {
         #region Constructor
 
-        public DrawContext(UIElement container, RedrawType redrawType, LatLonBoundaries boundaries, IProjection projection, bool isDesign, bool isExport, long animationStep)
+        public DrawContext(UIElement container, RedrawType redrawType, IMap map)
+            : this(container, redrawType, map.Boundaries, map.Projection, Current.DisplayType, Current.AnimationStep)
+        { }
+
+        public DrawContext(UIElement container, RedrawType redrawType, LatLonBoundaries boundaries, IProjection projection, DisplayType displayType, long animationStep)
         {
             this.Container = container;
             this.RedrawType = redrawType;
             this.Boundaries = boundaries;
             this.Projection = projection;
-            this.IsDesign = IsDesign;
-            this.IsExport = IsExport;
+            this.DisplayType = displayType;
             this.AnimationStep = animationStep;
         }
 
@@ -72,13 +73,17 @@ namespace CartaMei.Common
 
         public IProjection Projection { get; private set; }
 
-        public bool IsDesign { get; private set; }
-
-        public bool IsExport { get; private set; }
-
+        public DisplayType DisplayType { get; private set; }
+        
         public long AnimationStep { get; private set; }
 
         #endregion
+    }
+
+    public enum DisplayType
+    {
+        Design,
+        Export
     }
 
     public enum RedrawType
@@ -86,7 +91,9 @@ namespace CartaMei.Common
         Reset,
         Translation,
         Resize,
-        Zoom
+        Zoom,
+        DisplayTypeChanged,
+        AnimationStepChanged
     }
 
     public abstract class ALayer : MapObject, ILayer

@@ -25,10 +25,10 @@ namespace CartaMei.GSHHG
                     Description = ShorelineLayer.LayerDescription,
                     Create = delegate (IMap map)
                     {
-                        if (!Directory.Exists(PluginSettings.Instance.MapsDirectory?.FullName))
+                        if (!Directory.Exists(PluginSettings.Instance.MapsDirectory))
                         {
                             // TODO: alert + show options window
-                            PluginSettings.Instance.MapsDirectory = new DirectoryInfo(@"C:\Users\Laurian\Downloads\indy maps\gshhg-bin-2.3.4");
+                            PluginSettings.Instance.MapsDirectory = @"C:\Users\Laurian\Downloads\indy maps\gshhg-bin-2.3.4";
                         }
                         return new ShorelineLayer(map);
                     }

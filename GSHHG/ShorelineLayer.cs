@@ -7,6 +7,8 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
+using System;
 
 namespace CartaMei.GSHHG
 {
@@ -39,11 +41,15 @@ namespace CartaMei.GSHHG
         {
             _map = map;
 
-            _container = new Canvas()
-            {
-                Background = PluginSettings.Instance.ShorelinesWaterFill
-            };
+            _container = new Canvas();
             _container.MouseMove += mouseMove;
+
+            this.ShorelinesThickness = PluginSettings.Instance.ShorelinesThickness;
+            this.ShorelinesBrush = PluginSettings.Instance.ShorelinesBrush;
+            this.ShorelinesWaterFill = PluginSettings.Instance.ShorelinesWaterFill;
+            this.ShorelinesLandFill = PluginSettings.Instance.ShorelinesLandFill;
+            this.UseAutoResolution = PluginSettings.Instance.UseAutoResolution;
+            this.Resolution = PluginSettings.Instance.Resolution;
 
             this.Name = ShorelineLayer.LayerName;
             this.Items = new ObservableCollection<IMapObject>();
@@ -53,17 +59,74 @@ namespace CartaMei.GSHHG
 
         #region Properties
 
-        private Resolution _resolution;
-        [Description("The resolution to use.")]
-        [DisplayName("Resolution")]
-        public Resolution Resolution
+        private double _shorelinesThickness;
+        [Description("The thickness of the contour of the shorelines.")]
+        [DisplayName("Shorelines Thickness")]
+        [PropertyOrder(0)]
+        public double ShorelinesThickness
         {
-            get { return _resolution; }
+            get { return _shorelinesThickness; }
             set
             {
-                if (value != _resolution)
+                if (_shorelinesThickness != value)
                 {
-                    _resolution = value;
+                    _shorelinesThickness = value;
+                    redraw();
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private Brush _shorelinesBrush;
+        [Description("The brush used to draw the contour of the shorelines.")]
+        [DisplayName("Shorelines Brush")]
+        [PropertyOrder(1)]
+        public Brush ShorelinesBrush
+        {
+            get { return _shorelinesBrush; }
+            set
+            {
+                if (_shorelinesBrush != value)
+                {
+                    _shorelinesBrush = value;
+                    redraw();
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private Brush _shorelinesWaterFill;
+        [Description("The brush used to fill water areas.")]
+        [DisplayName("Water Fill")]
+        [PropertyOrder(2)]
+        public Brush ShorelinesWaterFill
+        {
+            get { return _shorelinesWaterFill; }
+            set
+            {
+                if (_shorelinesWaterFill != value)
+                {
+                    _shorelinesWaterFill = value;
+                    _container.Background = value;
+                    redraw();
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private Brush _shorelinesLandFill;
+        [Description("The brush used to fill land areas.")]
+        [DisplayName("Land Fill")]
+        [PropertyOrder(3)]
+        public Brush ShorelinesLandFill
+        {
+            get { return _shorelinesLandFill; }
+            set
+            {
+                if (_shorelinesLandFill != value)
+                {
+                    _shorelinesLandFill = value;
+                    redraw();
                     onPropetyChanged();
                 }
             }
@@ -72,6 +135,7 @@ namespace CartaMei.GSHHG
         private bool _useAutoResolution;
         [Description("When enabled, this feature will use the best resolution given the map boundaries.")]
         [DisplayName("Auto Resolution")]
+        [PropertyOrder(4)]
         public bool UseAutoResolution
         {
             get { return _useAutoResolution; }
@@ -80,6 +144,25 @@ namespace CartaMei.GSHHG
                 if (value != _useAutoResolution)
                 {
                     _useAutoResolution = value;
+                    this.Resolution = getResolution(_map.Boundaries);
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private Resolution _resolution;
+        [Description("The resolution to use.")]
+        [DisplayName("Resolution")]
+        [PropertyOrder(5)]
+        public Resolution Resolution
+        {
+            get { return _resolution; }
+            set
+            {
+                if (value != _resolution)
+                {
+                    _resolution = value;
+                    redraw();
                     onPropetyChanged();
                 }
             }
@@ -96,6 +179,18 @@ namespace CartaMei.GSHHG
 
         public override void Draw(IDrawContext context)
         {
+            switch (context.RedrawType)
+            {
+                case RedrawType.Reset:
+                case RedrawType.Resize:
+                case RedrawType.Translation:
+                case RedrawType.Zoom:
+                    break;
+                default:
+                    // We don't handle those
+                    return;
+            }
+
             resetMapData(context);
             
             var toRemove = new List<int>();
@@ -130,9 +225,9 @@ namespace CartaMei.GSHHG
                         {
                             var visualPolygon = new System.Windows.Shapes.Path()
                             {
-                                Stroke = PluginSettings.Instance.ShorelinesBrush,
-                                StrokeThickness = PluginSettings.Instance.ShorelinesThickness,
-                                Fill = item.Value.Header.IsLand ? PluginSettings.Instance.ShorelinesLandFill : PluginSettings.Instance.ShorelinesWaterFill,
+                                Stroke = this.ShorelinesBrush,
+                                StrokeThickness = this.ShorelinesThickness,
+                                Fill = item.Value.Header.IsLand ? this.ShorelinesLandFill : this.ShorelinesWaterFill,
                                 HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
                                 VerticalAlignment = System.Windows.VerticalAlignment.Top
                             };
@@ -173,12 +268,15 @@ namespace CartaMei.GSHHG
 
         #region Tools
 
+        private void redraw()
+        {
+            this.Draw(new DrawContext(_container, RedrawType.Reset, _map));
+        }
+
         private void resetMapData(IDrawContext context)
         {
-            var resolution = this.UseAutoResolution
-                ? getResolution(context.Boundaries)
-                : this.Resolution;
-            var mapsDir = PluginSettings.Instance.MapsDirectory?.FullName;
+            var resolution = getResolution(context.Boundaries);
+            var mapsDir = PluginSettings.Instance.MapsDirectory;
             if (resolution != this.Resolution || mapsDir != _mapsDir)
             {
                 if (_polygonObjects != null)
@@ -191,7 +289,7 @@ namespace CartaMei.GSHHG
 
                 Utils.Instance.SetStatus("Loading map...", true, true);
                 var reader = new GSHHG2Reader();
-                _polygons = reader.Read(PluginSettings.Instance.MapsDirectory.FullName, PolygonType.ShoreLine, Resolution.Crude).Polygons;
+                _polygons = reader.Read(PluginSettings.Instance.MapsDirectory, PolygonType.ShoreLine, Resolution.Crude).Polygons;
                 Utils.Instance.HideStatus();
                 _polygonObjects = new Dictionary<int, ShorelinePolygonObject>();
             }
@@ -199,7 +297,14 @@ namespace CartaMei.GSHHG
 
         private Resolution getResolution(LatLonBoundaries boundaries)
         {
-            return Resolution.Crude;// TODO: calc from boundaries
+            if (this.UseAutoResolution)
+            {
+                return Resolution.Crude;// TODO: calc from boundaries
+            }
+            else
+            {
+                return this.Resolution;
+            }
         }
 
         private void removeChildren(IList<int> ids)

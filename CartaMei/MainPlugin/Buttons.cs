@@ -94,9 +94,9 @@ namespace CartaMei.MainPlugin
             };
             RemoveLayerTool.Click += onRemoveLayer;
 
-            Current.MapChanged += delegate (object sender, EventArgs e)
+            Current.MapChanged += delegate (CurrentPropertyChangedEventArgs<IMap> e)
             {
-                var map = Current.Map as INotifyPropertyChanged;
+                var map = e.NewValue;
                 if (map != null)
                 {
                     map.PropertyChanged += delegate(object sender2, PropertyChangedEventArgs e2)
@@ -332,6 +332,44 @@ namespace CartaMei.MainPlugin
 
         private static void onOptions(object sender, EventArgs args)
         {
+            var pluginsItems = new List<OptionItem>();
+            foreach (var item in PluginManager.Instance.Plugins)
+            {
+                object settings;
+                if (PluginManager.Instance.PluginsSettings.TryGetValue(item.Key, out settings))
+                {
+                    pluginsItems.Add(new OptionItem()
+                    {
+                        Name = item.Value.Name,
+                        Properties = settings
+                    });
+                }
+            }
+            var items = new List<OptionItem>()
+            {
+                new OptionItem()
+                {
+                    Name = "General",
+                    Properties = GeneralSettings.Instance
+                },
+                new OptionItem()
+                {
+                    Name = "Plugins",
+                    Properties = null,
+                    Children = pluginsItems
+                },
+            };
+            var model = new OptionsModel()
+            {
+                Items = items,
+                SelectedObject = items[0].Properties
+            };
+            var dialog = new Options()
+            {
+                Owner = Utils.MainWindow,
+                DataContext = model
+            };
+            dialog.ShowDialog();
         }
 
         #endregion

@@ -34,17 +34,72 @@ namespace CartaMei.Common
 
         public void SetMap(IMap value)
         {
-            if (_map != value)
+            if (value != _map)
             {
+                var oldValue = _map;
                 _map = value;
-                Current.MapChanged?.Invoke(null, null);
+                Current.MapChanged?.Invoke(new CurrentPropertyChangedEventArgs<IMap>(oldValue, _map));
             }
         }
 
         public static IMap Map { get { return _instance._map; } }
 
-        public static event EventHandler MapChanged;
+        public static event CurrentPropertyChangedEventHandler<IMap> MapChanged;
+
+        #endregion
+
+        #region Display Type
+
+        private DisplayType _displayType;
+
+        public void SetDisplayType(DisplayType value)
+        {
+            if (value != _displayType)
+            {
+                var oldValue = _displayType;
+                _displayType = value;
+                Current.DisplayTypeChanged?.Invoke(new CurrentPropertyChangedEventArgs<DisplayType>(oldValue, _displayType));
+            }
+        }
+
+        public static DisplayType DisplayType { get { return _instance._displayType; } }
+
+        public static event CurrentPropertyChangedEventHandler<DisplayType> DisplayTypeChanged;
+
+        #endregion
+
+        #region Animation Step
+
+        private long _animationStep;
+
+        public void SetAnimationStep(long value)
+        {
+            if (value != _animationStep)
+            {
+                var oldValue = _animationStep;
+                _animationStep = value;
+                Current.AnimationStepChanged?.Invoke(new CurrentPropertyChangedEventArgs<long>(oldValue, _animationStep));
+            }
+        }
+
+        public static long AnimationStep { get { return _instance._animationStep; } }
+
+        public static event CurrentPropertyChangedEventHandler<long> AnimationStepChanged;
 
         #endregion
     }
+
+    public class CurrentPropertyChangedEventArgs<T>
+    {
+        public CurrentPropertyChangedEventArgs(T oldValue, T newValue)
+        {
+            this.OldValue = oldValue;
+            this.NewValue = newValue;
+        }
+
+        public T OldValue { get; private set; }
+        public T NewValue { get; private set; }
+    }
+
+    public delegate void CurrentPropertyChangedEventHandler<T>(CurrentPropertyChangedEventArgs<T> e);
 }

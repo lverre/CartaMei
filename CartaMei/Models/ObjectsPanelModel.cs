@@ -21,14 +21,14 @@ namespace CartaMei.Models
 
         public ObjectsPanelModel()
         {
-            EventHandler mapChanged = delegate (object sender, EventArgs e)
+            CurrentPropertyChangedEventHandler<IMap> mapChanged = delegate (CurrentPropertyChangedEventArgs<IMap> e)
             {
-                _map = Current.Map;
+                _map = e.NewValue;
                 _items = new object[] { _map };
                 onPropetyChanged(nameof(ObjectsPanelModel.Items));
             };
             Current.MapChanged += mapChanged;
-            mapChanged(this, null);
+            mapChanged(new CurrentPropertyChangedEventArgs<IMap>(null, Current.Map));
         }
         
         #endregion

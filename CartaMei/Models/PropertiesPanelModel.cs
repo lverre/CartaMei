@@ -13,11 +13,11 @@ namespace CartaMei.Models
 
         public PropertiesPanelModel()
         {
-            Current.MapChanged += delegate (object s1, EventArgs e1)
+            Current.MapChanged += delegate (CurrentPropertyChangedEventArgs<IMap> e1)
             {
-                if (Current.Map != null)
+                if (e1.NewValue != null)
                 {
-                    Current.Map.PropertyChanged += delegate (object s2, System.ComponentModel.PropertyChangedEventArgs e2)
+                    e1.NewValue.PropertyChanged += delegate (object s2, System.ComponentModel.PropertyChangedEventArgs e2)
                     {
                         if (e2.PropertyName == nameof(MapModel.ActiveObject))
                         {

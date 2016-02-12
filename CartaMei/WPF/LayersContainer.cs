@@ -95,8 +95,23 @@ namespace CartaMei.WPF
             }
             mapPropertyChanged(this, new PropertyChangedEventArgs(nameof(IMap.Layers)));
             mapPropertyChanged(this, new PropertyChangedEventArgs(nameof(IMap.Boundaries)));
-        }
 
+            Current.AnimationStepChanged += delegate (CurrentPropertyChangedEventArgs<long> asc)
+            {
+                if (Current.Map == _map)
+                {
+                    draw(RedrawType.AnimationStepChanged);
+                }
+            };
+            Current.DisplayTypeChanged += delegate (CurrentPropertyChangedEventArgs<DisplayType> asc)
+            {
+                if (Current.Map == _map)
+                {
+                    draw(RedrawType.DisplayTypeChanged);
+                }
+            };
+        }
+        
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);
@@ -227,18 +242,18 @@ namespace CartaMei.WPF
         {
             foreach (var item in _childrenDictionary)
             {
-                drawLayer(item.Key, item.Value, redrawType, _map.Boundaries, _map.Projection, true, false, 0);
+                drawLayer(item.Key, item.Value, redrawType, _map);
             }
         }
 
         private void drawLayer(ILayer layer, RedrawType redrawType)
         {
-            drawLayer(layer, _childrenDictionary[layer], redrawType, _map.Boundaries, _map.Projection, true, false, 0);
+            drawLayer(layer, _childrenDictionary[layer], redrawType, _map);
         }
 
-        private void drawLayer(ILayer layer, UIElement container, RedrawType redrawType, LatLonBoundaries boundaries, IProjection projection, bool isDesign, bool isExport, long animationStep)
+        private void drawLayer(ILayer layer, UIElement container, RedrawType redrawType, IMap map)
         {
-            layer.Draw(new DrawContext(container, redrawType, boundaries, projection, isDesign, isExport, animationStep));
+            layer.Draw(new DrawContext(container, redrawType, map));
         }
 
         private void zoom(Point center, double factor, bool isZoomIn)

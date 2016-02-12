@@ -17,9 +17,9 @@ namespace CartaMei.Models
 
         public MainWindowModel()
         {
-            Current.MapChanged += delegate (object s1, EventArgs e1)
+            Current.MapChanged += delegate (CurrentPropertyChangedEventArgs<IMap> e1)
             {
-                this.Document = Current.Map;
+                this.Document = e1.NewValue;
                 
                 var map = Current.Map as INotifyPropertyChanged;
                 if (map != null)
