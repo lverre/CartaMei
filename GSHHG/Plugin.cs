@@ -50,6 +50,11 @@ namespace CartaMei.GSHHG
 
         public override object Settings { get { return PluginSettings.Instance; } }
 
+        public override void Unload()
+        {
+            Properties.Settings.Default.Save();
+        }
+
         #endregion
     }
 }

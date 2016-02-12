@@ -42,7 +42,12 @@ namespace CartaMei.Common
         /// Gets an object that shows and can change the plugin's settings.
         /// </summary>
         object Settings { get; }
-        
+
+        /// <summary>
+        /// This method is called when the plugin is about to be unloaded. This is where you should save your settings.
+        /// </summary>
+        void Unload();
+
         #endregion
     }
 
@@ -105,6 +110,12 @@ namespace CartaMei.Common
         /// </summary>
         /// <remarks>Returns always <c>null</c>.</remarks>
         public virtual object Settings { get { return null; } }
+
+        /// <summary>
+        /// This method is called when the plugin is about to be unloaded. This is where you should save your settings.
+        /// </summary>
+        /// <remarks>This implementation does nothing.</remarks>
+        public virtual void Unload() { }
 
         #endregion
     }

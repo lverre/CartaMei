@@ -89,6 +89,14 @@ namespace CartaMei
 
         public void Reload()
         {
+            if (this.Plugins != null)
+            {
+                foreach (var item in this.Plugins)
+                {
+                    item.Key.Unload();
+                }
+            }
+
             _container.ComposeParts(this);
 
             var plugins = new Dictionary<IPlugin, IPluginMetadata>();
