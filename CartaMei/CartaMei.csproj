@@ -105,6 +105,7 @@
     <Compile Include="Dialogs\NewMap.xaml.cs">
       <DependentUpon>NewMap.xaml</DependentUpon>
     </Compile>
+    <Compile Include="WPF\DockableToUIDConverter.cs" />
     <Compile Include="WPF\EnumerableToVisibilityConverter.cs" />
     <Compile Include="WPF\ObjectTemplateSelector.cs" />
     <Compile Include="WPF\SplitButton.xaml.cs">

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CartaMei.Common
 {
-    public interface IAnchorableTool
+    public interface IDockElement
     {
         string Name { get; }
     }

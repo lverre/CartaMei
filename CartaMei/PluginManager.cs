@@ -73,7 +73,7 @@ namespace CartaMei
 
         public IEnumerable<Datum> Datums { get; private set; }
 
-        public IEnumerable<Tuple<IAnchorableTool, DataTemplate>> AnchorableTools { get; private set; }
+        public IEnumerable<Tuple<IDockElement, DataTemplate>> AnchorableTools { get; private set; }
 
         public IDictionary<IPlugin, object> PluginsSettings { get; private set; }
 
@@ -100,7 +100,7 @@ namespace CartaMei
             var layerProviders = new List<PluginItemProvider<ILayer>>();
             var projectionProviders = new List<PluginItemProvider<IProjection>>();
             var datums = new List<Datum>();
-            var anchorableTools = new List<Tuple<IAnchorableTool, DataTemplate>>();
+            var anchorableTools = new List<Tuple<IDockElement, DataTemplate>>();
             var pluginsSettings = new Dictionary<IPlugin, object>();
 
             foreach (var item in this.LoadedPlugins)

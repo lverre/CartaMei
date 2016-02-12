@@ -3,6 +3,7 @@ using CartaMei.Models;
 using CartaMei.WPF;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Xceed.Wpf.AvalonDock.Layout.Serialization;
 
 namespace CartaMei
 {
@@ -44,6 +46,60 @@ namespace CartaMei
             
             PluginManager.Instance.Reload();
             rebuild();
+            
+            var newMap = new NewMapModel()
+            {
+                Datum = Datum.WGS84,
+                Projection = PluginManager.Instance.ProjectionProviders.First(),
+                Name = "test"
+            };
+            var map = newMap.CreateMap();
+            Tools.Utils.Current.SetMap(map);
+            map.ActiveObject = map;
+            map.Layers.Add(PluginManager.Instance.LayerProviders.First().Create(map));
+        }
+
+        #endregion
+
+        #region Event Handlers
+
+        private void loaded(object sender, RoutedEventArgs e)
+        {
+            loadLayout();
+        }
+
+        private void closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            saveLayout();
+        }
+
+        #endregion
+
+        #region Layout
+
+        private void saveLayout()
+        {
+            var xmlLayoutSerializer = new XmlLayoutSerializer(_dockingManager);
+            var stringBuilder = new StringBuilder();
+            using (var textWriter = new StringWriter(stringBuilder))
+            {
+                xmlLayoutSerializer.Serialize(textWriter);
+            }
+            Properties.Settings.Default.Layout = stringBuilder.ToString();
+            Properties.Settings.Default.Save();
+        }
+
+        private void loadLayout()
+        {
+            var serializedLayout = Properties.Settings.Default.Layout;
+            if (!string.IsNullOrEmpty(serializedLayout))
+            {
+                var xmlLayoutSerializer = new XmlLayoutSerializer(_dockingManager);
+                using (var stringReader = new StringReader(serializedLayout))
+                {
+                    xmlLayoutSerializer.Deserialize(stringReader);
+                }
+            }
         }
 
         #endregion
@@ -113,7 +169,7 @@ namespace CartaMei
         
         private void rebuildAnchorables()
         {
-            var anchorables = new List<IAnchorableTool>();
+            var anchorables = new List<IDockElement>();
             var templates = new Dictionary<Type, DataTemplate>()
             {
                 {
@@ -145,7 +201,7 @@ namespace CartaMei
                 adTemplateSelector.Templates = templates;
             }
 
-            _model.Anchorables = new System.Collections.ObjectModel.ObservableCollection<IAnchorableTool>(anchorables);
+            _model.Anchorables = new System.Collections.ObjectModel.ObservableCollection<IDockElement>(anchorables);
         }
 
         #endregion

@@ -117,8 +117,8 @@ namespace CartaMei.Models
         }
         public IEnumerable<IMap> Documents { get { return new IMap[] { this.Document }; } }
 
-        private ObservableCollection<IAnchorableTool> _anchorables;
-        public ObservableCollection<IAnchorableTool> Anchorables
+        private ObservableCollection<IDockElement> _anchorables;
+        public ObservableCollection<IDockElement> Anchorables
         {
             get { return _anchorables; }
             set

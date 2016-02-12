@@ -7,7 +7,7 @@ using System.ComponentModel;
 
 namespace CartaMei.Models
 {
-    public class ObjectsPanelModel : NotifyPropertyChangedBase, IAnchorableTool
+    public class ObjectsPanelModel : NotifyPropertyChangedBase, IDockElement
     {
         #region Fields
 

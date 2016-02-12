@@ -4,14 +4,12 @@ using System.ComponentModel;
 
 namespace CartaMei.Common
 {
-    public interface IMap : INotifyPropertyChanged
+    public interface IMap : IDockElement, INotifyPropertyChanged
     {
         #region Properties
 
         #region Metadata
-
-        string Name { get; set; }
-
+        
         string Description { get; set; }
 
         string Author { get; set; }

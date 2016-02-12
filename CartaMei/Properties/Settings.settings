@@ -1,7 +1,28 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="uri:settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="CartaMei.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="Layout" Type="System.String" Scope="User">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;LayoutRoot xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;RootPanel Orientation="Horizontal"&gt;
+    &lt;LayoutAnchorablePane DockWidth="238" FloatingWidth="250" FloatingHeight="449" FloatingLeft="23" FloatingTop="392"&gt;
+      &lt;LayoutAnchorable AutoHideMinWidth="100" AutoHideMinHeight="100" Title="Objects" IsSelected="True" ContentId="CartaMei.Models.ObjectsPanelModel-Objects" FloatingLeft="23" FloatingTop="392" FloatingWidth="250" FloatingHeight="449" LastActivationTimeStamp="02/12/2016 11:06:49" PreviousContainerId="9eba6e38-8ad9-41f9-9294-85a106b3caec" PreviousContainerIndex="0" /&gt;
+    &lt;/LayoutAnchorablePane&gt;
+    &lt;LayoutDocumentPane&gt;
+      &lt;LayoutDocument Title="test" IsSelected="True" IsLastFocusedDocument="True" LastActivationTimeStamp="02/12/2016 11:06:35" /&gt;
+    &lt;/LayoutDocumentPane&gt;
+    &lt;LayoutAnchorablePane Id="9eba6e38-8ad9-41f9-9294-85a106b3caec" DockWidth="250"&gt;
+      &lt;LayoutAnchorable AutoHideMinWidth="100" AutoHideMinHeight="100" Title="Properties" IsSelected="True" ContentId="CartaMei.Models.PropertiesPanelModel-Properties" LastActivationTimeStamp="02/12/2016 11:06:45" /&gt;
+    &lt;/LayoutAnchorablePane&gt;
+  &lt;/RootPanel&gt;
+  &lt;TopSide /&gt;
+  &lt;RightSide /&gt;
+  &lt;LeftSide /&gt;
+  &lt;BottomSide /&gt;
+  &lt;FloatingWindows /&gt;
+  &lt;Hidden /&gt;
+&lt;/LayoutRoot&gt;</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>

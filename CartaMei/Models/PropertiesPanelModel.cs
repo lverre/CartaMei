@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CartaMei.Models
 {
-    public class PropertiesPanelModel : NotifyPropertyChangedBase, IAnchorableTool
+    public class PropertiesPanelModel : NotifyPropertyChangedBase, IDockElement
     {
         #region Constructor
 
@@ -37,7 +37,7 @@ namespace CartaMei.Models
         {
             get { return "Properties"; }
         }
-
+        
         #endregion
 
         #region Properties

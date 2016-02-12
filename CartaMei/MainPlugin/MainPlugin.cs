@@ -74,15 +74,15 @@ namespace CartaMei.MainPlugin
 
         public override IEnumerable<Datum> Datums { get { return _datums; } }
 
-        public override IEnumerable<Tuple<IAnchorableTool, DataTemplate>> AnchorableTools
+        public override IEnumerable<Tuple<IDockElement, DataTemplate>> AnchorableTools
         {
             get
             {
-                yield return new Tuple<IAnchorableTool, DataTemplate>(new Models.ObjectsPanelModel(), new DataTemplate()
+                yield return new Tuple<IDockElement, DataTemplate>(new Models.ObjectsPanelModel(), new DataTemplate()
                 {
                     VisualTree = new FrameworkElementFactory(typeof(Templates.ObjectsTemplate))
                 });
-                yield return new Tuple<IAnchorableTool, DataTemplate>(new Models.PropertiesPanelModel(), new DataTemplate()
+                yield return new Tuple<IDockElement, DataTemplate>(new Models.PropertiesPanelModel(), new DataTemplate()
                 {
                     VisualTree = new FrameworkElementFactory(typeof(Templates.PropertiesTemplate))
                 });

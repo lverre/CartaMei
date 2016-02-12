@@ -11,12 +11,14 @@
         xmlns:lm="clr-namespace:CartaMei.Models"
         xmlns:lc="clr-namespace:CartaMei.Common;assembly=CartaMeiCommon"
         mc:Ignorable="d"
+        Loaded="loaded"
+        Closing="closing"
         Title="{Binding Title}">
 
     <Window.Resources>
 
         <BooleanToVisibilityConverter x:Key="booleanToVisibilityConverter" />
-        <lwpf:EnumerableToVisibilityConverter x:Key="enumerableToVisibilityConverter" />
+        <lwpf:DockableToUIDConverter x:Key="dockableToUIDConverter" />
 
         <Style x:Key="menuItemStyle" TargetType="{x:Type MenuItem}">
             <Style.Triggers>
@@ -30,8 +32,7 @@
                     <Setter Property="MenuItem.IsChecked" Value="{Binding Path=IsChecked}" />
                     <Setter Property="MenuItem.IsEnabled" Value="{Binding IsEnabled}" />
                     <Setter Property="MenuItem.ItemsSource" Value="{Binding Children}" />
-                    <Setter Property="MenuItem.Visibility" 
-                                    Value="{Binding Path=IsVisible, Converter={StaticResource booleanToVisibilityConverter}}"/>
+                    <Setter Property="MenuItem.Visibility" Value="{Binding Path=IsVisible, Converter={StaticResource booleanToVisibilityConverter}}"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding IsSeparator}" Value="True">
                     <Setter Property="MenuItem.Template">
@@ -104,6 +105,7 @@
         </ToolBarTray>
 
         <xcad:DockingManager Grid.Row="2"
+                             x:Name="_dockingManager"
                              DataContext="{Binding}"
                              DocumentsSource="{Binding Documents}"
                              AnchorablesSource="{Binding Anchorables}"
@@ -112,6 +114,7 @@
             <xcad:DockingManager.LayoutItemContainerStyle>
                 <Style TargetType="{x:Type xcad:LayoutItem}">
                     <Setter Property="Title" Value="{Binding Model.Name}" />
+                    <Setter Property="ContentId" Value="{Binding Path=Model, Converter={StaticResource dockableToUIDConverter}}"/>
                 </Style>
             </xcad:DockingManager.LayoutItemContainerStyle>
 

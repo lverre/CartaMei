@@ -253,7 +253,7 @@ namespace CartaMei.MainPlugin
             if (dialog.ShowDialog() == true)
             {
                 Utils.Current.SetMap(model.CreateMap());
-                (Current.Map as MapModel).ActiveObject = Current.Map;
+                Current.Map.ActiveObject = Current.Map;
             }
         }
 

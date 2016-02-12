@@ -51,7 +51,7 @@
     <Compile Include="Delegates.cs" />
     <Compile Include="IStatusItem.cs" />
     <Compile Include="Tools.cs" />
-    <Compile Include="IAnchorableTool.cs" />
+    <Compile Include="IDockElement.cs" />
     <Compile Include="Interfaces.cs" />
     <Compile Include="Layers.cs" />
     <Compile Include="IMap.cs" />

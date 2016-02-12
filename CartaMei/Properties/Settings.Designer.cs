@@ -22,5 +22,36 @@ namespace CartaMei.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<LayoutRoot xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <RootPanel Orientation=""Horizontal"">
+    <LayoutAnchorablePane DockWidth=""238"" FloatingWidth=""250"" FloatingHeight=""449"" FloatingLeft=""23"" FloatingTop=""392"">
+      <LayoutAnchorable AutoHideMinWidth=""100"" AutoHideMinHeight=""100"" Title=""Objects"" IsSelected=""True"" ContentId=""CartaMei.Models.ObjectsPanelModel-Objects"" FloatingLeft=""23"" FloatingTop=""392"" FloatingWidth=""250"" FloatingHeight=""449"" LastActivationTimeStamp=""02/12/2016 11:06:49"" PreviousContainerId=""9eba6e38-8ad9-41f9-9294-85a106b3caec"" PreviousContainerIndex=""0"" />
+    </LayoutAnchorablePane>
+    <LayoutDocumentPane>
+      <LayoutDocument Title=""test"" IsSelected=""True"" IsLastFocusedDocument=""True"" LastActivationTimeStamp=""02/12/2016 11:06:35"" />
+    </LayoutDocumentPane>
+    <LayoutAnchorablePane Id=""9eba6e38-8ad9-41f9-9294-85a106b3caec"" DockWidth=""250"">
+      <LayoutAnchorable AutoHideMinWidth=""100"" AutoHideMinHeight=""100"" Title=""Properties"" IsSelected=""True"" ContentId=""CartaMei.Models.PropertiesPanelModel-Properties"" LastActivationTimeStamp=""02/12/2016 11:06:45"" />
+    </LayoutAnchorablePane>
+  </RootPanel>
+  <TopSide />
+  <RightSide />
+  <LeftSide />
+  <BottomSide />
+  <FloatingWindows />
+  <Hidden />
+</LayoutRoot>")]
+        public string Layout {
+            get {
+                return ((string)(this["Layout"]));
+            }
+            set {
+                this["Layout"] = value;
+            }
+        }
     }
 }
