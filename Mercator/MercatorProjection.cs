@@ -14,8 +14,23 @@ namespace CartaMei.Mercator
         internal const string ProjectionName = "Mercator";
         internal const string ProjectionDescription = "Mercator projection";
 
+        internal const double DefaultTransverseScaleFactor = .9996d;
+
+        private static readonly LatLonBoundaries _limitBoundaries = new LatLonBoundaries() { LatMin = -85, LatMax = 85, LonMin = double.MinValue, LonMax = double.MaxValue };
+
         #endregion
-        
+
+        #region Constructor
+
+        public MercatorProjection()
+        {
+            this.UseEllipsoid = false;
+            this.UseTransverse = false;
+            this.TransverseScaleFactor = DefaultTransverseScaleFactor;
+        }
+
+        #endregion
+
         #region Properties
 
         private bool _useEllipsoid;
@@ -32,14 +47,44 @@ namespace CartaMei.Mercator
             }
         }
 
+        private bool _useTransverse;
+        public bool UseTransverse
+        {
+            get { return _useTransverse; }
+            set
+            {
+                if (_useTransverse != value)
+                {
+                    _useTransverse = value;
+                    updateFormulae();
+                }
+            }
+        }
+
+        private double _transverseScaleFactor;
+        public double TransverseScaleFactor
+        {
+            get { return _transverseScaleFactor; }
+            set
+            {
+                if (_transverseScaleFactor != value)
+                {
+                    _transverseScaleFactor = value;
+                    updateFormulae();
+                }
+            }
+        }
+
         #endregion
 
         #region IProjection
 
-        public string Name { get { return ProjectionName; } }
+        public virtual string Name { get { return ProjectionName; } }
+
+        public virtual LatLonBoundaries LimitBoundaries { get { return _limitBoundaries; } }
 
         private IMap _map;
-        public IMap Map
+        public virtual IMap Map
         {
             get { return _map; }
             set
@@ -52,23 +97,32 @@ namespace CartaMei.Mercator
             }
         }
 
-        public virtual Coordinates2D LatLonToPixel(Coordinates2D latLonCoordinates)
+        public virtual PixelCoordinates LatLonToPixel(LatLonCoordinates latLonCoordinates)
         {
-            // TODO: bound values, call the abstract functions
-            return new Coordinates2D()
+            var longitude = latLonCoordinates.Longitude;
+            var latitude = latLonCoordinates.Latitude;
+            // TODO: make sure they are "in phase"
+            if (latitude == 90)
             {
-                X = 0,
-                Y = 0
+                latitude -= double.Epsilon;
+            }
+            else if (latitude == -90)
+            {
+                latitude += double.Epsilon;
+            }
+            return new PixelCoordinates()
+            {
+                X = _formulae.LongitudeToX(longitude),
+                Y = _formulae.LatitudeToY(latitude)
             };
         }
 
-        public virtual Coordinates2D PixelToLatLon(Coordinates2D pixelCoordinates)
+        public virtual LatLonCoordinates PixelToLatLon(PixelCoordinates pixelCoordinates)
         {
-            // TODO: bound values, call the abstract functions
-            return new Coordinates2D()
+            return new LatLonCoordinates()
             {
-                X = 0,
-                Y = 0
+                Longitude = _formulae.XToLongitude(pixelCoordinates.X),
+                Latitude = _formulae.YToLatitude(pixelCoordinates.Y)
             };
         }
 
@@ -76,18 +130,18 @@ namespace CartaMei.Mercator
 
         #region Formulae
 
-        private AMercatorFormulae _formulae;
+        protected AMercatorFormulae _formulae;
 
-        private void updateFormulae()
+        protected virtual void updateFormulae()
         {
-            // TODO: Transverse Mercator, Web Mercator
+            // TODO: Web Mercator
             if (this.UseEllipsoid)
             {
-                _formulae = new EllipsoidFormulae();
+                _formulae = this.UseTransverse ? new TransverseEllipsoidFormulae() { ScaleFactor = this.TransverseScaleFactor } : new EllipsoidFormulae();
             }
             else
             {
-                _formulae = new SphericalFormulae();
+                _formulae = this.UseTransverse ? new TransverseSphericalFormulae() { ScaleFactor = this.TransverseScaleFactor } : new SphericalFormulae();
             }
             _formulae.Projection = this;
         }

@@ -12,7 +12,7 @@ namespace CartaMei.Mercator
         {
             Name = MercatorProjection.ProjectionName,
             Description = MercatorProjection.ProjectionDescription,
-            Create = delegate() { return new MercatorProjection() { UseEllipsoid = true }; }
+            Create = delegate(IMap map) { return new MercatorProjection() { Map = map }; }
         };
 
         #endregion

@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="AMercatorFormulae.cs" />
     <Compile Include="MercatorProjection.cs" />
+    <Compile Include="TransverseMercator.cs" />
     <Compile Include="SphericalMercator.cs" />
     <Compile Include="EllipsoidMercator.cs" />
     <Compile Include="Plugin.cs" />

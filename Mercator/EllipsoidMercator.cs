@@ -20,28 +20,19 @@ namespace CartaMei.Mercator
 
         public override double LongitudeToX(double longitude)
         {
-            return degreesToRadians(longitude) * this.Datum.MajorRadius;
+            return this.Datum.MajorRadius * degreesToRadians(longitude - this.MapBoundaries.LonMin);
         }
 
         public override double LatitudeToY(double latitude)
         {
-            if (latitude == 90)
-            {
-                latitude -= double.Epsilon;
-            }
-            else if (latitude == -90)
-            {
-                latitude += double.Epsilon;
-            }
-
             var phi = degreesToRadians(latitude);
-                var eSinPhi = this.Datum.Excentricity * Math.Sin(phi);
-                return 
-                    this.Datum.MajorRadius * 
-                    Math.Log(
-                        Math.Tan(QuarterPi + phi / 2d) * 
-                        Math.Pow((1d - eSinPhi) / (1d + eSinPhi), this.Datum.HalfExcentricity)
-                        );
+            var eSinPhi = this.Datum.Excentricity * Math.Sin(phi);
+            return 
+                this.Datum.MajorRadius * 
+                Math.Log(
+                    Math.Tan(QuarterPi + phi / 2d) * 
+                    Math.Pow((1d - eSinPhi) / (1d + eSinPhi), this.Datum.HalfExcentricity)
+                    );
         }
 
         public override double XToLongitude(double x)
