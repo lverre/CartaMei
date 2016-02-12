@@ -255,6 +255,11 @@ namespace CartaMei.GSHHG
                 }
 
                 removeChildren(toRemove);
+
+                if (context.RedrawType == RedrawType.Reset || context.RedrawType == RedrawType.Resize)
+                {
+                    _container.InvalidateVisual();
+                }
             }
         }
 
