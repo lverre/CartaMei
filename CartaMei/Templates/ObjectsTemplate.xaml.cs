@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CartaMei.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,14 +16,17 @@ using System.Windows.Shapes;
 
 namespace CartaMei.Templates
 {
-    /// <summary>
-    /// Interaction logic for LayerTemplate.xaml
-    /// </summary>
-    public partial class LayersTemplate : UserControl
+    public partial class ObjectsTemplate : UserControl
     {
-        public LayersTemplate()
+        public ObjectsTemplate()
         {
             InitializeComponent();
+        }
+
+        private void selectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            var map = Current.Map;
+            if (map != null) map.ActiveObject = _treeView.SelectedItem;
         }
     }
 }

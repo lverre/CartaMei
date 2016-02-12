@@ -85,12 +85,12 @@
     <Compile Include="MainPlugin\EquirectangularProjection.cs" />
     <Compile Include="MainPlugin\MainPluginSettings.cs" />
     <Compile Include="Models\PropertiesPanelModel.cs" />
-    <Compile Include="Models\LayersPanelModel.cs" />
+    <Compile Include="Models\ObjectsPanelModel.cs" />
     <Compile Include="Models\MapModel.cs" />
     <Compile Include="PluginManager.cs" />
     <Compile Include="MainPlugin\MainPlugin.cs" />
-    <Compile Include="Templates\LayersTemplate.xaml.cs">
-      <DependentUpon>LayersTemplate.xaml</DependentUpon>
+    <Compile Include="Templates\ObjectsTemplate.xaml.cs">
+      <DependentUpon>ObjectsTemplate.xaml</DependentUpon>
     </Compile>
     <Compile Include="Templates\PropertiesTemplate.xaml.cs">
       <DependentUpon>PropertiesTemplate.xaml</DependentUpon>
@@ -101,6 +101,7 @@
       <DependentUpon>NewMap.xaml</DependentUpon>
     </Compile>
     <Compile Include="WPF\EnumerableToVisibilityConverter.cs" />
+    <Compile Include="WPF\ObjectTemplateSelector.cs" />
     <Compile Include="WPF\SplitButton.xaml.cs">
       <DependentUpon>SplitButton.xaml</DependentUpon>
     </Compile>
@@ -124,7 +125,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Templates\LayersTemplate.xaml">
+    <Page Include="Templates\ObjectsTemplate.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

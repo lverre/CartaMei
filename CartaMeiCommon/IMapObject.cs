@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -13,14 +14,10 @@ namespace CartaMei.Common
 
         string Name { get; set; }
 
-        ICollection<IMapObject> Items { get; }
-
-        ILayer Layer { get; set; }
+        ObservableCollection<IMapObject> Items { get; }
 
         IEnumerable<IButtonModel> ContextMenu { get; }
-
-        object Properties { get; }
-
+        
         bool ShowOnDesign { get; }
 
         bool ShowOnExport { get; }
@@ -32,6 +29,17 @@ namespace CartaMei.Common
     
     public class MapObject : NotifyPropertyChangedBase, IMapObject
     {
+        #region Constructor
+
+        public MapObject()
+        {
+            this.ShowOnDesign = true;
+            this.ShowOnExport = true;
+            this.IsActive = true;
+        }
+
+        #endregion
+
         #region Properties
 
         private string _name;
@@ -51,9 +59,9 @@ namespace CartaMei.Common
             }
         }
 
-        private ICollection<IMapObject> _items;
+        private ObservableCollection<IMapObject> _items;
         [Browsable(false)]
-        public virtual ICollection<IMapObject> Items
+        public virtual ObservableCollection<IMapObject> Items
         {
             get { return _items; }
             set
@@ -65,37 +73,43 @@ namespace CartaMei.Common
                 }
             }
         }
-
-        private ILayer _layer;
+        
         [Browsable(false)]
-        public virtual ILayer Layer
+        public virtual IEnumerable<IButtonModel> ContextMenu { get { return null; } }
+
+        private bool _showOnDesign;
+        [Category("General")]
+        [Description("When on, this means that the object will appear on the design canvas.")]
+        [DisplayName("Show On Design")]
+        public virtual bool ShowOnDesign
         {
-            get { return _layer; }
+            get { return _showOnDesign; }
             set
             {
-                if (value != _layer)
+                if (value != _showOnDesign)
                 {
-                    _layer = value;
+                    _showOnDesign = value;
                     onPropetyChanged();
                 }
             }
         }
 
-        [Browsable(false)]
-        public virtual IEnumerable<IButtonModel> ContextMenu { get { return null; } }
-
-        [Browsable(false)]
-        public virtual object Properties { get { return this; } }
-
-        [Category("General")]
-        [Description("When on, this means that the object will appear on the design canvas.")]
-        [DisplayName("Show On Design")]
-        public virtual bool ShowOnDesign { get { return true; } }
-
+        private bool _showOnExport;
         [Category("General")]
         [Description("When on, this means that the object will appear on the exported document.")]
         [DisplayName("Show On Export")]
-        public virtual bool ShowOnExport { get { return true; } }
+        public virtual bool ShowOnExport
+        {
+            get { return _showOnExport; }
+            set
+            {
+                if (value != _showOnExport)
+                {
+                    _showOnExport = value;
+                    onPropetyChanged();
+                }
+            }
+        }
 
         private bool _isActive;
         [Category("General")]
@@ -139,7 +153,7 @@ namespace CartaMei.Common
         }
 
         [Browsable(false)]
-        public virtual ICollection<IMapObject> Items { get { return null; } }
+        public virtual ObservableCollection<IMapObject> Items { get { return null; } }
 
         private ILayer _layer;
         [Browsable(false)]

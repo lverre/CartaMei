@@ -44,6 +44,9 @@ namespace CartaMei.GSHHG
                 Background = PluginSettings.Instance.ShorelinesWaterFill
             };
             _container.MouseMove += mouseMove;
+
+            this.Name = ShorelineLayer.LayerName;
+            this.Items = new ObservableCollection<IMapObject>();
         }
 
         #endregion
@@ -94,18 +97,7 @@ namespace CartaMei.GSHHG
         public override void Draw(IDrawContext context)
         {
             resetMapData(context);
-
-            if (this.Root == null)
-            {
-                this.Root = new MapObject()
-                {
-                    IsActive = true,
-                    Layer = this,
-                    Name = "Shorelines",
-                    Items = new ObservableCollection<IMapObject>()
-                };
-            }
-
+            
             var toRemove = new List<int>();
             if (_polygonObjects != null) toRemove.AddRange(_polygonObjects.Keys);
 
@@ -156,7 +148,8 @@ namespace CartaMei.GSHHG
                             };
                             updatePolygonPoints(polygonObject, context);
                             _polygonObjects.Add(id, polygonObject);
-                            this.Root.Items.Add(polygonObject);
+                            // If we add it to the children, the objects panel will get very crowded and slow
+                            // this.Items.Add(polygonObject);
                         }
                     }
                 }
@@ -218,7 +211,7 @@ namespace CartaMei.GSHHG
                 ids.RemoveAt(index);
                 var item = _polygonObjects[id];
                 _polygonObjects.Remove(id);
-                this.Root.Items.Remove(item);
+                //this.Items.Remove(item);
                 _container.Children.Remove(item.VisualShape);
             }
         }
@@ -257,7 +250,7 @@ namespace CartaMei.GSHHG
         #endregion
     }
 
-    public class ShorelinePolygonObject : MapLeafObject
+    public class ShorelinePolygonObject : MapLeafObject, ILayerItem
     {
         #region Properties
 

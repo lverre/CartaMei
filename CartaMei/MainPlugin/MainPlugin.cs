@@ -78,9 +78,9 @@ namespace CartaMei.MainPlugin
         {
             get
             {
-                yield return new Tuple<IAnchorableTool, DataTemplate>(new Models.LayersPanelModel(), new DataTemplate()
+                yield return new Tuple<IAnchorableTool, DataTemplate>(new Models.ObjectsPanelModel(), new DataTemplate()
                 {
-                    VisualTree = new FrameworkElementFactory(typeof(Templates.LayersTemplate))
+                    VisualTree = new FrameworkElementFactory(typeof(Templates.ObjectsTemplate))
                 });
                 yield return new Tuple<IAnchorableTool, DataTemplate>(new Models.PropertiesPanelModel(), new DataTemplate()
                 {

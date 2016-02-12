@@ -11,25 +11,10 @@ using System.Windows.Media;
 
 namespace CartaMei.Common
 {
-    public interface ILayerItem : INotifyPropertyChanged
-    {
-        #region Properties
-
-        string Name { get; set; }
-
-        ObservableCollection<ILayerItem> Children { get; }
-
-        #endregion
-    }
+    public interface ILayerItem : IMapObject, INotifyPropertyChanged { }
 
     public interface ILayer : ILayerItem, INotifyPropertyChanged
     {
-        #region Properties
-        
-        IMapObject Root { get; set; }
-        
-        #endregion
-
         #region Function
 
         UIElement CreateContainer();
@@ -104,42 +89,10 @@ namespace CartaMei.Common
         Zoom
     }
 
-    public abstract class ALayer : NotifyPropertyChangedBase, ILayer
+    public abstract class ALayer : MapObject, ILayer
     {
         #region ILayer
-
-        private string _name;
-        public virtual string Name
-        {
-            get { return _name; }
-            set
-            {
-                if (value != _name)
-                {
-                    _name = value;
-                    onPropetyChanged();
-                }
-            }
-        }
         
-        private IMapObject _root;
-        [Browsable(false)]
-        public virtual IMapObject Root
-        {
-            get { return _root; }
-            set
-            {
-                if (value != _root)
-                {
-                    _root = value;
-                    onPropetyChanged();
-                }
-            }
-        }
-
-        [Browsable(false)]
-        public virtual ObservableCollection<ILayerItem> Children { get { return null; } }
-
         public virtual UIElement CreateContainer()
         {
             return new Canvas();
@@ -150,42 +103,5 @@ namespace CartaMei.Common
         #endregion
     }
 
-    public class LayerItem : NotifyPropertyChangedBase, ILayerItem
-    {
-        #region ILayerItem
-
-        private ObservableCollection<ILayerItem> _children;
-        [Browsable(false)]
-        public ObservableCollection<ILayerItem> Children
-        {
-            get { return _children; }
-            set
-            {
-                if (value != _children)
-                {
-                    _children = value;
-                    onPropetyChanged();
-                }
-            }
-        }
-
-        private string _name;
-        [Category("General")]
-        [Description("The name of the layer item.")]
-        [DisplayName("Name")]
-        public string Name
-        {
-            get { return _name; }
-            set
-            {
-                if (value != _name)
-                {
-                    _name = value;
-                    onPropetyChanged();
-                }
-            }
-        }
-        
-        #endregion
-    }
+    public class LayerItem : MapObject, ILayerItem { }
 }
