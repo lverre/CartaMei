@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CartaMei.Common
+﻿namespace CartaMei.Common
 {
     public interface IProjection : IHasName
     {
@@ -21,8 +15,8 @@ namespace CartaMei.Common
         PixelCoordinates LatLonToPixel(LatLonCoordinates latLonCoordinates);
 
         LatLonCoordinates PixelToLatLon(PixelCoordinates pixelCoordinates);
-
-        // TODO: we probably need a function to draw a line as well (the line gets distorted with the projection)
+        
+        // TODO: we need a function to draw a line as well (the line gets distorted with the projection)
 
         #endregion
     }

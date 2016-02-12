@@ -376,7 +376,7 @@ namespace CartaMei.GSHHG
         {
             var projection = context.Projection;
             var points = polygonObject.Polygon.Points?.Select(point => (Point)projection.LatLonToPixel(point));
-            var polygon = polygonObject.VisualShape as System.Windows.Shapes.Polygon;
+            var polygon = polygonObject.VisualShape as Polygon;
             if (polygon != null)
             {
                 polygon.Points = new PointCollection(points);
@@ -385,8 +385,8 @@ namespace CartaMei.GSHHG
             {
                 var bezier = new PolyBezierSegment()
                 {
-                    IsSmoothJoin = true,// TODO: check what that means
-                    IsStroked = true,// TODO: check what that means
+                    IsSmoothJoin = true,
+                    IsStroked = true,
                     Points = new PointCollection(points)
                 };
                 var path = polygonObject.VisualShape as System.Windows.Shapes.Path;
@@ -395,7 +395,7 @@ namespace CartaMei.GSHHG
                     new PathFigure()
                     {
                         IsClosed = true,
-                        IsFilled = true,// TODO: check what that means
+                        IsFilled = true,
                         Segments = new PathSegmentCollection() { bezier },
                         StartPoint = points.First()
                     }

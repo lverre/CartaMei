@@ -219,6 +219,7 @@ namespace CartaMei.WPF
                     else
                     {
                         child = layer.CreateContainer();
+                        child.ClipToBounds = true;
                         toDraw.Add(layer);
                     }
                     _childrenDictionary[layer] = child;

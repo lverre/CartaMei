@@ -120,9 +120,9 @@
 
             <xcad:LayoutRoot>
                 <xcad:LayoutPanel Orientation="Horizontal">
-                    <xcad:LayoutAnchorablePane DockWidth="250"></xcad:LayoutAnchorablePane>
+                    <xcad:LayoutAnchorablePane/>
                     <xcad:LayoutDocumentPane/>
-                    <xcad:LayoutAnchorablePane DockWidth="250"></xcad:LayoutAnchorablePane>
+                    <xcad:LayoutAnchorablePane/>
                 </xcad:LayoutPanel>
             </xcad:LayoutRoot>
             

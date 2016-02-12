@@ -5,5 +5,4 @@ Down is first.
 - do the TODO in the code...
 - shorelines: display only the points that are shown (to check: test if the lines between P(i-1) and P(i), and between P(i) and P(i+1) cross the display rectangle: if not, we can skip P(i)
 - fix shorelines issue when a polygon crosses the anti-center-longitude line
-- fix canvas draws outside of where it's supposed to draw
-- allow map to pan so that the center is not greenwitch even if we're showing the full map
+- allow the map to be centered anywhere even if we're showing it all
