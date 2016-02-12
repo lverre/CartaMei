@@ -1,4 +1,5 @@
 ﻿using CartaMei.Common;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Forms;
 
 namespace CartaMei.GSHHG
 {
@@ -25,11 +27,7 @@ namespace CartaMei.GSHHG
                     Description = ShorelineLayer.LayerDescription,
                     Create = delegate (IMap map)
                     {
-                        if (!Directory.Exists(PluginSettings.Instance.MapsDirectory))
-                        {
-                            // TODO: alert + show options window
-                            PluginSettings.Instance.MapsDirectory = @"C:\Users\Laurian\Downloads\indy maps\gshhg-bin-2.3.4";
-                        }
+                        checkMapsDirectory();
                         return new ShorelineLayer(map);
                     }
                 };
@@ -53,6 +51,47 @@ namespace CartaMei.GSHHG
         public override void Unload()
         {
             Properties.Settings.Default.Save();
+        }
+
+        #endregion
+
+        #region Tools
+
+        private bool checkMapsDirectory()
+        {
+            if (!Directory.Exists(PluginSettings.Instance.MapsDirectory))
+            {
+                var programLocation = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+#if DEBUG
+                PluginSettings.Instance.MapsDirectory = Path.Combine(programLocation, @"..\..\..\..\maps");
+                //return true;
+#endif
+
+                var message =
+@"You haven't set the directory for the GSHHG map files.
+If you already have the files in your computer, click No.
+If you want to download the files, click Yes. Your browser will open NOAA's GSHHG website (https://www.ngdc.noaa.gov/mgg/shorelines/data/gshhg/latest/). From there, download the bin file and unzip it somewhere in your computer.";
+                var offerDowloadResult = System.Windows.MessageBox.Show(message, "Download Maps", MessageBoxButton.YesNo, MessageBoxImage.Information);
+                if (offerDowloadResult == MessageBoxResult.Yes)
+                {
+                    System.Diagnostics.Process.Start("https://www.ngdc.noaa.gov/mgg/shorelines/data/gshhg/latest/");
+                }
+
+                var dialog = new FolderBrowserDialog()
+                {
+                    Description = "Choose the folder that contains the GSHHG maps.",
+                    SelectedPath = programLocation
+                };
+                switch (dialog.ShowDialog())
+                {
+                    case DialogResult.OK:
+                    case DialogResult.Yes:
+                        PluginSettings.Instance.MapsDirectory = dialog.SelectedPath;
+                        break;
+                }
+            }
+
+            return Directory.Exists(PluginSettings.Instance.MapsDirectory);
         }
 
         #endregion
