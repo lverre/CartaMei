@@ -4,6 +4,12 @@ Welcome to Carta Mei!
 
 Carta Mei is a tool to create layered maps. For example, you'd have the shore lines on the first layer, then your trip on the second layer, and finally some names of countries and cities on the third layer.
 
+## Use
+
+To use the project, check it out using git or download the zip/tgz file (there is no release version yet!). 
+You'll need the maps files to use the GSHHG plugin, but the plugins will help you with that when you'll try to add a layer. 
+If you want to download the file now, you can go to: https://www.ngdc.noaa.gov/mgg/shorelines/data/gshhg/latest/ (choose the bin archive).
+
 ## [Milestones](https://github.com/lverre/CartaMei/milestones)
 
 ### Milestone 1
@@ -34,3 +40,4 @@ Carta Mei is written in C# 6 using the .NET Framework 4.6. It also uses:
 * [Avalon Dock](http://wpftoolkit.codeplex.com/) for the main interface
 
 The solution is a Visual Studio (Express) 2015 solution.
+

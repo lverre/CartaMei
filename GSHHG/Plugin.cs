@@ -67,19 +67,20 @@ namespace CartaMei.GSHHG
                 //return true;
 #endif
 
+                var gshhgUrl = "https://www.ngdc.noaa.gov/mgg/shorelines/data/gshhg/latest/";
                 var message =
 @"You haven't set the directory for the GSHHG map files.
 If you already have the files in your computer, click No.
-If you want to download the files, click Yes. Your browser will open NOAA's GSHHG website (https://www.ngdc.noaa.gov/mgg/shorelines/data/gshhg/latest/). From there, download the bin file and unzip it somewhere in your computer.";
+If you want to download the files, click Yes. Your browser will open NOAA's GSHHG website (" + gshhgUrl + @"). From there, download the bin file and unzip it somewhere in your computer.";
                 var offerDowloadResult = System.Windows.MessageBox.Show(message, "Download Maps", MessageBoxButton.YesNo, MessageBoxImage.Information);
                 if (offerDowloadResult == MessageBoxResult.Yes)
                 {
-                    System.Diagnostics.Process.Start("https://www.ngdc.noaa.gov/mgg/shorelines/data/gshhg/latest/");
+                    System.Diagnostics.Process.Start(gshhgUrl);
                 }
 
                 var dialog = new FolderBrowserDialog()
                 {
-                    Description = "Choose the folder that contains the GSHHG maps.",
+                    Description = "Please choose the folder that contains the GSHHG map files.",
                     SelectedPath = programLocation
                 };
                 switch (dialog.ShowDialog())

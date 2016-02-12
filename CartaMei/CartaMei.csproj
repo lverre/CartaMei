@@ -178,9 +178,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="TODO.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\CartaMeiCommon\CartaMeiCommon.csproj">
       <Project>{38948164-d77c-43ed-a3a0-100de6d38514}</Project>
       <Name>CartaMeiCommon</Name>

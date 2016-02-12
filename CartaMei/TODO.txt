@@ -1,2 +1,0 @@
-﻿- check licenses (Extended WPF Toolkit)
-- write README.md file
