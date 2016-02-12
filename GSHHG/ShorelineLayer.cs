@@ -26,6 +26,10 @@ namespace CartaMei.GSHHG
 
         private IMap _map;
 
+        private Resolution _loadedResolution;
+
+        private readonly object _readerLocker = new object();
+
         private string _mapsDir = null;
         
         private IDictionary<int, IPolygon<GSHHG2PolygonHeader, LatLonCoordinates>> _polygons = null;
@@ -43,6 +47,7 @@ namespace CartaMei.GSHHG
         public ShorelineLayer(IMap map)
         {
             _map = map;
+            _loadedResolution = (Resolution)int.MaxValue;// Invalid value
 
             _container = new Canvas();
             _container.MouseMove += mouseMove;
@@ -51,7 +56,6 @@ namespace CartaMei.GSHHG
             this.ShorelinesBrush = PluginSettings.Instance.ShorelinesBrush;
             this.ShorelinesWaterFill = PluginSettings.Instance.ShorelinesWaterFill;
             this.ShorelinesLandFill = PluginSettings.Instance.ShorelinesLandFill;
-            this.UseAutoResolution = PluginSettings.Instance.UseAutoResolution;
             this.Resolution = PluginSettings.Instance.Resolution;
             this.UseCurvedLines = PluginSettings.Instance.UseCurvedLines;
 
@@ -135,29 +139,11 @@ namespace CartaMei.GSHHG
                 }
             }
         }
-
-        private bool _useAutoResolution;
-        [Description("When enabled, this feature will use the best resolution given the map boundaries.")]
-        [DisplayName("Auto Resolution")]
-        [PropertyOrder(4)]
-        public bool UseAutoResolution
-        {
-            get { return _useAutoResolution; }
-            set
-            {
-                if (value != _useAutoResolution)
-                {
-                    _useAutoResolution = value;
-                    this.Resolution = getResolution(_map.Boundaries);
-                    onPropetyChanged();
-                }
-            }
-        }
-
+        
         private Resolution _resolution;
         [Description("The resolution to use.")]
         [DisplayName("Resolution")]
-        [PropertyOrder(5)]
+        [PropertyOrder(4)]
         public Resolution Resolution
         {
             get { return _resolution; }
@@ -175,7 +161,7 @@ namespace CartaMei.GSHHG
         private bool _useCurvedLines;
         [Description("When enabled, this feature display curved (bezier) lines instead of straight lines.")]
         [DisplayName("Curved Lines")]
-        [PropertyOrder(6)]
+        [PropertyOrder(5)]
         public bool UseCurvedLines
         {
             get { return _useCurvedLines; }
@@ -326,38 +312,28 @@ namespace CartaMei.GSHHG
 
         private void resetMapData(IDrawContext context)
         {
-            var resolution = getResolution(context.Boundaries);
-            var mapsDir = PluginSettings.Instance.MapsDirectory;
-            if (resolution != this.Resolution || mapsDir != _mapsDir)
+            lock (_readerLocker)
             {
-                if (_polygonObjects != null)
+                var mapsDir = PluginSettings.Instance.MapsDirectory;
+                if (this.Resolution != _loadedResolution || mapsDir != _mapsDir)
                 {
-                    removeChildren(new List<int>(_polygonObjects.Keys));
+                    if (_polygonObjects != null)
+                    {
+                        removeChildren(new List<int>(_polygonObjects.Keys));
+                    }
+                
+                    _mapsDir = mapsDir;
+
+                    Utils.Instance.SetStatus("Loading map...", true, true);
+                    var reader = new GSHHG2Reader();
+                    _polygons = reader.Read(PluginSettings.Instance.MapsDirectory, PolygonType.ShoreLine, this.Resolution).Polygons;
+                    Utils.Instance.HideStatus();
+                    _polygonObjects = new Dictionary<int, ShorelinePolygonObject>();
+                    _loadedResolution = this.Resolution;
                 }
-
-                this.Resolution = resolution;
-                _mapsDir = mapsDir;
-
-                Utils.Instance.SetStatus("Loading map...", true, true);
-                var reader = new GSHHG2Reader();
-                _polygons = reader.Read(PluginSettings.Instance.MapsDirectory, PolygonType.ShoreLine, this.Resolution).Polygons;
-                Utils.Instance.HideStatus();
-                _polygonObjects = new Dictionary<int, ShorelinePolygonObject>();
             }
         }
-
-        private Resolution getResolution(LatLonBoundaries boundaries)
-        {
-            if (this.UseAutoResolution)
-            {
-                return Resolution.Crude;// TODO: calc from boundaries
-            }
-            else
-            {
-                return this.Resolution;
-            }
-        }
-
+        
         private void removeChildren(IList<int> ids)
         {
             while (ids.Count > 0)

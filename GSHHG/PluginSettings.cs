@@ -48,32 +48,13 @@ namespace CartaMei.GSHHG
                 }
             }
         }
-
-        private bool _useAutoResolution;
-        [DefaultValue(true)]
-        [Description("When enabled, this feature will use the best resolution given the map boundaries.")]
-        [DisplayName("Auto Resolution")]
-        [Category("General")]
-        [PropertyOrder(1)]
-        public bool UseAutoResolution
-        {
-            get { return _useAutoResolution; }
-            set
-            {
-                if (value != _useAutoResolution)
-                {
-                    _useAutoResolution = value;
-                    onPropetyChanged();
-                }
-            }
-        }
-
+        
         private Resolution _resolution;
         [DefaultValue(Resolution.Crude)]
         [Description("The resolution to use.")]
         [DisplayName("Resolution")]
         [Category("General")]
-        [PropertyOrder(2)]
+        [PropertyOrder(1)]
         public Resolution Resolution
         {
             get { return _resolution; }
@@ -92,7 +73,7 @@ namespace CartaMei.GSHHG
         [Description("When enabled, this feature display curved (bezier) lines instead of straight lines.")]
         [DisplayName("Curved Lines")]
         [Category("General")]
-        [PropertyOrder(1)]
+        [PropertyOrder(2)]
         public bool UseCurvedLines
         {
             get { return _useCurvedLines; }

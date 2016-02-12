@@ -173,13 +173,13 @@ namespace CartaMei.WPF
                 switch (e.ChangedButton)
                 {
                     case MouseButton.Left:
-                        // TODO: select
+                        // TODO: select (get first selectable object in inverse order of the layers)
                         break;
                     case MouseButton.Middle:
                         startPan(panPoint, true);
                         break;
                     case MouseButton.Right:
-                        // TODO: context menu
+                        // TODO: context menu: show the list of possible objects that can be selected
                         break;
                 }
             }

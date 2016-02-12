@@ -39,7 +39,8 @@ namespace CartaMei
             
             PluginManager.Instance.Reload();
             rebuild();
-            
+
+#if DEBUG
             var newMap = new NewMapModel()
             {
                 Datum = Datum.WGS84,
@@ -50,9 +51,10 @@ namespace CartaMei
             Tools.Utils.Current.SetMap(map);
             map.ActiveObject = map;
             map.Layers.Add(PluginManager.Instance.LayerProviders.First().Create(map));
+#endif
         }
 
-        #endregion
+#endregion
 
         #region Event Handlers
 
@@ -168,16 +170,7 @@ namespace CartaMei
         private void rebuildAnchorables()
         {
             var anchorables = new List<IDockElement>();
-            var templates = new Dictionary<Type, DataTemplate>()
-            {
-                {
-                    typeof(IMap),
-                    new DataTemplate()
-                    {
-                        VisualTree = new FrameworkElementFactory(typeof(Canvas))// TODO
-                    }
-                }
-            };
+            var templates = new Dictionary<Type, DataTemplate>();
             if (PluginManager.Instance.AnchorableTools != null)
             {
                 foreach (var item in PluginManager.Instance.AnchorableTools)
