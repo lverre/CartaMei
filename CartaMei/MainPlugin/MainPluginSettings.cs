@@ -1,25 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CartaMei.Common;
+using System;
+using System.ComponentModel;
 
 namespace CartaMei.MainPlugin
 {
-    public class MainPluginSettings
+    [Serializable]
+    public class MainPluginSettings : NotifyPropertyChangedBase
     {
-        #region Singleton
-
-        private static readonly MainPluginSettings _instance = new MainPluginSettings();
-
-        public static MainPluginSettings Instance { get { return _instance; } }
-
-        private MainPluginSettings() { }
+        #region Instance
+        
+        public static MainPluginSettings Instance
+        {
+            get
+            {
+                var instance = CartaMei.Properties.Settings.Default.MainPluginSettings;
+                if (instance == null)
+                {
+                    instance = Common.Tools.GetDefault<MainPluginSettings>();
+                    CartaMei.Properties.Settings.Default.MainPluginSettings = instance;
+                }
+                return instance;
+            }
+        }
 
         #endregion
 
         #region Properties
-
+        
         #endregion
     }
 }

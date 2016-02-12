@@ -1,36 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Media;
 using CartaMei.Common;
 using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace CartaMei.GSHHG
 {
+    [Serializable]
     public class PluginSettings : NotifyPropertyChangedBase
     {
-        #region Singleton
+        #region Instance
 
-        private static readonly PluginSettings _instance = new PluginSettings();
-
-        public static PluginSettings Instance { get { return _instance; } }
-
-        private PluginSettings()
+        public static PluginSettings Instance
         {
-            this.ShorelinesThickness = 1;
-            this.ShorelinesBrush = Brushes.Black;
-            this.ShorelinesWaterFill = Brushes.Blue;
-            this.ShorelinesLandFill = Brushes.Brown;
-            this.UseAutoResolution = true;
-            this.Resolution = Resolution.Low;
+            get
+            {
+                var instance = CartaMei.GSHHG.Properties.Settings.Default.PluginSettings;
+                if (instance == null)
+                {
+                    instance = Common.Tools.GetDefault<PluginSettings>();
+                    CartaMei.GSHHG.Properties.Settings.Default.PluginSettings = instance;
+                }
+                return instance;
+            }
         }
 
         #endregion
-
+        
         #region Properties
 
         #region General
@@ -54,6 +50,7 @@ namespace CartaMei.GSHHG
         }
 
         private bool _useAutoResolution;
+        [DefaultValue(true)]
         [Description("When enabled, this feature will use the best resolution given the map boundaries.")]
         [DisplayName("Auto Resolution")]
         [Category("General")]
@@ -72,6 +69,7 @@ namespace CartaMei.GSHHG
         }
 
         private Resolution _resolution;
+        [DefaultValue(Resolution.Crude)]
         [Description("The resolution to use.")]
         [DisplayName("Resolution")]
         [Category("General")]
@@ -89,11 +87,31 @@ namespace CartaMei.GSHHG
             }
         }
 
+        private bool _useCurvedLines;
+        [DefaultValue(true)]
+        [Description("When enabled, this feature display curved (bezier) lines instead of straight lines.")]
+        [DisplayName("Curved Lines")]
+        [Category("General")]
+        [PropertyOrder(1)]
+        public bool UseCurvedLines
+        {
+            get { return _useCurvedLines; }
+            set
+            {
+                if (value != _useCurvedLines)
+                {
+                    _useCurvedLines = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
         #endregion
 
         #region Shorelines
 
         private double _shorelinesThickness;
+        [DefaultValue(1)]
         [Description("The thickness of the contour of the shorelines.")]
         [DisplayName("Shorelines Thickness")]
         [Category("Shorelines")]
@@ -112,6 +130,7 @@ namespace CartaMei.GSHHG
         }
 
         private Brush _shorelinesBrush;
+        [DefaultValue(typeof(SolidColorBrush), "#FF000000")]
         [Description("The brush used to draw the contour of the shorelines.")]
         [DisplayName("Shorelines Brush")]
         [Category("Shorelines")]
@@ -130,6 +149,7 @@ namespace CartaMei.GSHHG
         }
 
         private Brush _shorelinesWaterFill;
+        [DefaultValue(typeof(SolidColorBrush), "#FFF0F8FF")]
         [Description("The brush used to fill water areas.")]
         [DisplayName("Water Fill")]
         [Category("Shorelines")]
@@ -148,6 +168,7 @@ namespace CartaMei.GSHHG
         }
 
         private Brush _shorelinesLandFill;
+        [DefaultValue(typeof(SolidColorBrush), "#FFF4A460")]
         [Description("The brush used to fill land areas.")]
         [DisplayName("Land Fill")]
         [Category("Shorelines")]

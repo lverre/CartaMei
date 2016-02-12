@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 using System;
+using System.Windows.Shapes;
 
 namespace CartaMei.GSHHG
 {
@@ -52,6 +53,7 @@ namespace CartaMei.GSHHG
             this.ShorelinesLandFill = PluginSettings.Instance.ShorelinesLandFill;
             this.UseAutoResolution = PluginSettings.Instance.UseAutoResolution;
             this.Resolution = PluginSettings.Instance.Resolution;
+            this.UseCurvedLines = PluginSettings.Instance.UseCurvedLines;
 
             this.Name = ShorelineLayer.LayerName;
             this.Items = new ObservableCollection<IMapObject>();
@@ -170,6 +172,24 @@ namespace CartaMei.GSHHG
             }
         }
 
+        private bool _useCurvedLines;
+        [Description("When enabled, this feature display curved (bezier) lines instead of straight lines.")]
+        [DisplayName("Curved Lines")]
+        [PropertyOrder(6)]
+        public bool UseCurvedLines
+        {
+            get { return _useCurvedLines; }
+            set
+            {
+                if (value != _useCurvedLines)
+                {
+                    _useCurvedLines = value;
+                    redraw(true);
+                    onPropetyChanged();
+                }
+            }
+        }
+
         #endregion
 
         #region ILayer
@@ -227,15 +247,17 @@ namespace CartaMei.GSHHG
                             }
                             else
                             {
-                                var visualPolygon = new System.Windows.Shapes.Path()
+                                Shape shape;
+                                if (this.UseCurvedLines)
                                 {
-                                    Stroke = this.ShorelinesBrush,
-                                    StrokeThickness = this.ShorelinesThickness,
-                                    Fill = item.Value.Header.IsWater ? this.ShorelinesWaterFill : this.ShorelinesLandFill,
-                                    HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
-                                    VerticalAlignment = System.Windows.VerticalAlignment.Top
-                                };
-                                _container.Children.Add(visualPolygon);
+                                    shape = new Path();
+                                }
+                                else
+                                {
+                                    shape = new Polygon();
+                                }
+
+                                _container.Children.Add(shape);
                                 polygonObject = new ShorelinePolygonObject()
                                 {
                                     Id = id,
@@ -243,8 +265,9 @@ namespace CartaMei.GSHHG
                                     IsActive = true,
                                     Layer = this,
                                     Name = "Polygon #" + id,
-                                    VisualShape = visualPolygon
+                                    VisualShape = shape
                                 };
+                                setShapeBrushes(polygonObject);
                                 updatePolygonPoints(polygonObject, context);
                                 _polygonObjects.Add(id, polygonObject);
                                 // If we add it to the children, the objects panel will get very crowded and slow
@@ -256,9 +279,13 @@ namespace CartaMei.GSHHG
 
                 removeChildren(toRemove);
 
-                if (context.RedrawType == RedrawType.Reset || context.RedrawType == RedrawType.Resize)
+                switch (context.RedrawType)
                 {
-                    _container.InvalidateVisual();
+                    case RedrawType.Reset:
+                    case RedrawType.Resize:
+                    case RedrawType.Zoom:
+                        _container.InvalidateVisual();
+                        break;
                 }
             }
         }
@@ -291,11 +318,7 @@ namespace CartaMei.GSHHG
                     if (_polygonObjects == null) return;
                     foreach (var item in _polygonObjects)
                     {
-                        var isWater = item.Value.Polygon.Header.IsWater;
-                        var shape = item.Value.VisualShape;
-                        shape.StrokeThickness = this.ShorelinesThickness;
-                        shape.Stroke = this.ShorelinesBrush;
-                        shape.Fill = isWater ? this.ShorelinesWaterFill : this.ShorelinesLandFill;
+                        setShapeBrushes(item.Value);
                     }
                 }
             }
@@ -317,7 +340,7 @@ namespace CartaMei.GSHHG
 
                 Utils.Instance.SetStatus("Loading map...", true, true);
                 var reader = new GSHHG2Reader();
-                _polygons = reader.Read(PluginSettings.Instance.MapsDirectory, PolygonType.ShoreLine, Resolution.Crude).Polygons;
+                _polygons = reader.Read(PluginSettings.Instance.MapsDirectory, PolygonType.ShoreLine, this.Resolution).Polygons;
                 Utils.Instance.HideStatus();
                 _polygonObjects = new Dictionary<int, ShorelinePolygonObject>();
             }
@@ -378,6 +401,15 @@ namespace CartaMei.GSHHG
                     }
                 });
             }
+        }
+
+        private void setShapeBrushes(ShorelinePolygonObject polygonObject)
+        {
+            var isWater = polygonObject.Polygon.Header.IsWater;
+            var shape = polygonObject.VisualShape;
+            shape.StrokeThickness = this.ShorelinesThickness;
+            shape.Stroke = this.ShorelinesBrush;
+            shape.Fill = isWater ? this.ShorelinesWaterFill : this.ShorelinesLandFill;
         }
 
         #endregion

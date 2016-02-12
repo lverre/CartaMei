@@ -24,5 +24,11 @@
   &lt;Hidden /&gt;
 &lt;/LayoutRoot&gt;</Value>
     </Setting>
+    <Setting Name="GeneralSettings" Type="CartaMei.GeneralSettings" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="MainPluginSettings" Type="CartaMei.MainPlugin.MainPluginSettings" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

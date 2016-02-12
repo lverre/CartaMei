@@ -1,9 +1,31 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Reflection;
 
 namespace CartaMei.Common
 {
     public static class Tools
     {
+        public static T GetDefault<T>() where T : new()
+        {
+            var result = typeof(T).GetDefault();
+            return result != null ? (T)result : default(T);
+        }
+        
+        public static object GetDefault(this Type type)
+        {
+            var result = Activator.CreateInstance(type);
+            foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty))
+            {
+                var defaultAttribute = property.GetCustomAttribute<DefaultValueAttribute>(true);
+                if (defaultAttribute != null)
+                {
+                    property.SetValue(result, defaultAttribute.Value);
+                }
+            }
+            return result;
+        }
+
         public static double FixCoordinate(this double coordinate, int max)
         {
             var max2 = max * 2;

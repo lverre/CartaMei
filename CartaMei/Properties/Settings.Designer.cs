@@ -53,5 +53,27 @@ namespace CartaMei.Properties {
                 this["Layout"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::CartaMei.GeneralSettings GeneralSettings {
+            get {
+                return ((global::CartaMei.GeneralSettings)(this["GeneralSettings"]));
+            }
+            set {
+                this["GeneralSettings"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::CartaMei.MainPlugin.MainPluginSettings MainPluginSettings {
+            get {
+                return ((global::CartaMei.MainPlugin.MainPluginSettings)(this["MainPluginSettings"]));
+            }
+            set {
+                this["MainPluginSettings"] = value;
+            }
+        }
     }
 }
