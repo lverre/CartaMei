@@ -1,11 +1,7 @@
-﻿- fix Mercator!
-- Plugin SimpleStuff:
-	- free text
-	- draw simple shapes
-	- image / color background layer
-	- marine map look (with lat / lon lines)
-	- other common Datums (Data?)
-- Plugin Cities (load from cities lists) / Countries / etc.
+﻿This is a TODO list of stuff & fix to do before starting to get on the actual items in the issue tracker.
+Down is first.
+
+- fix Mercator!
 - do the TODO in the code...
 - shorelines: display only the points that are shown (to check: test if the lines between P(i-1) and P(i), and between P(i) and P(i+1) cross the display rectangle: if not, we can skip P(i)
 - fix shorelines issue when a polygon crosses the anti-center-longitude line
