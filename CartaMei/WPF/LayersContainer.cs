@@ -22,6 +22,8 @@ namespace CartaMei.WPF
 
         private ObservableCollection<ILayer> _layers;
 
+        private readonly object _layersLocker = new object();
+
         private IDictionary<ILayer, UIElement> _childrenDictionary;
 
         private readonly object _panLocker = new object();
@@ -129,22 +131,24 @@ namespace CartaMei.WPF
         {
             base.OnMouseDown(e);
 
-            var panPoint = e.GetPosition(this.Parent as IInputElement);
-
+            var wasPanning = false;
             if (_isPanning)
             {
-                stopPan(panPoint);
+                stopPan(e);
+                wasPanning = true;
             }
-            else if (e.ChangedButton == MouseButton.Left)
+
+            if (e.ChangedButton == MouseButton.Left && e.ClickCount > 1)
             {
-                if (e.ClickCount > 1)
+                var toSelect = getObjectsAt(e).FirstOrDefault()?.Item2;
+                if (toSelect != null)
                 {
-                    // TODO: handle double click
+                    toSelect.DoubleClick();
                 }
-                else
-                {
-                    startPan(panPoint, false);
-                }
+            }
+            else if (!wasPanning && e.ChangedButton == MouseButton.Left)
+            {
+                startPan(e, false);
             }
         }
 
@@ -157,12 +161,15 @@ namespace CartaMei.WPF
                 pan(e.GetPosition(this.Parent as IInputElement), false);
             }
         }
-
+        
         protected override void OnMouseUp(MouseButtonEventArgs e)
         {
+            if (e.ClickCount > 1)
+            { }
+
             base.OnMouseUp(e);
 
-            var panPoint = e.GetPosition(this.Parent as IInputElement);
+            var panPoint = getPanPoint(e);
 
             if (_isPanning && panPoint != _panStartPoint)
             {
@@ -173,18 +180,41 @@ namespace CartaMei.WPF
                 switch (e.ChangedButton)
                 {
                     case MouseButton.Left:
-                        // TODO: select (get first selectable object in inverse order of the layers)
+                        var toSelect = getObjectsAt(e).FirstOrDefault()?.Item2;
+                        if (toSelect != null)
+                        {
+                            toSelect.Select();
+                            _map.ActiveObject = toSelect;
+                        }
                         break;
                     case MouseButton.Middle:
                         startPan(panPoint, true);
                         break;
                     case MouseButton.Right:
-                        // TODO: context menu: show the list of possible objects that can be selected
+                        var selectable = getObjectsAt(e).ToArray();
+                        if (selectable.Length > 0)
+                        {
+                            var menu = new ContextMenu()
+                            {
+                                Placement = System.Windows.Controls.Primitives.PlacementMode.Mouse
+                            };
+                            foreach (var item in selectable)
+                            {
+                                var menuItem = new MenuItem() { Header = item.Item1.Name + " - " + item.Item2.Name };
+                                menuItem.Click += (s2, e2) =>
+                                {
+                                    item.Item2.Select();
+                                    Current.Map.ActiveObject = item.Item2;
+                                };
+                                menu.Items.Add(menuItem);
+                            }
+                            menu.IsOpen = true;
+                        }
                         break;
                 }
             }
         }
-        
+
         #endregion
 
         #endregion
@@ -194,42 +224,45 @@ namespace CartaMei.WPF
         private void onLayersChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
             var toDraw = new List<ILayer>();
-
             this.Children.Clear();
-            if ((_layers?.Count ?? 0) == 0)
-            {
-                if (_childrenDictionary != null)
-                {
-                    _childrenDictionary.Clear();
-                }
-            }
-            else
-            {
-                var children = new Dictionary<ILayer, UIElement>(_childrenDictionary);
-                _childrenDictionary.Clear();
 
-                foreach (var layer in _layers)
+            lock (_layersLocker)
+            {
+                if ((_layers?.Count ?? 0) == 0)
                 {
-                    UIElement child;
-                    if (children.ContainsKey(layer))
+                    if (_childrenDictionary != null)
                     {
-                        child = children[layer];
-                        children.Remove(layer);
+                        _childrenDictionary.Clear();
                     }
-                    else
-                    {
-                        child = layer.CreateContainer();
-                        child.ClipToBounds = true;
-                        toDraw.Add(layer);
-                    }
-                    _childrenDictionary[layer] = child;
-                    this.Children.Add(child);
                 }
-                
-                while (children.Count > 0)
+                else
                 {
-                    var toRemove = children.First();
-                    children.Remove(toRemove.Key);
+                    var children = new Dictionary<ILayer, UIElement>(_childrenDictionary);
+                    _childrenDictionary.Clear();
+
+                    foreach (var layer in _layers)
+                    {
+                        UIElement child;
+                        if (children.ContainsKey(layer))
+                        {
+                            child = children[layer];
+                            children.Remove(layer);
+                        }
+                        else
+                        {
+                            child = layer.CreateContainer();
+                            child.ClipToBounds = true;
+                            toDraw.Add(layer);
+                        }
+                        _childrenDictionary[layer] = child;
+                        this.Children.Add(child);
+                    }
+
+                    while (children.Count > 0)
+                    {
+                        var toRemove = children.First();
+                        children.Remove(toRemove.Key);
+                    }
                 }
             }
             
@@ -270,6 +303,16 @@ namespace CartaMei.WPF
             _map.Boundaries = getBoundaries(lonMin, latMax, lonWidth, latHeight);
         }
 
+        private Point getPanPoint(MouseEventArgs e)
+        {
+            return e.GetPosition(this.Parent as IInputElement);
+        }
+
+        private void startPan(MouseEventArgs e, bool isWheelButton)
+        {
+            startPan(getPanPoint(e), isWheelButton);
+        }
+
         private void startPan(Point startPoint, bool isWheelButton)
         {
             lock (_panLocker)
@@ -282,6 +325,11 @@ namespace CartaMei.WPF
             }
         }
 
+        private void stopPan(MouseEventArgs e)
+        {
+            stopPan(getPanPoint(e));
+        }
+
         private void stopPan(Point stopPoint)
         {
             lock (_panLocker)
@@ -289,7 +337,6 @@ namespace CartaMei.WPF
                 pan(stopPoint, true);
                 _isPanning = false;
                 this.Cursor = Cursors.Arrow;
-
             }
         }
 
@@ -313,6 +360,33 @@ namespace CartaMei.WPF
                 _panLastPoint = point;
                 this.VisualTransform = new TranslateTransform(diff.X, diff.Y);
             }
+        }
+
+        private IEnumerable<Tuple<ILayer, IMapObject>> getObjectsAt(MouseButtonEventArgs e)
+        {
+            return getObjectsAt(e.GetPosition(this));
+        }
+
+        private IEnumerable<Tuple<ILayer, IMapObject>> getObjectsAt(Point at)
+        {
+            ILayer[] layers;
+            lock (_layersLocker)
+            {
+                layers = _layers.ToArray();
+            }
+            for (int i = layers.Length - 1; i >= 0; i--)
+            {
+                var layer = layers[i];
+                var items = layer.GetObjectsAt(at);
+                if (items != null)
+                {
+                    foreach (var item in items)
+                    {
+                        yield return new Tuple<ILayer, IMapObject>(layer, item);
+                    }
+                }
+            }
+            yield break;
         }
 
         private LatLonBoundaries getBoundaries(double lonMin, double latMax, double lonWidth, double latHeight)

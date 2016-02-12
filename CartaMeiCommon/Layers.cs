@@ -21,6 +21,8 @@ namespace CartaMei.Common
 
         void Draw(IDrawContext context);
 
+        IEnumerable<IMapObject> GetObjectsAt(Point at);
+
         #endregion
     }
 
@@ -106,7 +108,9 @@ namespace CartaMei.Common
         }
 
         public abstract void Draw(IDrawContext context);
-        
+
+        public virtual IEnumerable<IMapObject> GetObjectsAt(Point at) { return null; }
+
         #endregion
     }
 

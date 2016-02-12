@@ -276,6 +276,11 @@ namespace CartaMei.GSHHG
             }
         }
 
+        public override IEnumerable<IMapObject> GetObjectsAt(Point at)
+        {
+            return new IMapObject[] { this };
+        }
+
         #endregion
 
         #region Event Handlers

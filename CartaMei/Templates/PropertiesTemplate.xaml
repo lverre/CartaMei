@@ -14,6 +14,7 @@
                            IsReadOnly="False"
                            UpdateTextBoxSourceOnEnterKey="True"
                            IsMiscCategoryLabelHidden="True"
+                           SelectedObjectTypeName=""
                            SelectedObject="{Binding SelectedObject}">
         </xctk:PropertyGrid> 
     </Grid>

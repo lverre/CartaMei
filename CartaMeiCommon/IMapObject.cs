@@ -24,6 +24,10 @@ namespace CartaMei.Common
 
         bool IsActive { get; set; }
 
+        void Select();
+
+        void DoubleClick();
+
         #endregion
     }
     
@@ -128,6 +132,10 @@ namespace CartaMei.Common
             }
         }
 
+        public virtual void Select() { }
+
+        public virtual void DoubleClick() { }
+
         #endregion
     }
 
@@ -202,6 +210,10 @@ namespace CartaMei.Common
                 }
             }
         }
+
+        public virtual void Select() { }
+
+        public virtual void DoubleClick() { }
 
         #endregion
     }
