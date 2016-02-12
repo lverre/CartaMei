@@ -33,6 +33,8 @@ namespace CartaMei.GSHHG
 
         private Canvas _container = null;
 
+        private readonly object _drawLocker = new object();
+
         #endregion
 
         #region Constructor
@@ -71,7 +73,7 @@ namespace CartaMei.GSHHG
                 if (_shorelinesThickness != value)
                 {
                     _shorelinesThickness = value;
-                    redraw();
+                    redraw(false);
                     onPropetyChanged();
                 }
             }
@@ -89,7 +91,7 @@ namespace CartaMei.GSHHG
                 if (_shorelinesBrush != value)
                 {
                     _shorelinesBrush = value;
-                    redraw();
+                    redraw(false);
                     onPropetyChanged();
                 }
             }
@@ -108,7 +110,7 @@ namespace CartaMei.GSHHG
                 {
                     _shorelinesWaterFill = value;
                     _container.Background = value;
-                    redraw();
+                    redraw(false);
                     onPropetyChanged();
                 }
             }
@@ -126,7 +128,7 @@ namespace CartaMei.GSHHG
                 if (_shorelinesLandFill != value)
                 {
                     _shorelinesLandFill = value;
-                    redraw();
+                    redraw(false);
                     onPropetyChanged();
                 }
             }
@@ -162,7 +164,7 @@ namespace CartaMei.GSHHG
                 if (value != _resolution)
                 {
                     _resolution = value;
-                    redraw();
+                    redraw(true);
                     onPropetyChanged();
                 }
             }
@@ -192,65 +194,68 @@ namespace CartaMei.GSHHG
             }
 
             resetMapData(context);
-            
-            var toRemove = new List<int>();
-            if (_polygonObjects != null) toRemove.AddRange(_polygonObjects.Keys);
 
-            if (context.RedrawType == RedrawType.Reset)
+            lock (_drawLocker)
             {
-                removeChildren(toRemove);
-                toRemove.Clear();
-            }
+                var toRemove = new List<int>();
+                if (_polygonObjects != null) toRemove.AddRange(_polygonObjects.Keys);
 
-            if (context.RedrawType == RedrawType.Reset || context.RedrawType == RedrawType.Resize)
-            {
-                _container.Width = _map.Size.Width;
-                _container.Height = _map.Size.Height;
-            }
-
-            if (_polygons != null)
-            {
-                foreach (var item in _polygons)
+                if (context.RedrawType == RedrawType.Reset)
                 {
-                    var id = item.Key;
-                    var polygonObject = _polygonObjects.ContainsKey(id) ? _polygonObjects[id] : null;
-                    if (item.Value.Intersects(context.Boundaries, context.Projection))
+                    removeChildren(toRemove);
+                    toRemove.Clear();
+                }
+
+                if (context.RedrawType == RedrawType.Reset || context.RedrawType == RedrawType.Resize)
+                {
+                    _container.Width = _map.Size.Width;
+                    _container.Height = _map.Size.Height;
+                }
+
+                if (_polygons != null)
+                {
+                    foreach (var item in _polygons)
                     {
-                        if (polygonObject != null)
+                        var id = item.Key;
+                        var polygonObject = _polygonObjects.ContainsKey(id) ? _polygonObjects[id] : null;
+                        if (item.Value.Intersects(context.Boundaries, context.Projection))
                         {
-                            toRemove.Remove(id);
-                            updatePolygonPoints(polygonObject, context);
-                        }
-                        else
-                        {
-                            var visualPolygon = new System.Windows.Shapes.Path()
+                            if (polygonObject != null)
                             {
-                                Stroke = this.ShorelinesBrush,
-                                StrokeThickness = this.ShorelinesThickness,
-                                Fill = item.Value.Header.IsLand ? this.ShorelinesLandFill : this.ShorelinesWaterFill,
-                                HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
-                                VerticalAlignment = System.Windows.VerticalAlignment.Top
-                            };
-                            _container.Children.Add(visualPolygon);
-                            polygonObject = new ShorelinePolygonObject()
+                                toRemove.Remove(id);
+                                updatePolygonPoints(polygonObject, context);
+                            }
+                            else
                             {
-                                Id = id,
-                                Polygon = item.Value,
-                                IsActive = true,
-                                Layer = this,
-                                Name = "Polygon #" + id,
-                                VisualShape = visualPolygon
-                            };
-                            updatePolygonPoints(polygonObject, context);
-                            _polygonObjects.Add(id, polygonObject);
-                            // If we add it to the children, the objects panel will get very crowded and slow
-                            // this.Items.Add(polygonObject);
+                                var visualPolygon = new System.Windows.Shapes.Path()
+                                {
+                                    Stroke = this.ShorelinesBrush,
+                                    StrokeThickness = this.ShorelinesThickness,
+                                    Fill = item.Value.Header.IsWater ? this.ShorelinesWaterFill : this.ShorelinesLandFill,
+                                    HorizontalAlignment = System.Windows.HorizontalAlignment.Left,
+                                    VerticalAlignment = System.Windows.VerticalAlignment.Top
+                                };
+                                _container.Children.Add(visualPolygon);
+                                polygonObject = new ShorelinePolygonObject()
+                                {
+                                    Id = id,
+                                    Polygon = item.Value,
+                                    IsActive = true,
+                                    Layer = this,
+                                    Name = "Polygon #" + id,
+                                    VisualShape = visualPolygon
+                                };
+                                updatePolygonPoints(polygonObject, context);
+                                _polygonObjects.Add(id, polygonObject);
+                                // If we add it to the children, the objects panel will get very crowded and slow
+                                // this.Items.Add(polygonObject);
+                            }
                         }
                     }
                 }
-            }
 
-            removeChildren(toRemove);
+                removeChildren(toRemove);
+            }
         }
 
         #endregion
@@ -268,9 +273,27 @@ namespace CartaMei.GSHHG
 
         #region Tools
 
-        private void redraw()
+        private void redraw(bool reset)
         {
-            this.Draw(new DrawContext(_container, RedrawType.Reset, _map));
+            if (reset)
+            {
+                this.Draw(new DrawContext(_container, RedrawType.Reset, _map));
+            }
+            else
+            {
+                lock (_drawLocker)
+                {
+                    if (_polygonObjects == null) return;
+                    foreach (var item in _polygonObjects)
+                    {
+                        var isWater = item.Value.Polygon.Header.IsWater;
+                        var shape = item.Value.VisualShape;
+                        shape.StrokeThickness = this.ShorelinesThickness;
+                        shape.Stroke = this.ShorelinesBrush;
+                        shape.Fill = isWater ? this.ShorelinesWaterFill : this.ShorelinesLandFill;
+                    }
+                }
+            }
         }
 
         private void resetMapData(IDrawContext context)
