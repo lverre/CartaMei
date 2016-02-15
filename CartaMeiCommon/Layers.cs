@@ -91,6 +91,7 @@ namespace CartaMei.Common
     public enum RedrawType
     {
         Reset,
+        Redraw,
         Translation,
         Resize,
         Zoom,

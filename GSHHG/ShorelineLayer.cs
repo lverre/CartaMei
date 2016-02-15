@@ -36,7 +36,7 @@ namespace CartaMei.GSHHG
 
         private IDictionary<int, ShorelinePolygonObject> _polygonObjects = null;
 
-        private Canvas _container = null;
+        private ShorelineContainer _container = null;
 
         private readonly object _drawLocker = new object();
 
@@ -49,18 +49,20 @@ namespace CartaMei.GSHHG
             _map = map;
             _loadedResolution = (Resolution)int.MaxValue;// Invalid value
 
-            _container = new Canvas();
+            _container = new ShorelineContainer(this);
             _container.MouseMove += mouseMove;
 
-            this.ShorelinesThickness = PluginSettings.Instance.ShorelinesThickness;
-            this.ShorelinesBrush = PluginSettings.Instance.ShorelinesBrush;
-            this.ShorelinesWaterFill = PluginSettings.Instance.ShorelinesWaterFill;
-            this.ShorelinesLandFill = PluginSettings.Instance.ShorelinesLandFill;
-            this.Resolution = PluginSettings.Instance.Resolution;
-            this.UseCurvedLines = PluginSettings.Instance.UseCurvedLines;
+            _shorelinesThickness = PluginSettings.Instance.ShorelinesThickness;
+            _shorelinesBrush = PluginSettings.Instance.ShorelinesBrush;
+            _shorelinesWaterFill = PluginSettings.Instance.ShorelinesWaterFill;
+            _shorelinesLandFill = PluginSettings.Instance.ShorelinesLandFill;
+            _resolution = PluginSettings.Instance.Resolution;
+            _useCurvedLines = PluginSettings.Instance.UseCurvedLines;
 
             this.Name = ShorelineLayer.LayerName;
-            this.Items = new ObservableCollection<IMapObject>();
+            this.Items = null;
+            
+            redraw(true);
         }
 
         #endregion
@@ -184,12 +186,13 @@ namespace CartaMei.GSHHG
         {
             return _container;
         }
-
+        
         public override void Draw(IDrawContext context)
         {
             switch (context.RedrawType)
             {
                 case RedrawType.Reset:
+                case RedrawType.Redraw:
                 case RedrawType.Resize:
                 case RedrawType.Translation:
                 case RedrawType.Zoom:
@@ -201,79 +204,68 @@ namespace CartaMei.GSHHG
 
             resetMapData(context);
 
-            lock (_drawLocker)
+            if (context.RedrawType != RedrawType.Redraw)
             {
-                var toRemove = new List<int>();
-                if (_polygonObjects != null) toRemove.AddRange(_polygonObjects.Keys);
-
-                if (context.RedrawType == RedrawType.Reset)
+                lock (_drawLocker)
                 {
-                    removeChildren(toRemove);
-                    toRemove.Clear();
-                }
+                    var toRemove = new List<int>();
+                    if (_polygonObjects != null) toRemove.AddRange(_polygonObjects.Keys);
 
-                if (context.RedrawType == RedrawType.Reset || context.RedrawType == RedrawType.Resize)
-                {
-                    _container.Width = _map.Size.Width;
-                    _container.Height = _map.Size.Height;
-                }
-
-                if (_polygons != null)
-                {
-                    foreach (var item in _polygons)
+                    if (context.RedrawType == RedrawType.Reset)
                     {
-                        var id = item.Key;
-                        var polygonObject = _polygonObjects.ContainsKey(id) ? _polygonObjects[id] : null;
-                        if (item.Value.Intersects(context.Boundaries, context.Projection))
+                        removeChildren(toRemove);
+                        toRemove.Clear();
+                    }
+
+                    if (context.RedrawType == RedrawType.Reset || context.RedrawType == RedrawType.Resize)
+                    {
+                        _container.Width = _map.Size.Width;
+                        _container.Height = _map.Size.Height;
+                    }
+
+                    if (_polygons != null)
+                    {
+                        foreach (var item in _polygons)
                         {
-                            if (polygonObject != null)
+                            var id = item.Key;
+                            var polygonObject = _polygonObjects.ContainsKey(id) ? _polygonObjects[id] : null;
+                            if (item.Value.Intersects(context.Boundaries, context.Projection))
                             {
-                                toRemove.Remove(id);
-                                updatePolygonPoints(polygonObject, context);
-                            }
-                            else
-                            {
-                                // TODO: don't use shapes anyomore: this is way too expensive
-                                Shape shape;
-                                if (this.UseCurvedLines)
+                                if (polygonObject != null)
                                 {
-                                    shape = new Path();
+                                    toRemove.Remove(id);
                                 }
                                 else
                                 {
-                                    shape = new Polygon();
+                                    polygonObject = new ShorelinePolygonObject()
+                                    {
+                                        Id = id,
+                                        Polygon = item.Value,
+                                        IsActive = true,
+                                        Layer = this,
+                                        Name = "Polygon #" + id
+                                    };
+                                    _polygonObjects.Add(id, polygonObject);
                                 }
-
-                                _container.Children.Add(shape);
-                                polygonObject = new ShorelinePolygonObject()
-                                {
-                                    Id = id,
-                                    Polygon = item.Value,
-                                    IsActive = true,
-                                    Layer = this,
-                                    Name = "Polygon #" + id,
-                                    VisualShape = shape
-                                };
-                                setShapeBrushes(polygonObject);
                                 updatePolygonPoints(polygonObject, context);
-                                _polygonObjects.Add(id, polygonObject);
-                                // If we add it to the children, the objects panel will get very crowded and slow
-                                // this.Items.Add(polygonObject);
                             }
                         }
                     }
-                }
 
-                removeChildren(toRemove);
+                    removeChildren(toRemove);
 
-                switch (context.RedrawType)
-                {
-                    case RedrawType.Reset:
-                    case RedrawType.Resize:
-                    case RedrawType.Zoom:
-                        _container.InvalidateVisual();
-                        break;
+                    _container.Polygons = new Dictionary<int, ShorelinePolygonObject>(_polygonObjects);
                 }
+            }
+
+            switch (context.RedrawType)
+            {
+                case RedrawType.Reset:
+                case RedrawType.Redraw:
+                case RedrawType.Resize:
+                case RedrawType.Zoom:
+                    _container.InvalidateVisual();
+                    break;
             }
         }
 
@@ -299,21 +291,7 @@ namespace CartaMei.GSHHG
 
         private void redraw(bool reset)
         {
-            if (reset)
-            {
-                this.Draw(new DrawContext(_container, RedrawType.Reset, _map));
-            }
-            else
-            {
-                lock (_drawLocker)
-                {
-                    if (_polygonObjects == null) return;
-                    foreach (var item in _polygonObjects)
-                    {
-                        setShapeBrushes(item.Value);
-                    }
-                }
-            }
+            this.Draw(new DrawContext(_container, reset ? RedrawType.Reset : RedrawType.Redraw, _map));
         }
 
         private void resetMapData(IDrawContext context)
@@ -349,8 +327,6 @@ namespace CartaMei.GSHHG
                 ids.RemoveAt(index);
                 var item = _polygonObjects[id];
                 _polygonObjects.Remove(id);
-                //this.Items.Remove(item);
-                _container.Children.Remove(item.VisualShape);
             }
         }
 
@@ -358,43 +334,76 @@ namespace CartaMei.GSHHG
         {
             var projection = context.Projection;
             var points = polygonObject.Polygon.Points?.Select(point => (Point)projection.LatLonToPixel(point));
-            var polygon = polygonObject.VisualShape as Polygon;
-            if (polygon != null)
+
+            PathSegment segment;
+            if (this.UseCurvedLines)
             {
-                polygon.Points = new PointCollection(points);
+                segment = new PolyBezierSegment() { Points = new PointCollection(points) };
             }
             else
             {
-                var bezier = new PolyBezierSegment()
+                segment = new PolyLineSegment() { Points = new PointCollection(points) };
+            }
+            segment.IsSmoothJoin = true;
+            segment.IsStroked = true;
+
+            polygonObject.Geometry = new PathGeometry(new PathFigureCollection()
+            {
+                new PathFigure()
                 {
-                    IsSmoothJoin = true,
-                    IsStroked = true,
-                    Points = new PointCollection(points)
-                };
-                var path = polygonObject.VisualShape as System.Windows.Shapes.Path;
-                path.Data = new PathGeometry(new PathFigureCollection()
+                    IsClosed = true,
+                    IsFilled = true,
+                    Segments = new PathSegmentCollection() { segment },
+                    StartPoint = points.First()
+                }
+            });
+        }
+        
+        #endregion
+    }
+
+    public class ShorelineContainer : UserControl
+    {
+        private ShorelineLayer _layer;
+
+        public ShorelineContainer(ShorelineLayer layer)
+        {
+            _layer = layer;
+        }
+
+        private readonly object _polygonsLocker = new object();
+        private IDictionary<int, ShorelinePolygonObject> _polygons;
+        public IDictionary<int, ShorelinePolygonObject> Polygons
+        {
+            get { return _polygons; }
+            set
+            {
+                lock (_polygonsLocker)
                 {
-                    new PathFigure()
-                    {
-                        IsClosed = true,
-                        IsFilled = true,
-                        Segments = new PathSegmentCollection() { bezier },
-                        StartPoint = points.First()
-                    }
-                });
+                    _polygons = value;
+                }
             }
         }
 
-        private void setShapeBrushes(ShorelinePolygonObject polygonObject)
+        protected override void OnRender(DrawingContext drawingContext)
         {
-            var isWater = polygonObject.Polygon.Header.IsWater;
-            var shape = polygonObject.VisualShape;
-            shape.StrokeThickness = this.ShorelinesThickness;
-            shape.Stroke = this.ShorelinesBrush;
-            shape.Fill = isWater ? this.ShorelinesWaterFill : this.ShorelinesLandFill;
-        }
+            base.OnRender(drawingContext);
 
-        #endregion
+            var pen = new Pen(_layer.ShorelinesBrush, _layer.ShorelinesThickness);
+            var isCurve = _layer.UseCurvedLines;
+
+            List<ShorelinePolygonObject> polygonsObjects;
+            lock (_polygonsLocker)
+            {
+                polygonsObjects = new List<ShorelinePolygonObject>(this.Polygons.Values);
+            }
+
+            foreach (var item in polygonsObjects)
+            {
+                var fill = item.Polygon.Header.IsLand ? _layer.ShorelinesLandFill : _layer.ShorelinesWaterFill;
+                drawingContext.DrawGeometry(fill, pen, item.Geometry);
+            }
+        }
     }
 
     public class ShorelinePolygonObject : MapLeafObject, ILayerItem
@@ -409,9 +418,9 @@ namespace CartaMei.GSHHG
 
         [Browsable(false)]
         public IPolygon<GSHHG2PolygonHeader, LatLonCoordinates> Polygon { get; set; }
-
+        
         [Browsable(false)]
-        public System.Windows.Shapes.Shape VisualShape { get; set; }
+        public PathGeometry Geometry { get; set; }
 
         #endregion
     }
