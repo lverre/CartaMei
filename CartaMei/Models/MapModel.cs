@@ -362,10 +362,10 @@ namespace CartaMei.Models
                 Author = Environment.UserName,
                 Boundaries = new LatLonBoundaries()
                 {
-                    LatMax = 90,
-                    LatMin = -90,
-                    LonMax = 180,
-                    LonMin = -180
+                    CenterLatitude = 0,
+                    LatitudeSpan = LatLonBoundaries.MaxLatitudeSpan,
+                    CenterLongitude = 0,
+                    LongitudeSpan = LatLonBoundaries.MaxLongitudeSpan
                 },
                 CreatedOn = DateTime.Now.ToShortDateString(),
                 Datum = this.Datum,

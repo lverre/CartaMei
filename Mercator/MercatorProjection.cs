@@ -15,9 +15,7 @@ namespace CartaMei.Mercator
         internal const string ProjectionDescription = "Mercator projection";
 
         internal const double DefaultTransverseScaleFactor = .9996d;
-
-        private static readonly LatLonBoundaries _limitBoundaries = new LatLonBoundaries() { LatMin = -85, LatMax = 85, LonMin = double.MinValue, LonMax = double.MaxValue };
-
+        
         #endregion
 
         #region Constructor
@@ -80,9 +78,7 @@ namespace CartaMei.Mercator
         #region IProjection
 
         public virtual string Name { get { return ProjectionName; } }
-
-        public virtual LatLonBoundaries LimitBoundaries { get { return _limitBoundaries; } }
-
+        
         private IMap _map;
         public virtual IMap Map
         {
@@ -124,6 +120,35 @@ namespace CartaMei.Mercator
                 Longitude = _formulae.XToLongitude(pixelCoordinates.X),
                 Latitude = _formulae.YToLatitude(pixelCoordinates.Y)
             };
+        }
+
+        // Bounds the map to the traditional map (can't cross poles / can't cross antimeridian)
+        public virtual LatLonBoundaries BoundMap(double centerLatitude, double centerLongitude, double latitudeSpan, double longitudeSpan)
+        {
+            latitudeSpan = Math.Min(Math.Abs(latitudeSpan), LatLonBoundaries.MaxLatitudeSpan);
+            longitudeSpan = Math.Min(Math.Abs(longitudeSpan), LatLonBoundaries.MaxLatitudeSpan);
+
+            var halfLatSpan = latitudeSpan / 2;
+            if (centerLatitude + halfLatSpan > 90)
+            {
+                centerLatitude = 90 - halfLatSpan;
+            }
+            else if (centerLatitude - halfLatSpan < -90)
+            {
+                centerLatitude = halfLatSpan - 90;
+            }
+
+            var halfLonSpan = longitudeSpan / 2;
+            if (centerLongitude + halfLonSpan > 180)
+            {
+                centerLongitude = 180 - halfLonSpan;
+            }
+            else if (centerLongitude - halfLonSpan < -180)
+            {
+                centerLongitude = halfLonSpan - 180;
+            }
+
+            return new LatLonBoundaries(centerLatitude, centerLongitude, latitudeSpan, longitudeSpan);
         }
 
         #endregion

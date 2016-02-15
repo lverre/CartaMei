@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace CartaMei.Common
 {
@@ -70,7 +71,7 @@ namespace CartaMei.Common
             set
             {
                 _longitude = value;
-                var val = value.FixCoordinate(180);
+                var val = value.FixCoordinate(false);
                 if (this.SafeLongitude != val)
                 {
                     this.SafeLongitude = val;
@@ -203,83 +204,212 @@ namespace CartaMei.Common
         #endregion
     }
 
+    /// <summary>
+    /// The boundaries for a map are comprised of the coordinates of the center and the span in latitude and longitude. 
+    /// The center can be anywhere, but the spans cannot be more than 180º for the latitude and 360º for the longitude (and both obviously need to be positive).
+    /// </summary>
     public class LatLonBoundaries : NotifyPropertyChangedBase
     {
+        #region Constants
+
+        public const double MaxLatitudeSpan = 180;
+        public const double MaxLongitudeSpan = 360;
+
+        #endregion
+
+        #region Constructors
+
+        public LatLonBoundaries() { }
+
+        public LatLonBoundaries(double centerLatitude, double centerLongitude, double latitudeSpan, double longitudeSpan)
+        {
+            _centerLatitude = centerLatitude;
+            _centerLongitude = centerLongitude;
+            _latitudeSpan = latitudeSpan;
+            _longitudeSpan = longitudeSpan;
+            updateCardinalPoints();
+        }
+
+        #endregion
+
         #region Properties
 
-        private double _latMin;
-        [Description("The southernmost latitude.")]
-        [DisplayName("South Latitude")]
-        public double LatMin
+        private double _centerLatitude;
+        [Description("The latitude at the center of the map.")]
+        [DisplayName("Center Latitude")]
+        [PropertyOrder(0)]
+        public double CenterLatitude
         {
-            get { return _latMin; }
+            get { return _centerLatitude; }
             set
             {
-                var val = value.FixCoordinate(90);
-                if (_latMin != val)
+                var val = value.FixCoordinate(true);
+                if (_centerLatitude != val)
                 {
-                    _latMin = val;
+                    _centerLatitude = val;
+                    onPropetyChanged();
+                    updateCardinalPoints();
+                }
+            }
+        }
+
+        private double _centerLongitude;
+        [Description("The longitude at the center of the map.")]
+        [DisplayName("Center Longitude")]
+        [PropertyOrder(2)]
+        public double CenterLongitude
+        {
+            get { return _centerLongitude; }
+            set
+            {
+                var val = value.FixCoordinate(false);
+                if (_centerLongitude != val)
+                {
+                    _centerLongitude = val;
+                    onPropetyChanged();
+                    updateCardinalPoints();
+                }
+            }
+        }
+
+        private double _latitudeSpan;
+        [Description("The number of latitude degrees that are shown in the map.")]
+        [DisplayName("Latitude Span")]
+        [PropertyOrder(1)]
+        public double LatitudeSpan
+        {
+            get { return _latitudeSpan; }
+            set
+            {
+                var val = Math.Min(Math.Abs(value), 180);
+                if (_latitudeSpan != val)
+                {
+                    _latitudeSpan = val;
+                    onPropetyChanged();
+                    updateCardinalPoints();
+                }
+            }
+        }
+
+        private double _longitudeSpan;
+        [Description("The number of longitude degrees that are shown in the map.")]
+        [DisplayName("Longitude Span")]
+        [PropertyOrder(3)]
+        public double LongitudeSpan
+        {
+            get { return _longitudeSpan; }
+            set
+            {
+                var val = Math.Min(Math.Abs(value), 360);
+                if (_longitudeSpan != val)
+                {
+                    _longitudeSpan = val;
+                    onPropetyChanged();
+                    updateCardinalPoints();
+                }
+            }
+        }
+
+        #region Calculated
+
+        [ReadOnly(true)]
+        public double LatitudeHalfSpan { get; private set; }
+        [ReadOnly(true)]
+        public double LongitudeHalfSpan { get; private set; }
+        [ReadOnly(true)]
+        public double LeftNotBound { get; set; }
+        [ReadOnly(true)]
+        public double TopNotBound { get; set; }
+
+        private double _topLatitude;
+        [Description("The latitude at the top of the map.")]
+        [DisplayName("Top Latitude")]
+        [PropertyOrder(4)]
+        [ReadOnly(true)]
+        public double TopLatitude
+        {
+            get { return _topLatitude; }
+            private set
+            {
+                var val = value.FixCoordinate(true);
+                if (_topLatitude != val)
+                {
+                    _topLatitude = val;
                     onPropetyChanged();
                 }
             }
         }
 
-        private double _latMax;
-        [Description("The northernmost latitude.")]
-        [DisplayName("North Latitude")]
-        public double LatMax
+        private double _bottomLatitude;
+        [Description("The latitude at the bottom of the map.")]
+        [DisplayName("Bottom Latitude")]
+        [PropertyOrder(5)]
+        [ReadOnly(true)]
+        public double BottomLatitude
         {
-            get { return _latMax; }
-            set
+            get { return _bottomLatitude; }
+            private set
             {
-                var val = value.FixCoordinate(90);
-                if (_latMax != val)
+                var val = value.FixCoordinate(true);
+                if (_bottomLatitude != val)
                 {
-                    _latMax = val;
+                    _bottomLatitude = val;
                     onPropetyChanged();
                 }
             }
         }
 
-        private double _lonMin;
-        [Description("The westernmost longitude.")]
-        [DisplayName("West Longitude")]
-        public double LonMin
+        private double _leftLongitude;
+        [Description("The longitude at the left of the map.")]
+        [DisplayName("Left Longitude")]
+        [PropertyOrder(6)]
+        [ReadOnly(true)]
+        public double LeftLongitude
         {
-            get { return _lonMin; }
-            set
+            get { return _leftLongitude; }
+            private set
             {
-                var val = value.FixCoordinate(180);
-                if (_lonMin != val)
+                var val = value.FixCoordinate(false);
+                if (_leftLongitude != val)
                 {
-                    _lonMin = val;
+                    _leftLongitude = val;
                     onPropetyChanged();
                 }
             }
         }
 
-        private double _lonMax;
-        [Description("The easternmost longitude.")]
-        [DisplayName("East Longitude")]
-        public double LonMax
+        private double _rightLongitude;
+        [Description("The longitude at the right of the map.")]
+        [DisplayName("Right Longitude")]
+        [PropertyOrder(7)]
+        [ReadOnly(true)]
+        public double RightLongitude
         {
-            get { return _lonMax; }
-            set
+            get { return _rightLongitude; }
+            private set
             {
-                var val = value.FixCoordinate(180);
-                if (_lonMax != val)
+                var val = value.FixCoordinate(false);
+                if (_rightLongitude != val)
                 {
-                    _lonMax = val;
+                    _rightLongitude = val;
                     onPropetyChanged();
                 }
             }
         }
 
         [Browsable(false)]
-        public bool CrossesAntiMeridian { get { return this.LonMin > this.LonMax; } }
+        public bool CrossesReferenceMeridian { get { return Math.Abs(this.CenterLongitude) <= this.LongitudeHalfSpan; } }
+
+        [Browsable(false)]
+        public bool CrossesAntiMeridian { get { return (180 - Math.Abs(this.CenterLongitude)) <= this.LongitudeHalfSpan; } }
+
+        [Browsable(false)]
+        public bool CrossesNorthPole { get { return Math.Abs(90 - this.CenterLatitude) <= this.LatitudeHalfSpan; } }
         
         [Browsable(false)]
-        public double SafeLonMax { get { return this.CrossesAntiMeridian ? this.LonMax + 360 : this.LonMax; } }
+        public bool CrossesSouthPole { get { return Math.Abs(-90 - this.CenterLatitude) <= this.LatitudeHalfSpan; } }
+
+        #endregion
 
         #endregion
 
@@ -288,19 +418,23 @@ namespace CartaMei.Common
         public override string ToString()
         {
             return
-                this.LatMin.GetHumanReadable(true) + " " + this.LonMin.GetHumanReadable(false) + " / " +
-                this.LatMax.GetHumanReadable(true) + " " + this.LonMax.GetHumanReadable(false);
+                this.CenterLatitude.GetHumanReadable(true) + " +- " + this.LatitudeSpan / 2 + "º / " +
+                this.CenterLongitude.GetHumanReadable(true) + " +- " + this.LongitudeSpan / 2 + "º";
         }
 
         public override int GetHashCode()
         {
-            return (int)(((this.LatMin + 90) + (this.LatMax + 90) * 180 + (this.LonMin + 180) * 64800 + (this.LonMax + 180) * 23328000) % int.MaxValue);
+            return (int)(((this.CenterLatitude + 90) + (this.CenterLongitude + 90) * 180 + (this.LatitudeSpan + 180) * 64800 + (this.LongitudeSpan + 180) * 23328000) % int.MaxValue);
         }
 
         public override bool Equals(object obj)
         {
             var other = obj as LatLonBoundaries;
-            return other != null && other.LatMax == this.LatMax && other.LatMin == this.LatMin && other.LonMax == this.LonMax && other.LonMin == this.LonMin;
+            return other != null && 
+                other.CenterLatitude == this.CenterLatitude && 
+                other.CenterLongitude == this.CenterLongitude && 
+                other.LatitudeSpan == this.LatitudeSpan && 
+                other.LongitudeSpan == this.LongitudeSpan;
         }
 
         public static bool operator ==(LatLonBoundaries x, LatLonBoundaries y)
@@ -329,9 +463,9 @@ namespace CartaMei.Common
         /// <returns>true if <paramref name="coordinates"/> is within these limits, false otherwise.</returns>
         public bool Contains(LatLonCoordinates coordinates)
         {
-            return 
-                coordinates.SafeLongitude >= this.LonMin && coordinates.SafeLongitude <= this.SafeLonMax &&
-                coordinates.Latitude >= this.LatMin && coordinates.Latitude <= this.LatMax;
+            return
+                Math.Abs(coordinates.Latitude.FixCoordinate(true) - this.CenterLatitude) <= (this.LatitudeSpan / 2) &&
+                Math.Abs(coordinates.Longitude.FixCoordinate(true) - this.CenterLongitude) <= (this.LongitudeSpan / 2);
         }
 
         /// <summary>
@@ -341,9 +475,49 @@ namespace CartaMei.Common
         /// <returns>true if <paramref name="other"/> intersects with this one, false otherwise.</returns>
         public bool Intersects(LatLonBoundaries other)
         {
+            var latDiff = Math.Abs(other.CenterLatitude.FixCoordinate(true) - this.CenterLatitude);
+            var lonDiff = Math.Abs(other.CenterLongitude.FixCoordinate(false) - this.CenterLongitude);
             return
-                this.LonMin <= other.SafeLonMax && this.SafeLonMax >= other.LonMin &&
-                this.LatMin <= other.LatMax && this.LatMax >= other.LatMin;
+                Math.Abs(other.CenterLatitude.FixCoordinate(true) - this.CenterLatitude) <= ((this.LatitudeSpan + other.LatitudeSpan) / 2) &&
+                Math.Abs(other.CenterLongitude.FixCoordinate(true) - this.CenterLongitude) <= ((this.LongitudeSpan + other.LongitudeSpan) / 2);
+        }
+
+        public LineCrossType GetLineCrossType(LatLonCoordinates point1, LatLonCoordinates point2)
+        {
+            throw new NotImplementedException();
+            /*
+            This will be rather complicated: consider a map centered on a pole...
+            */
+        }
+
+        [Flags]
+        public enum LineCrossType
+        {
+            None = 0,
+            NorthToSouth = 1,
+            SouthToNorth = 2,
+            EastToWest = 4,
+            WestToEast = 8,
+        }
+
+        #endregion
+
+        #region Tools
+
+        private readonly object _updateCardinalsLocker = new object();
+        private void updateCardinalPoints()
+        {
+            lock (_updateCardinalsLocker)
+            {
+                this.LatitudeHalfSpan = this.LatitudeSpan / 2;
+                this.LongitudeHalfSpan = this.LongitudeSpan / 2;
+                this.TopNotBound = this.CenterLatitude + this.LatitudeHalfSpan;
+                this.LeftNotBound = this.CenterLongitude - this.LongitudeHalfSpan;
+                this.TopLatitude = this.CenterLatitude + this.LatitudeHalfSpan;
+                this.BottomLatitude = this.CenterLatitude - this.LatitudeHalfSpan;
+                this.LeftLongitude = this.CenterLongitude - this.LongitudeHalfSpan;
+                this.RightLongitude = this.CenterLongitude + this.LongitudeHalfSpan;
+            }
         }
 
         #endregion

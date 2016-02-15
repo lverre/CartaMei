@@ -233,6 +233,7 @@ namespace CartaMei.GSHHG
                             }
                             else
                             {
+                                // TODO: don't use shapes anyomore: this is way too expensive
                                 Shape shape;
                                 if (this.UseCurvedLines)
                                 {

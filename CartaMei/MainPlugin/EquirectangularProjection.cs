@@ -1,4 +1,5 @@
 ﻿using CartaMei.Common;
+using System;
 
 namespace CartaMei.MainPlugin
 {
@@ -9,34 +10,58 @@ namespace CartaMei.MainPlugin
 
         #region IProjection
 
-        public LatLonBoundaries LimitBoundaries
-        {
-            get { return null; }
-        }
+        public virtual IMap Map { get; set; }
 
-        public IMap Map { get; set; }
-
-        public string Name
+        public virtual string Name
         {
             get { return ProjectionName; }
         }
 
-        public PixelCoordinates LatLonToPixel(LatLonCoordinates latLonCoordinates)
+        public virtual PixelCoordinates LatLonToPixel(LatLonCoordinates latLonCoordinates)
         {
             return new PixelCoordinates()
             {
-                X = this.Map.Size.Width * (latLonCoordinates.SafeLongitude - this.Map.Boundaries.LonMin) / (this.Map.Boundaries.LonMax - this.Map.Boundaries.LonMin),
-                Y = this.Map.Size.Height * (this.Map.Boundaries.LatMax - latLonCoordinates.Latitude) / (this.Map.Boundaries.LatMax - this.Map.Boundaries.LatMin)
+                X = this.Map.Size.Width * (latLonCoordinates.SafeLongitude - this.Map.Boundaries.LeftNotBound) / this.Map.Boundaries.LongitudeSpan,
+                Y = this.Map.Size.Height * (this.Map.Boundaries.TopNotBound - latLonCoordinates.Latitude) / this.Map.Boundaries.LatitudeSpan
             };
         }
 
-        public LatLonCoordinates PixelToLatLon(PixelCoordinates pixelCoordinates)
+        public virtual LatLonCoordinates PixelToLatLon(PixelCoordinates pixelCoordinates)
         {
             return new LatLonCoordinates()
             {
-                Longitude = this.Map.Boundaries.LonMin + pixelCoordinates.X * (this.Map.Boundaries.LonMax - this.Map.Boundaries.LonMin) / this.Map.Size.Width,
-                Latitude = this.Map.Boundaries.LatMax - pixelCoordinates.Y * (this.Map.Boundaries.LatMax - this.Map.Boundaries.LatMin) / this.Map.Size.Height
+                Longitude = this.Map.Boundaries.LeftNotBound + pixelCoordinates.X * this.Map.Boundaries.LongitudeSpan / this.Map.Size.Width,
+                Latitude = this.Map.Boundaries.TopNotBound - pixelCoordinates.Y * this.Map.Boundaries.LatitudeSpan / this.Map.Size.Height
             };
+        }
+        
+        // Bounds the map to the traditional map (can't cross poles / can't cross antimeridian)
+        public virtual LatLonBoundaries BoundMap(double centerLatitude, double centerLongitude, double latitudeSpan, double longitudeSpan)
+        {
+            latitudeSpan = Math.Min(Math.Abs(latitudeSpan), LatLonBoundaries.MaxLatitudeSpan);
+            longitudeSpan = Math.Min(Math.Abs(longitudeSpan), LatLonBoundaries.MaxLongitudeSpan);
+
+            var halfLatSpan = latitudeSpan / 2;
+            if (centerLatitude + halfLatSpan > 90)
+            {
+                centerLatitude = 90 - halfLatSpan;
+            }
+            else if (centerLatitude - halfLatSpan < -90)
+            {
+                centerLatitude = halfLatSpan - 90;
+            }
+
+            var halfLonSpan = longitudeSpan / 2;
+            if (centerLongitude + halfLonSpan > 180)
+            {
+                centerLongitude = 180 - halfLonSpan;
+            }
+            else if (centerLongitude - halfLonSpan < -180)
+            {
+                centerLongitude = halfLonSpan - 180;
+            }
+
+            return new LatLonBoundaries(centerLatitude, centerLongitude, latitudeSpan, longitudeSpan);
         }
 
         #endregion

@@ -317,10 +317,10 @@ read and write the data.";
             result.ancestor = ancestor;
             result.Boundaries = new LatLonBoundaries()
             {
-                LatMax = north / Constants.Million,
-                LatMin = south / Constants.Million,
-                LonMax = east / Constants.Million,
-                LonMin = west / Constants.Million
+                CenterLatitude = (north + south) / (2 * Constants.Million),
+                LatitudeSpan = Math.Abs(north - south) / Constants.Million,
+                CenterLongitude = (east + west) / (2 * Constants.Million),
+                LongitudeSpan = Math.Abs(east - west) / Constants.Million
             };
             return result;
         }

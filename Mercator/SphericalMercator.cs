@@ -24,7 +24,7 @@ namespace CartaMei.Mercator
 
         public override double LongitudeToX(double longitude)
         {
-            return getR() * (longitude - this.MapBoundaries.LonMin);
+            return getR() * (longitude - this.MapBoundaries.LeftNotBound);
         }
 
         public override double LatitudeToY(double latitude)
@@ -34,7 +34,7 @@ namespace CartaMei.Mercator
 
         public override double XToLongitude(double x)
         {
-            return this.MapBoundaries.LonMin + radiansToDegrees(x) / this.R;
+            return this.MapBoundaries.LeftNotBound + radiansToDegrees(x) / this.R;
         }
 
         public override double YToLatitude(double y)
@@ -72,10 +72,10 @@ namespace CartaMei.Mercator
                 // Warning: This is not thread-safe!
                 _cacheBoundaries = this.MapBoundaries;
                 _cacheSize = this.MapSize;
-                _cacheYMin = latitudeToY(_cacheBoundaries.LatMin);
-                _cacheYMax = latitudeToY(_cacheBoundaries.LatMax);
-                _cacheYFactor = _cacheSize.Height / (_cacheYMax - _cacheYMin);
-                _cacheR = this.R / (this.MapBoundaries.LonMax - this.MapBoundaries.LonMin);
+                _cacheYMin = latitudeToY(_cacheBoundaries.BottomLatitude);
+                _cacheYMax = latitudeToY(_cacheBoundaries.TopLatitude);
+                _cacheYFactor = _cacheSize.Height / _cacheBoundaries.LatitudeSpan;
+                _cacheR = this.R / _cacheBoundaries.LongitudeSpan;
             }
         }
 

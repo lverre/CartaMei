@@ -20,7 +20,7 @@ namespace CartaMei.Mercator
 
         public override double LongitudeToX(double longitude)
         {
-            return this.Datum.MajorRadius * degreesToRadians(longitude - this.MapBoundaries.LonMin);
+            return this.Datum.MajorRadius * degreesToRadians(longitude - this.MapBoundaries.LeftNotBound);
         }
 
         public override double LatitudeToY(double latitude)

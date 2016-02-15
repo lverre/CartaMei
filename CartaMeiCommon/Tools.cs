@@ -26,6 +26,11 @@ namespace CartaMei.Common
             return result;
         }
 
+        public static double FixCoordinate(this double coordinate, bool isLatitude)
+        {
+            return FixCoordinate(coordinate, isLatitude ? 90 : 180);
+        }
+
         public static double FixCoordinate(this double coordinate, int max)
         {
             var max2 = max * 2;

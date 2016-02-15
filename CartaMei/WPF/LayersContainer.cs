@@ -296,11 +296,9 @@ namespace CartaMei.WPF
             var yFactor = center.Y / this.RenderSize.Height;
             var latLonCenter = _map.Projection.PixelToLatLon(center);
             var latLonFactor = factor * (isZoomIn ? 2d : .5d);
-            var lonWidth = Math.Min((_map.Boundaries.LonMax - _map.Boundaries.LonMin) / latLonFactor, 360);
-            var latHeight = Math.Min((_map.Boundaries.LatMax - _map.Boundaries.LatMin) / latLonFactor, 180);
-            var lonMin = latLonCenter.Longitude - lonWidth * xFactor;
-            var latMax = latLonCenter.Latitude + latHeight * yFactor;
-            _map.Boundaries = getBoundaries(lonMin, latMax, lonWidth, latHeight);
+            var lonSpan = Math.Min(_map.Boundaries.LongitudeSpan / latLonFactor, LatLonBoundaries.MaxLongitudeSpan);
+            var latSpan = Math.Min(_map.Boundaries.LatitudeSpan / latLonFactor, LatLonBoundaries.MaxLatitudeSpan);
+            _map.Boundaries = _map.Projection.BoundMap(latLonCenter.Latitude, latLonCenter.Longitude, latSpan, lonSpan);
         }
 
         private Point getPanPoint(MouseEventArgs e)
@@ -349,10 +347,8 @@ namespace CartaMei.WPF
                     this.RenderSize.Width / 2 - diff.X, 
                     this.RenderSize.Height / 2 - diff.Y
                     ));
-                var lonWidth = _map.Boundaries.LonMax - _map.Boundaries.LonMin;
-                var latHeight = _map.Boundaries.LatMax - _map.Boundaries.LatMin;
                 this.VisualTransform = null;
-                _map.Boundaries = getBoundaries(newCenterLatLon.Longitude - lonWidth / 2, newCenterLatLon.Latitude + latHeight / 2, lonWidth, latHeight);
+                _map.Boundaries = _map.Projection.BoundMap(newCenterLatLon.Latitude, newCenterLatLon.Longitude, _map.Boundaries.LatitudeSpan, _map.Boundaries.LongitudeSpan);
             }
             else if ((_panLastPoint - point).Length >= 2)// Prevents flicker
             {
@@ -387,33 +383,6 @@ namespace CartaMei.WPF
                 }
             }
             yield break;
-        }
-
-        private LatLonBoundaries getBoundaries(double lonMin, double latMax, double lonWidth, double latHeight)
-        {
-            if (latMax > 90)
-            {
-                latMax = 90;
-            }
-            var latMin = latMax - latHeight;
-            if (latMin < -90)
-            {
-                latMin = -90;
-                latMax = latMin + latHeight;
-            }
-
-            if (lonMin < -180)
-            {
-                lonMin = -180;
-            }
-            var lonMax = lonMin + lonWidth;
-            if (lonMax > 180)
-            {
-                lonMax = 180;
-                lonMin = lonMax - lonWidth;
-            }
-
-            return new LatLonBoundaries() { LatMax = latMax, LatMin = latMin, LonMax = lonMax, LonMin = lonMin };
         }
 
         #endregion
