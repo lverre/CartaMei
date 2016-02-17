@@ -44,7 +44,6 @@ namespace CartaMei.Templates
                 mapPropertyChanged(e.NewValue, new PropertyChangedEventArgs(nameof(IMap.ActiveObject)));
             };
             Current.MapChanged += mapChanged;
-            mapChanged(new CurrentPropertyChangedEventArgs<IMap>(null, Current.Map));
         }
 
         private DependencyObject getTreeViewItem(object value, ItemsControl container)
