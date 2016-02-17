@@ -248,7 +248,8 @@ namespace CartaMei.GSHHG
             {
                 lock (_drawLocker)
                 {
-                    if (context.RedrawType == RedrawType.Scale && (_polygonObjects?.Any() ?? false))
+                    const RedrawType noNewPointTypes = RedrawType.Scale | RedrawType.Zoom | RedrawType.AnimationStepChanged | RedrawType.DisplayTypeChanged | RedrawType.Redraw;
+                    if ((_polygonObjects?.Any() ?? false) && ((context.RedrawType & ~noNewPointTypes) == RedrawType.None))
                     {
                         foreach (var polygonObject in _polygonObjects.Values)
                         {

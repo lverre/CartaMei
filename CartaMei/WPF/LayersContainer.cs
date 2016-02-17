@@ -123,6 +123,7 @@ namespace CartaMei.WPF
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
         {
             base.OnRenderSizeChanged(sizeInfo);
+            var oldSize = _map.Size;
             _map.Size = sizeInfo.NewSize;
             foreach (var item in _layers)
             {
@@ -133,7 +134,20 @@ namespace CartaMei.WPF
                     fe.Height = _map.Size.Height;
                 }
             }
-            draw(RedrawType.Scale);
+            if (oldSize.Height == 0 || oldSize.Width == 0)
+            {
+                draw(RedrawType.Reset);
+            }
+            else
+            {
+                double
+                    scaleX = sizeInfo.NewSize.Width / oldSize.Width,
+                    scaleY = sizeInfo.NewSize.Height / oldSize.Height;
+                _currentTransform = new ScaleTransform(scaleX, scaleY);
+                _currentTransform.Freeze();
+                _cumulativeTransform.Matrix.Scale(scaleX, scaleY);
+                draw(RedrawType.Scale);
+            }
         }
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)
