@@ -197,47 +197,49 @@ namespace CartaMei.WPF
 
             var panPoint = getPanPoint(e);
 
-            if (_isPanning && panPoint != _panStartPoint)
+            var hasNotMoved = (panPoint - _panStartPoint).LengthSquared <= 2;
+            var isStopPan = _isPanning;
+            if (isStopPan)
             {
                 stopPan(panPoint);
             }
-            else
+            switch (e.ChangedButton)
             {
-                switch (e.ChangedButton)
-                {
-                    case MouseButton.Left:
+                case MouseButton.Left:
+                    if (hasNotMoved)
+                    {
                         var toSelect = getObjectsAt(e).FirstOrDefault()?.Item2;
                         if (toSelect != null)
                         {
                             toSelect.Select();
                             _map.ActiveObject = toSelect;
                         }
-                        break;
-                    case MouseButton.Middle:
-                        startPan(panPoint, true);
-                        break;
-                    case MouseButton.Right:
-                        var selectable = getObjectsAt(e).ToArray();
-                        if (selectable.Length > 0)
+                    }
+                    break;
+                case MouseButton.Middle:
+                    if (!isStopPan) startPan(panPoint, true);
+                    break;
+                case MouseButton.Right:
+                    var selectable = getObjectsAt(e).ToArray();
+                    if (selectable.Length > 0)
+                    {
+                        var menu = new ContextMenu()
                         {
-                            var menu = new ContextMenu()
+                            Placement = System.Windows.Controls.Primitives.PlacementMode.Mouse
+                        };
+                        foreach (var item in selectable)
+                        {
+                            var menuItem = new MenuItem() { Header = item.Item1.Name + " - " + item.Item2.Name };
+                            menuItem.Click += (s2, e2) =>
                             {
-                                Placement = System.Windows.Controls.Primitives.PlacementMode.Mouse
+                                item.Item2.Select();
+                                Current.Map.ActiveObject = item.Item2;
                             };
-                            foreach (var item in selectable)
-                            {
-                                var menuItem = new MenuItem() { Header = item.Item1.Name + " - " + item.Item2.Name };
-                                menuItem.Click += (s2, e2) =>
-                                {
-                                    item.Item2.Select();
-                                    Current.Map.ActiveObject = item.Item2;
-                                };
-                                menu.Items.Add(menuItem);
-                            }
-                            menu.IsOpen = true;
+                            menu.Items.Add(menuItem);
                         }
-                        break;
-                }
+                        menu.IsOpen = true;
+                    }
+                    break;
             }
         }
 

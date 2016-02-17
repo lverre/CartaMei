@@ -70,6 +70,8 @@
             <ProgressBar Value="{Binding Percentage}" 
                          IsIndeterminate="{Binding IsMarquee}"
                          Visibility="{Binding IsVisible, Converter={StaticResource booleanToVisibilityConverter}}"
+                         Width="100"
+                         Height="12"
                          Orientation="Horizontal" />
         </DataTemplate>
         <DataTemplate x:Key="statusSeparatorTemplate">

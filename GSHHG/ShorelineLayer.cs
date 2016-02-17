@@ -35,7 +35,7 @@ namespace CartaMei.GSHHG
 
         private IDictionary<int, ShorelinePolygonObject> _polygonObjects = null;
 
-        private ShorelineContainer _container = null;
+        private IShorelineContainer _container = null;
         
         private readonly object _drawLocker = new object();
 
@@ -57,8 +57,9 @@ namespace CartaMei.GSHHG
             _resolution = PluginSettings.Instance.Resolution;
             _useCurvedLines = PluginSettings.Instance.UseCurvedLines;
 
-            _container = new ShorelineContainer(this);
-            _container.MouseMove += mouseMove;
+            var container = new GdiShorelineContainer(this);
+            container.MouseMove += mouseMove;
+            _container = container;
             resetBackground();
 
             this.Name = ShorelineLayer.LayerName;
@@ -98,7 +99,7 @@ namespace CartaMei.GSHHG
             get { return _shorelinesBrush; }
             set
             {
-                if (value.CanFreeze) value.Freeze();
+                value.SafeFreeze();
                 if (_shorelinesBrush != value)
                 {
                     _shorelinesBrush = value;
@@ -118,7 +119,7 @@ namespace CartaMei.GSHHG
             get { return _waterFill; }
             set
             {
-                if (value.CanFreeze) value.Freeze();
+                value.SafeFreeze();
                 if (_waterFill != value)
                 {
                     _waterFill = value;
@@ -139,7 +140,7 @@ namespace CartaMei.GSHHG
             get { return _landFill; }
             set
             {
-                if (value.CanFreeze) value.Freeze();
+                value.SafeFreeze();
                 if (_landFill != value)
                 {
                     _landFill = value;
@@ -179,6 +180,7 @@ namespace CartaMei.GSHHG
             get { return _backgroundFill; }
             set
             {
+                value.SafeFreeze();
                 if (_backgroundFill != value)
                 {
                     _backgroundFill = value;
@@ -231,7 +233,7 @@ namespace CartaMei.GSHHG
 
         #region ALayer
 
-        public override UIElement Container { get { return _container; } }
+        public override UIElement Container { get { return _container as UIElement; } }
 
         public override void SetLayerAdded(int layerIndex)
         {
@@ -316,9 +318,8 @@ namespace CartaMei.GSHHG
                 case RedrawType.Redraw:
                 case RedrawType.Zoom:
                 case RedrawType.Scale:
-                    _container.DrawContext = context;
                     _container.IsDirty = true;
-                    _container.SafeInvalidate();
+                    _container.Update(context);
                     break;
             }
         }
@@ -334,7 +335,7 @@ namespace CartaMei.GSHHG
 
         private void mouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            var point = e.GetPosition(_container.Parent as IInputElement);
+            var point = e.GetPosition(((FrameworkElement)_container).Parent as IInputElement);
             var latLon = this.Map.Projection.PixelToLatLon(point);
             Utils.Instance.SetStatus(latLon.ToString());
         }
@@ -350,7 +351,7 @@ namespace CartaMei.GSHHG
 
         private void redraw(bool reset)
         {
-            this.DrawAsync(new DrawContext(_container, reset ? RedrawType.Reset : RedrawType.Redraw, null, null, this.Map));
+            this.DrawAsync(new DrawContext(_container as UIElement, reset ? RedrawType.Reset : RedrawType.Redraw, null, null, this.Map));
         }
 
         private void resetMapData(IDrawContext context, CancellationToken cancellation)
@@ -367,14 +368,14 @@ namespace CartaMei.GSHHG
                 
                     _mapsDir = mapsDir;
 
-                    Utils.Instance.SetStatus("Loading map...", true, true);
+                    var ownsStatus = Utils.Instance.SetStatus("Loading map...", true, true, 0, true);
                     var watch = System.Diagnostics.Stopwatch.StartNew();
                     var reader = new GSHHG2Reader();
                     // TODO: lazy load
                     // TODO: handle cancellation
                     _polygons = reader.Read(PluginSettings.Instance.MapsDirectory, PolygonType.ShoreLine, this.Resolution).Polygons;
                     var time = watch.ElapsedMilliseconds;
-                    Utils.Instance.HideStatus();
+                    if (ownsStatus) Utils.Instance.HideStatus();
                     _polygonObjects = new Dictionary<int, ShorelinePolygonObject>();
                     _loadedResolution = this.Resolution;
                 }
@@ -419,24 +420,78 @@ namespace CartaMei.GSHHG
         #endregion
     }
 
-    public class ShorelineContainer : FrameworkElement
+    public class ShorelinePolygonObject : MapLeafObject, ILayerItem
     {
+        #region Properties
+
+        [Category("GSHHG")]
+        [Description("The ID of the polygon.")]
+        [DisplayName("ID")]
+        [ReadOnly(true)]
+        public int Id { get; set; }
+
+        [Browsable(false)]
+        public IPolygon<GSHHG2PolygonHeader, LatLonCoordinates> Polygon { get; set; }
+
+        [Browsable(false)]
+        public IEnumerable<PixelCoordinates> PixelPoints { get; internal set; }
+
+        #endregion
+    }
+
+    public interface IShorelineContainer
+    {
+        Brush Background { get; set; }
+
+        bool IsDirty { get; set; }
+        
+        IDictionary<int, ShorelinePolygonObject> Polygons { get; set; }
+
+        void Update(IDrawContext drawContext);
+    }
+
+    /// <summary>
+    /// Shoreline container that draws using OnRender / Geometry.
+    /// </summary>
+    public class ShorelineContainer : FrameworkElement, IShorelineContainer
+    {
+        #region Fields
+
         private ShorelineLayer _layer;
+
+        #endregion
+
+        #region Constructor
 
         public ShorelineContainer(ShorelineLayer layer)
         {
             _layer = layer;
         }
 
+        #endregion
+
+        #region IShorelineContainer
+
         public Brush Background { get; set; }
 
         public bool IsDirty { get; set; }
-
-        public IDrawContext DrawContext { get; set; }
-
+        
         public IDictionary<int, ShorelinePolygonObject> Polygons { get; set; }
 
+        public void Update(IDrawContext drawContext)
+        {
+            this.SafeInvalidate();
+        }
+
+        #endregion
+
+        #region Properties
+
         private IDictionary<ShorelinePolygonObject, Geometry> Geometries { get; set; }
+
+        #endregion
+
+        #region Overrides
 
         protected override void OnRender(DrawingContext drawingContext)
         {
@@ -498,24 +553,320 @@ namespace CartaMei.GSHHG
                 drawingContext.DrawGeometry(fill, pen, item.Value);
             }
         }
+        
+        #endregion
     }
 
-    public class ShorelinePolygonObject : MapLeafObject, ILayerItem
+    /// <summary>
+    /// Shoreline container that draws into an image using GDI+.
+    /// </summary>
+    /// <remarks>
+    /// <para>Adapted from <see href="http://www.newyyz.com/blog/2012/02/14/fast-line-rendering-in-wpf/">Sean Hopen's solution</see>.</para>
+    /// <para>This solution does most of the work in another thread, which should make the UI much more responsive (it just has to display a bitmap).</para>
+    /// </remarks>
+    public class GdiShorelineContainer : Grid, IShorelineContainer
     {
-        #region Properties
+        #region Fields
+        
+        private ShorelineLayer _layer;
 
-        [Category("GSHHG")]
-        [Description("The ID of the polygon.")]
-        [DisplayName("ID")]
-        [ReadOnly(true)]
-        public int Id { get; set; }
+        private Image _image;
 
-        [Browsable(false)]
-        public IPolygon<GSHHG2PolygonHeader, LatLonCoordinates> Polygon { get; set; }
+        private BackgroundWorker _renderWorker;
+        private readonly object _rendererLocker = new object();
 
-        [Browsable(false)]
-        public IEnumerable<PixelCoordinates> PixelPoints { get; internal set; }
+        #region GDI
+
+        private IDictionary<ShorelinePolygonObject, System.Drawing.Drawing2D.GraphicsPath> _paths;
+
+        private bool _isBitmapInitialized;
+        private bool _isBitmapInvalid;
+
+        private System.Drawing.Bitmap _gdiBitmap;
+        private System.Drawing.Graphics _gdiGraphics;
+        private System.Windows.Interop.InteropBitmap _interopBitmap;
+
+        private IntPtr _mapFileHandle;
+        private IntPtr _mapViewPtr;
+
+        private int _width;
+        private int _height;
+
+        #region Constants
+
+        private const uint FILE_MAP_ALL_ACCESS = 0xF001F;
+        private const uint PAGE_READWRITE = 0x04;
+
+        private const System.Drawing.Imaging.PixelFormat _gdiPixelFormat = System.Drawing.Imaging.PixelFormat.Format32bppPArgb;
+        private static readonly PixelFormat _pixelFormat = PixelFormats.Pbgra32;
+        private static readonly int _bytesPerPixel = _pixelFormat.BitsPerPixel / 8;
 
         #endregion
+
+        #endregion
+        
+        #endregion
+
+        #region Constructors
+
+        public GdiShorelineContainer(ShorelineLayer layer)
+        {
+            _layer = layer;
+
+            _image = new Image()
+            {
+                Stretch = Stretch.None
+            };
+            this.Children.Add(_image);
+
+            _renderWorker = new BackgroundWorker() { WorkerSupportsCancellation = true };
+            _renderWorker.DoWork += doRender;
+            _renderWorker.RunWorkerCompleted += renderFinished;
+
+            _isBitmapInitialized = false;
+            _isBitmapInvalid = true;
+            _mapFileHandle = (IntPtr)(-1);
+            _mapViewPtr = (IntPtr)(-1);
+
+            _width = 0;
+            _height = 0;
+
+            _layer.Map.PropertyChanged += delegate (object sender, PropertyChangedEventArgs e)
+            {
+                if (e.PropertyName == nameof(IMap.UseAntiAliasing))
+                {
+                    this.Update(null);
+                }
+            };
+        }
+
+        #endregion
+
+        #region IShorelineContainer
+
+        public bool IsDirty { get; set; }
+        
+        public IDictionary<int, ShorelinePolygonObject> Polygons { get; set; }
+
+        public void Update(IDrawContext drawContext)
+        {
+            if (drawContext?.RedrawType.HasFlag(RedrawType.Scale) ?? false)
+            {
+                _isBitmapInvalid = true;
+            }
+            
+            this.Dispatcher.InvokeAsync(delegate ()
+            {
+                lock (_rendererLocker)
+                {
+                    if (!_renderWorker.IsBusy) _renderWorker.RunWorkerAsync();
+                }
+            });
+        }
+
+        #endregion
+        
+        #region Events
+
+        private void doRender(object sender, DoWorkEventArgs e)
+        {
+            var polygons = this.Polygons;
+            if (!(polygons?.Any() ?? false))
+            {
+                _image.Source = null;
+                return;
+            }
+
+            _width = _layer.Map.Size.Width;
+            _height = _layer.Map.Size.Height;
+
+            initialize();
+
+            if (this.IsDirty || _paths == null)
+            {
+                var paths = new Dictionary<ShorelinePolygonObject, System.Drawing.Drawing2D.GraphicsPath>();
+                foreach (var item in polygons)
+                {
+                    var path = new System.Drawing.Drawing2D.GraphicsPath()
+                    {
+                        FillMode = System.Drawing.Drawing2D.FillMode.Winding
+                    };
+                    var points = item.Value.PixelPoints.Select(p => p.AsGdiPointF()).ToArray();
+                    if (_layer.UseCurvedLines)
+                    {
+                        path.AddCurve(points);
+                    }
+                    else
+                    {
+                        path.AddLines(points);
+                    }
+                    paths[item.Value] = path;
+                }
+                _paths = paths;
+            }
+            
+            var pen = _layer.ShorelinesBrush != null && _layer.ShorelinesBrush != Brushes.Transparent && _layer.ShorelinesThickness > 0
+                ? new System.Drawing.Pen(_layer.ShorelinesBrush.AsGdiBrush(), (float)_layer.ShorelinesThickness)
+                : null;
+            var land = _layer.LandFill != null && _layer.LandFill != Brushes.Transparent ? _layer.LandFill.AsGdiBrush() : null;
+            var water = _layer.WaterFill != null && _layer.WaterFill != Brushes.Transparent ? _layer.WaterFill.AsGdiBrush() : null;
+            foreach (var item in _paths)
+            {
+                var path = item.Value;
+                var fill = item.Key.Polygon.Header.IsLand ? land : water;
+                if (fill != null) _gdiGraphics.FillPath(fill, path);
+                if (pen != null) _gdiGraphics.DrawPath(pen, path);
+            }
+
+            _interopBitmap.Invalidate();
+            _interopBitmap.Freeze();
+            e.Result = _interopBitmap;
+        }
+
+        private void renderFinished(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Cancelled) return;
+
+            var bitmapSource = (e.Result as System.Windows.Media.Imaging.BitmapSource);
+            if (bitmapSource != null && bitmapSource.CheckAccess())
+            {
+                _image.Source = bitmapSource;
+            }
+        }
+
+        #endregion
+
+        #region Tools
+
+        protected void initialize()
+        {
+            if (_isBitmapInitialized || _isBitmapInvalid)
+            {
+                deallocate();
+            }
+            
+            var byteCount = (uint)(_width * _height * _bytesPerPixel);
+            
+            _mapFileHandle = NativeMethods.CreateFileMapping(new IntPtr(-1), IntPtr.Zero, PAGE_READWRITE, 0, byteCount, null);
+            _mapViewPtr = NativeMethods.MapViewOfFile(_mapFileHandle, FILE_MAP_ALL_ACCESS, 0, 0, byteCount);
+            
+            _interopBitmap = System.Windows.Interop.Imaging.CreateBitmapSourceFromMemorySection(
+                _mapFileHandle, _width, _height, _pixelFormat, _width * _bytesPerPixel, 0) 
+                as System.Windows.Interop.InteropBitmap;
+            _gdiGraphics = getGdiGraphics(_mapViewPtr);
+
+            _isBitmapInitialized = true;
+            _isBitmapInvalid = false;
+        }
+
+        private void deallocate()
+        {
+            if (_gdiGraphics != null)
+            {
+                _gdiGraphics.Dispose();
+            }
+            try
+            {
+                if (_mapViewPtr != (IntPtr)(-1))
+                {
+                    NativeMethods.UnmapViewOfFile(_mapViewPtr);
+                }
+                if (_mapFileHandle != (IntPtr)(-1))
+                {
+                    NativeMethods.CloseHandle(_mapFileHandle);
+                }
+            }
+            finally
+            {
+                _mapViewPtr = (IntPtr)(-1);
+                _mapFileHandle = (IntPtr)(-1);
+                _isBitmapInitialized = false;
+            }
+        }
+
+        private System.Drawing.Graphics getGdiGraphics(IntPtr mapPointer)
+        {
+            _gdiBitmap = new System.Drawing.Bitmap(_width, _height, _width * _bytesPerPixel, _gdiPixelFormat, mapPointer);
+
+            var gdiGraphics = System.Drawing.Graphics.FromImage(_gdiBitmap);
+            gdiGraphics.CompositingMode = System.Drawing.Drawing2D.CompositingMode.SourceCopy;
+            if (_layer.Map.UseAntiAliasing)
+            {
+                gdiGraphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                gdiGraphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            }
+            else
+            {
+                gdiGraphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
+                gdiGraphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
+            }
+
+            return gdiGraphics;
+        }
+        #endregion
+    }
+
+    internal class NativeMethods
+    {
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern IntPtr CreateFileMapping(IntPtr hFile,
+        IntPtr lpFileMappingAttributes,
+        uint flProtect,
+        uint dwMaximumSizeHigh,
+        uint dwMaximumSizeLow,
+        string lpName);
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern IntPtr MapViewOfFile(IntPtr hFileMappingObject,
+        uint dwDesiredAccess,
+        uint dwFileOffsetHigh,
+        uint dwFileOffsetLow,
+        uint dwNumberOfBytesToMap);
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern bool UnmapViewOfFile(IntPtr lpBaseAddress);
+
+        [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+        internal static extern int CloseHandle(IntPtr hObject);
+
+        [System.Runtime.InteropServices.DllImport("gdi32")]
+        internal static extern int DeleteObject(IntPtr o);
+    }
+
+    public static class DrawingExtensions
+    {
+        public static System.Drawing.Color AsGdiColor(this System.Windows.Media.Color color)
+        {
+            return System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
+        }
+
+        public static System.Drawing.SolidBrush AsGdiBrush(this System.Windows.Media.Color color)
+        {
+            return new System.Drawing.SolidBrush(color.AsGdiColor());
+        }
+
+        public static System.Drawing.Brush AsGdiBrush(this System.Windows.Media.Brush brush)
+        {
+            var solidColorBrush = brush as System.Windows.Media.SolidColorBrush;
+            return solidColorBrush?.Color.AsGdiBrush();
+        }
+
+        public static System.Drawing.Pen AsGdiPen(this System.Windows.Media.Pen pen)
+        {
+            var brush = pen.Brush as SolidColorBrush;
+            brush = brush ?? Brushes.Transparent;
+            var color = brush.Color.AsGdiColor();
+            return new System.Drawing.Pen(color, (float)pen.Thickness);
+        }
+
+        public static System.Drawing.PointF AsGdiPointF(this PixelCoordinates point)
+        {
+            return new System.Drawing.PointF((float)point.X, (float)point.Y);
+        }
+
+        public static System.Drawing.Point AsGdiPoint(this PixelCoordinates point)
+        {
+            return new System.Drawing.Point((int)Math.Round(point.X), (int)Math.Round(point.Y));
+        }
     }
 }

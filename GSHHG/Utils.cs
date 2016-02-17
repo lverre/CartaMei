@@ -24,23 +24,32 @@ namespace CartaMei.GSHHG
 
         #region Status
 
+        private bool _isStatusBlocked = false;
+
         internal TextStatusItem StatusText { get; private set; }
 
         internal ProgressBarStatusItem StatusProgress { get; private set; }
 
-        internal void SetStatus(string text, bool withStatus = false, bool isStatusMarquee = true, int percentage = 0)
+        internal bool SetStatus(string text, bool withStatus = false, bool isStatusMarquee = true, int percentage = 0, bool block = false)
         {
+            if (_isStatusBlocked) return false;
+
+            _isStatusBlocked = block;
+
             this.StatusText.Text = text;
             this.StatusText.IsVisible = true;
             this.StatusProgress.IsVisible = withStatus;
             this.StatusProgress.IsMarquee = isStatusMarquee;
             this.StatusProgress.Percentage = percentage;
+
+            return true;
         }
 
         internal void HideStatus()
         {
             this.StatusProgress.IsVisible = false;
             this.StatusText.IsVisible = false;
+            _isStatusBlocked = false;
         }
 
         #endregion
