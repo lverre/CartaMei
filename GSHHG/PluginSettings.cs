@@ -167,6 +167,44 @@ namespace CartaMei.GSHHG
             }
         }
 
+        private bool _shorelinesUseWaterForBackground;
+        [DefaultValue(true)]
+        [Description("Choose this option if you want the background of the shorelines layers to always match that of the water.\nNote that this will be automatically set only if the layer is added first.")]
+        [DisplayName("Shorelines Background Is Water")]
+        [Category("Shorelines")]
+        [PropertyOrder(4)]
+        public bool ShorelinesUseWaterForBackground
+        {
+            get { return _shorelinesUseWaterForBackground; }
+            set
+            {
+                if (_shorelinesUseWaterForBackground != value)
+                {
+                    _shorelinesUseWaterForBackground = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private Brush _shorelinesBackground;
+        [DefaultValue(typeof(SolidColorBrush), "#00000000")]
+        [Description("The brush used to fill the background of the shorelines layers.")]
+        [DisplayName("Shorelines Background")]
+        [Category("Shorelines")]
+        [PropertyOrder(5)]
+        public Brush ShorelinesBackground
+        {
+            get { return _shorelinesBackground; }
+            set
+            {
+                if (_shorelinesBackground != value)
+                {
+                    _shorelinesBackground = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
         #endregion
 
         #endregion

@@ -11,7 +11,10 @@ namespace CartaMei.Dialogs
 
         private void selectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            (this.DataContext as Models.OptionsModel).SelectedObject = (_treeView.SelectedItem as Models.OptionItem)?.Properties;
+            var model = this.DataContext as Models.OptionsModel;
+            var selectedItem = _treeView.SelectedItem as Models.OptionItem;
+            model.SelectedObject = selectedItem?.Properties;
+            model.SelectedName = selectedItem.Name;
         }
 
         private void onOk(object sender, RoutedEventArgs e)

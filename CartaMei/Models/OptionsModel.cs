@@ -20,7 +20,21 @@ namespace CartaMei.Models
                 }
             }
         }
-        
+
+
+        private string _selectedName;
+        public string SelectedName
+        {
+            get { return _selectedName; }
+            set
+            {
+                if (value != _selectedName)
+                {
+                    _selectedName = value;
+                    onPropetyChanged();
+                }
+            }
+        }
         public IEnumerable<OptionItem> Items { get; set; }
 
         #endregion

@@ -53,6 +53,7 @@ namespace CartaMei.MainPlugin
             {
                 return new IStatusItem[]
                 {
+                    new TextStatusItem() { IsVisible = true, Text = "main plugin" }
                     // TODO: progress bar for save/load, text
                 };
             }

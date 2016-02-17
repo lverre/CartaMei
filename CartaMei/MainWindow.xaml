@@ -128,7 +128,7 @@
             
         </xcad:DockingManager>
 
-        <StatusBar Grid.Row="3" 
+        <StatusBar Grid.Row="3"
                    ItemsSource="{Binding StatusItems}"
                    ItemTemplateSelector="{StaticResource statusBarItemTemplateSelector}">
         </StatusBar>

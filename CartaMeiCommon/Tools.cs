@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Reflection;
+using System.Windows;
 
 namespace CartaMei.Common
 {
@@ -54,6 +55,11 @@ namespace CartaMei.Common
                 ? (isNegative ? "S" : "N")
                 : (isNegative ? "W" : "E");
             return Math.Round(Math.Abs(coordinate), 5) + "º" + cardinal;
+        }
+
+        public static void SafeInvalidate(this UIElement uiElement)
+        {
+            uiElement.Dispatcher.InvokeAsync(() => uiElement.InvalidateVisual());
         }
     }
 }

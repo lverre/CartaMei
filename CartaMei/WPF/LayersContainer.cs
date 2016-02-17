@@ -32,8 +32,11 @@ namespace CartaMei.WPF
         private bool _isMouseDownWheel;
         private bool _isPanning;
 
+        private Transform _currentTransform;
+        private MatrixTransform _cumulativeTransform;
+
         #endregion
-        
+
         #region Constructor
 
         public LayersContainer()
@@ -42,6 +45,9 @@ namespace CartaMei.WPF
             _boundaries = null;
             _layers = null;
             _childrenDictionary = new Dictionary<ILayer, UIElement>();
+            _currentTransform = Transform.Identity;
+            _currentTransform.Freeze();
+            _cumulativeTransform = new MatrixTransform(Matrix.Identity);
             this.Background = Brushes.Transparent;// Needed to get the mouse events
         }
 
@@ -118,7 +124,16 @@ namespace CartaMei.WPF
         {
             base.OnRenderSizeChanged(sizeInfo);
             _map.Size = sizeInfo.NewSize;
-            draw(RedrawType.Resize);
+            foreach (var item in _layers)
+            {
+                var fe = item.Container as FrameworkElement;
+                if (fe != null)
+                {
+                    fe.Width = _map.Size.Width;
+                    fe.Height = _map.Size.Height;
+                }
+            }
+            draw(RedrawType.Scale);
         }
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)
@@ -164,9 +179,6 @@ namespace CartaMei.WPF
         
         protected override void OnMouseUp(MouseButtonEventArgs e)
         {
-            if (e.ClickCount > 1)
-            { }
-
             base.OnMouseUp(e);
 
             var panPoint = getPanPoint(e);
@@ -240,8 +252,9 @@ namespace CartaMei.WPF
                     var children = new Dictionary<ILayer, UIElement>(_childrenDictionary);
                     _childrenDictionary.Clear();
 
-                    foreach (var layer in _layers)
+                    for (int i = 0; i < _layers.Count; i++)
                     {
+                        var layer = _layers[i];
                         UIElement child;
                         if (children.ContainsKey(layer))
                         {
@@ -250,9 +263,10 @@ namespace CartaMei.WPF
                         }
                         else
                         {
-                            child = layer.CreateContainer();
+                            child = layer.Container;
                             child.ClipToBounds = true;
                             toDraw.Add(layer);
+                            layer.SetLayerAdded(i);
                         }
                         _childrenDictionary[layer] = child;
                         this.Children.Add(child);
@@ -274,6 +288,13 @@ namespace CartaMei.WPF
 
         private void draw(RedrawType redrawType)
         {
+            if ((redrawType & ~(RedrawType.Redraw | RedrawType.Scale | RedrawType.Translate)) != RedrawType.None)
+            {
+                _currentTransform = Transform.Identity;
+                _currentTransform.Freeze();
+                _cumulativeTransform.Matrix.SetIdentity();
+            }
+
             foreach (var item in _childrenDictionary)
             {
                 drawLayer(item.Key, item.Value, redrawType, _map);
@@ -282,20 +303,27 @@ namespace CartaMei.WPF
 
         private void drawLayer(ILayer layer, RedrawType redrawType)
         {
-            drawLayer(layer, _childrenDictionary[layer], redrawType, _map);
+            if ((redrawType & layer.HandledRedrawTypes) != RedrawType.None)
+            {
+                drawLayer(layer, _childrenDictionary[layer], redrawType, _map);
+            }
         }
 
         private void drawLayer(ILayer layer, UIElement container, RedrawType redrawType, IMap map)
         {
-            layer.Draw(new DrawContext(container, redrawType, map));
+            layer.DrawAsync(new DrawContext(container, redrawType, _currentTransform, _cumulativeTransform, map));
         }
 
         private void zoom(Point center, double factor, bool isZoomIn)
         {
+            var latLonFactor = factor * (isZoomIn ? 2d : .5d);
+            _currentTransform = new ScaleTransform(latLonFactor, latLonFactor);
+            _currentTransform.Freeze();
+            _cumulativeTransform.Matrix.Scale(latLonFactor, latLonFactor);
+
             var xFactor = center.X / this.RenderSize.Width;
             var yFactor = center.Y / this.RenderSize.Height;
             var latLonCenter = _map.Projection.PixelToLatLon(center);
-            var latLonFactor = factor * (isZoomIn ? 2d : .5d);
             var lonSpan = Math.Min(_map.Boundaries.LongitudeSpan / latLonFactor, LatLonBoundaries.MaxLongitudeSpan);
             var latSpan = Math.Min(_map.Boundaries.LatitudeSpan / latLonFactor, LatLonBoundaries.MaxLatitudeSpan);
             _map.Boundaries = _map.Projection.BoundMap(latLonCenter.Latitude, latLonCenter.Longitude, latSpan, lonSpan);
@@ -347,12 +375,14 @@ namespace CartaMei.WPF
                     this.RenderSize.Width / 2 - diff.X, 
                     this.RenderSize.Height / 2 - diff.Y
                     ));
-                this.VisualTransform = null;
+                _currentTransform = new TranslateTransform(diff.X, diff.Y);
+                _currentTransform.Freeze();
+                _cumulativeTransform.Matrix.Translate(diff.X, diff.Y);
                 _map.Boundaries = _map.Projection.BoundMap(newCenterLatLon.Latitude, newCenterLatLon.Longitude, _map.Boundaries.LatitudeSpan, _map.Boundaries.LongitudeSpan);
+                this.VisualTransform = null;
             }
             else if ((_panLastPoint - point).Length >= 2)// Prevents flicker
             {
-                Console.WriteLine(_panStartPoint + " - " + _panLastPoint + " - " + point + " - " + (_panLastPoint - point).Length + " - " + diff);
                 _panLastPoint = point;
                 this.VisualTransform = new TranslateTransform(diff.X, diff.Y);
             }

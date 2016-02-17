@@ -156,6 +156,12 @@ namespace CartaMei.Common
             }
         }
 
+        [Browsable(false)]
+        public bool IsEmpty
+        {
+            get { return this.Width == 0 && this.Height == 0; }
+        }
+
         #endregion
 
         #region Object
