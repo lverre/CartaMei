@@ -120,8 +120,6 @@ namespace CartaMei.Common
     {
         #region Fields
 
-        protected IMap _map;
-
         private CancellationTokenSource _canceler;
 
         private readonly object _cancelerLocker = new object();
@@ -132,7 +130,7 @@ namespace CartaMei.Common
 
         public ALayer(IMap map)
         {
-            _map = map;
+            this.Map = map;
         }
 
         #endregion
@@ -164,7 +162,7 @@ namespace CartaMei.Common
             return Task.Run(delegate ()
             {
                 var watch = System.Diagnostics.Stopwatch.StartNew();
-                if (!_map.Size.IsEmpty) this.Draw(context, token);
+                if (!this.Map.Size.IsEmpty) this.Draw(context, token);
                 watch.Stop();
                 Console.WriteLine("Draw finished in " + watch.ElapsedMilliseconds + " ms");
             });
@@ -177,7 +175,13 @@ namespace CartaMei.Common
         #region Abstract
 
         public abstract void Draw(IDrawContext context, CancellationToken cancellation);
-        
+
+        #endregion
+
+        #region Properties
+
+        public IMap Map { get; private set; }
+
         #endregion
     }
 

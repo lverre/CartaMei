@@ -38,6 +38,12 @@ namespace CartaMei.Common
 
         #endregion
 
+        #region Rendering
+
+        bool UseAntiAliasing { get; set; }
+
+        #endregion
+
         #region File
 
         string FileName { get; set; }

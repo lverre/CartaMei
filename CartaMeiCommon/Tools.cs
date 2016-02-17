@@ -61,5 +61,19 @@ namespace CartaMei.Common
         {
             uiElement.Dispatcher.InvokeAsync(() => uiElement.InvalidateVisual());
         }
+
+        public static void SafeFreeze(this Freezable freezable)
+        {
+            if ( freezable != null && !freezable.IsFrozen && freezable.CanFreeze)
+            {
+                freezable.Freeze();
+            }
+        }
+
+        public static T GetFrozenCopy<T>(this T freezable) where T : Freezable
+        {
+            if (freezable == null) return null;
+            return (T)freezable.GetAsFrozen();
+        }
     }
 }

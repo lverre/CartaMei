@@ -49,11 +49,11 @@ namespace CartaMei.GSHHG
             _loadedResolution = (Resolution)int.MaxValue;// Invalid value
 
             _shorelinesThickness = PluginSettings.Instance.ShorelinesThickness;
-            _shorelinesBrush = PluginSettings.Instance.ShorelinesBrush;
-            _waterFill = PluginSettings.Instance.ShorelinesWaterFill;
-            _landFill = PluginSettings.Instance.ShorelinesLandFill;
+            _shorelinesBrush = PluginSettings.Instance.ShorelinesBrush.GetFrozenCopy();
+            _waterFill = PluginSettings.Instance.ShorelinesWaterFill.GetFrozenCopy();
+            _landFill = PluginSettings.Instance.ShorelinesLandFill.GetFrozenCopy();
             _useWaterForBackground = PluginSettings.Instance.ShorelinesUseWaterForBackground;
-            _backgroundFill = PluginSettings.Instance.ShorelinesBackground;
+            _backgroundFill = PluginSettings.Instance.ShorelinesBackground.GetFrozenCopy();
             _resolution = PluginSettings.Instance.Resolution;
             _useCurvedLines = PluginSettings.Instance.UseCurvedLines;
 
@@ -335,7 +335,7 @@ namespace CartaMei.GSHHG
         private void mouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
             var point = e.GetPosition(_container.Parent as IInputElement);
-            var latLon = _map.Projection.PixelToLatLon(point);
+            var latLon = this.Map.Projection.PixelToLatLon(point);
             Utils.Instance.SetStatus(latLon.ToString());
         }
 
@@ -350,7 +350,7 @@ namespace CartaMei.GSHHG
 
         private void redraw(bool reset)
         {
-            this.DrawAsync(new DrawContext(_container, reset ? RedrawType.Reset : RedrawType.Redraw, null, null, _map));
+            this.DrawAsync(new DrawContext(_container, reset ? RedrawType.Reset : RedrawType.Redraw, null, null, this.Map));
         }
 
         private void resetMapData(IDrawContext context, CancellationToken cancellation)
@@ -413,7 +413,7 @@ namespace CartaMei.GSHHG
 
         private IEnumerable<PixelCoordinates> getPoints(ShorelinePolygonObject polygonObject)
         {
-            return polygonObject.Polygon.Points?.Select(point => _map.Projection.LatLonToPixel(point)).ToList();
+            return polygonObject.Polygon.Points?.Select(point => this.Map.Projection.LatLonToPixel(point)).ToList();
         }
 
         #endregion

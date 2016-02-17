@@ -61,6 +61,10 @@ namespace CartaMei.WPF
         {
             base.OnInitialized(e);
 
+            PropertyChangedEventHandler boudariesChanged = delegate (object s3, PropertyChangedEventArgs e3)
+            {
+                draw(RedrawType.Zoom);
+            };
             PropertyChangedEventHandler mapPropertyChanged = delegate (object s2, PropertyChangedEventArgs e2)
             {
                 switch (e2.PropertyName)
@@ -78,10 +82,6 @@ namespace CartaMei.WPF
                         onLayersChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
                         break;
                     case nameof(IMap.Boundaries):
-                        PropertyChangedEventHandler boudariesChanged = delegate (object s3, PropertyChangedEventArgs e3)
-                        {
-                            draw(RedrawType.Zoom);
-                        };
                         if (_boundaries != null)
                         {
                             _boundaries.PropertyChanged -= boudariesChanged;

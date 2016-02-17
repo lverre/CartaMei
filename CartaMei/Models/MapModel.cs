@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.ComponentModel;
 using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
+using System.Windows.Media;
 
 namespace CartaMei.Models
 {
@@ -220,7 +221,7 @@ namespace CartaMei.Models
                 }
             }
         }
-
+        
         private object _activeObject;
         [Browsable(false)]
         public object ActiveObject
@@ -231,6 +232,28 @@ namespace CartaMei.Models
                 if (_activeObject != value)
                 {
                     _activeObject = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        #endregion
+
+        #region Rendering
+
+        private bool _useAntiAliasing;
+        [Category("Rendering")]
+        [Description("Use anti-aliasing for this map.")]
+        [DisplayName("Use Anti-Aliasing")]
+        [PropertyOrder(0)]
+        public bool UseAntiAliasing
+        {
+            get { return _useAntiAliasing; }
+            set
+            {
+                if (value != _useAntiAliasing)
+                {
+                    _useAntiAliasing = value;
                     onPropetyChanged();
                 }
             }
@@ -374,7 +397,8 @@ namespace CartaMei.Models
                 License = null,
                 Name = this.Name,
                 Size = new PixelSize(),
-                Version = "1.0"
+                Version = "1.0",
+                UseAntiAliasing = GeneralSettings.Instance.UseAntiAliasing
             };
             mapModel.Projection = this.Projection.Create(mapModel);
             return mapModel;

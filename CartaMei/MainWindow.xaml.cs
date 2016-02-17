@@ -3,12 +3,14 @@ using CartaMei.Models;
 using CartaMei.WPF;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using Xceed.Wpf.AvalonDock.Layout.Serialization;
 
 namespace CartaMei
@@ -36,7 +38,28 @@ namespace CartaMei
             Tools.Utils.MainWindowModel = _model;
 
             this.InitializeComponent();
-            
+
+            PropertyChangedEventHandler mapPropertyChanged = delegate (object s2, PropertyChangedEventArgs e2)
+            {
+                if (e2.PropertyName == nameof(IMap.UseAntiAliasing))
+                {
+                    RenderOptions.SetEdgeMode(this, Current.Map.UseAntiAliasing ? EdgeMode.Unspecified : EdgeMode.Aliased);
+                    this.SnapsToDevicePixels = Current.Map.UseAntiAliasing;
+                }
+            };
+            Current.MapChanged += delegate (CurrentPropertyChangedEventArgs<IMap> e)
+            {
+                if (e.OldValue != null)
+                {
+                    e.NewValue.PropertyChanged -= mapPropertyChanged;
+                }
+                if (e.NewValue != null)
+                {
+                    e.NewValue.PropertyChanged += mapPropertyChanged;
+                }
+                mapPropertyChanged(null, new PropertyChangedEventArgs(nameof(MapModel.UseAntiAliasing)));
+            };
+
             PluginManager.Instance.Reload();
             rebuild();
 
@@ -53,8 +76,8 @@ namespace CartaMei
             map.Layers.Add(PluginManager.Instance.LayerProviders.First().Create(map));
 #endif
         }
-
-#endregion
+        
+        #endregion
 
         #region Event Handlers
 
