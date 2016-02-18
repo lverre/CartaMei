@@ -34,7 +34,19 @@ namespace CartaMei.MainPlugin
                 Latitude = this.Map.Boundaries.TopNotBound - pixelCoordinates.Y * this.Map.Boundaries.LatitudeSpan / this.Map.Size.Height
             };
         }
-        
+
+        public virtual LatLonCoordinates GetLatLonCenterForZoom(PixelCoordinates fixedPoint, double newLonSpan, double newLatSpan, double lonFactor, double latFactor)
+        {
+            var xFactor = fixedPoint.X / this.Map.Size.Width;
+            var yFactor = fixedPoint.Y / this.Map.Size.Height;
+            var latLonFixedPoint = this.PixelToLatLon(fixedPoint);
+            return new LatLonCoordinates()
+            {
+                Latitude = latLonFixedPoint.Latitude + newLatSpan * (yFactor - .5d),
+                Longitude = latLonFixedPoint.Longitude + newLonSpan * (.5d - xFactor)
+            };
+        }
+
         // Bounds the map to the traditional map (can't cross poles / can't cross antimeridian)
         public virtual LatLonBoundaries BoundMap(double centerLatitude, double centerLongitude, double latitudeSpan, double longitudeSpan)
         {

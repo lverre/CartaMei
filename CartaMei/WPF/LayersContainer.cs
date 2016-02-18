@@ -330,18 +330,16 @@ namespace CartaMei.WPF
             layer.DrawAsync(new DrawContext(container, redrawType, _currentTransform, _cumulativeTransform, map));
         }
 
-        private void zoom(Point center, double factor, bool isZoomIn)
+        private void zoom(Point fixedPoint, double factor, bool isZoomIn)
         {
             var latLonFactor = factor * (isZoomIn ? 2d : .5d);
             _currentTransform = new ScaleTransform(latLonFactor, latLonFactor);
             _currentTransform.Freeze();
             _cumulativeTransform.Matrix.Scale(latLonFactor, latLonFactor);
 
-            var xFactor = center.X / this.RenderSize.Width;
-            var yFactor = center.Y / this.RenderSize.Height;
-            var latLonCenter = _map.Projection.PixelToLatLon(center);
             var lonSpan = Math.Min(_map.Boundaries.LongitudeSpan / latLonFactor, LatLonBoundaries.MaxLongitudeSpan);
             var latSpan = Math.Min(_map.Boundaries.LatitudeSpan / latLonFactor, LatLonBoundaries.MaxLatitudeSpan);
+            var latLonCenter = _map.Projection.GetLatLonCenterForZoom(fixedPoint, lonSpan, latSpan, latLonFactor, latLonFactor);// Here we wanna keep the fixed point at the same place
             _map.Boundaries = _map.Projection.BoundMap(latLonCenter.Latitude, latLonCenter.Longitude, latSpan, lonSpan);
         }
 
@@ -385,6 +383,15 @@ namespace CartaMei.WPF
         private void pan(Point point, bool isFinished)
         {
             var diff = point - _panStartPoint;
+            _panLastPoint = point;
+            lock (_layersLocker)
+            {
+                foreach (var layer in _layers)
+                {
+                    layer.FastPan(diff.X, diff.Y);
+                }
+            }
+
             if (isFinished)
             {
                 var newCenterLatLon = _map.Projection.PixelToLatLon(new Point(
@@ -395,12 +402,6 @@ namespace CartaMei.WPF
                 _currentTransform.Freeze();
                 _cumulativeTransform.Matrix.Translate(diff.X, diff.Y);
                 _map.Boundaries = _map.Projection.BoundMap(newCenterLatLon.Latitude, newCenterLatLon.Longitude, _map.Boundaries.LatitudeSpan, _map.Boundaries.LongitudeSpan);
-                this.VisualTransform = null;
-            }
-            else if ((_panLastPoint - point).Length >= 2)// Prevents flicker
-            {
-                _panLastPoint = point;
-                this.VisualTransform = new TranslateTransform(diff.X, diff.Y);
             }
         }
 

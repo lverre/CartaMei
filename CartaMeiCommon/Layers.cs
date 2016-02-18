@@ -25,7 +25,9 @@ namespace CartaMei.Common
         void SetLayerAdded(int layerIndex);
 
         Task DrawAsync(IDrawContext context);
-        
+
+        void FastPan(double x, double y);
+
         IEnumerable<IMapObject> GetObjectsAt(Point at);
 
         #endregion
@@ -166,6 +168,11 @@ namespace CartaMei.Common
                 watch.Stop();
                 Console.WriteLine("Draw finished in " + watch.ElapsedMilliseconds + " ms");
             });
+        }
+
+        public virtual void FastPan(double panX, double panY)
+        {
+            this.Container.RenderTransform = new TranslateTransform(panX, panY);
         }
 
         public virtual IEnumerable<IMapObject> GetObjectsAt(Point at) { return null; }

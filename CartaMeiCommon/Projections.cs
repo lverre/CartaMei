@@ -1,4 +1,6 @@
-﻿namespace CartaMei.Common
+﻿using System.Windows;
+
+namespace CartaMei.Common
 {
     public interface IProjection : IHasName
     {
@@ -13,6 +15,8 @@
         PixelCoordinates LatLonToPixel(LatLonCoordinates latLonCoordinates);
 
         LatLonCoordinates PixelToLatLon(PixelCoordinates pixelCoordinates);
+
+        LatLonCoordinates GetLatLonCenterForZoom(PixelCoordinates fixedPoint, double newLonSpan, double newLatSpan, double lonFactor, double latFactor);
 
         LatLonBoundaries BoundMap(double centerLatitude, double centerLongitude, double latitudeSpan, double longitudeSpan);
 

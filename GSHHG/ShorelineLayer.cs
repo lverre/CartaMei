@@ -689,7 +689,7 @@ namespace CartaMei.GSHHG
                 {
                     var path = new System.Drawing.Drawing2D.GraphicsPath()
                     {
-                        FillMode = System.Drawing.Drawing2D.FillMode.Winding
+                        FillMode = System.Drawing.Drawing2D.FillMode.Alternate
                     };
                     var points = item.Value.PixelPoints.Select(p => p.AsGdiPointF()).ToArray();
                     if (_layer.UseCurvedLines)
@@ -703,6 +703,7 @@ namespace CartaMei.GSHHG
                     paths[item.Value] = path;
                 }
                 _paths = paths;
+                this.IsDirty = false;
             }
             
             var pen = _layer.ShorelinesBrush != null && _layer.ShorelinesBrush != Brushes.Transparent && _layer.ShorelinesThickness > 0
@@ -731,6 +732,7 @@ namespace CartaMei.GSHHG
             if (bitmapSource != null && bitmapSource.CheckAccess())
             {
                 _image.Source = bitmapSource;
+                this.RenderTransform = Transform.Identity;
             }
         }
 
