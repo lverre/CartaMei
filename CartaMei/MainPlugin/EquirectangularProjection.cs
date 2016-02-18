@@ -76,8 +76,7 @@ namespace CartaMei.MainPlugin
                     Longitude = pixelCoordinates.X * this.Map.Boundaries.LongitudeSpan / this.Map.Size.Width - this.Map.Boundaries.LongitudeHalfSpan,
                     Latitude = this.Map.Boundaries.LatitudeHalfSpan - pixelCoordinates.Y * this.Map.Boundaries.LatitudeSpan / this.Map.Size.Height
                 };
-                result = this.Map.Boundaries.Center.GetNewCoordinates(new LatLonCoordinates() { Latitude = 0, Longitude = 0 }).GetNewCoordinates(result);
-                return result;
+                return this.Map.Boundaries.Center.GetOldCoordinates(result);
             }
             else
             {

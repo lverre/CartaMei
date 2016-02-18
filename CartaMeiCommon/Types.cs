@@ -116,7 +116,7 @@ namespace CartaMei.Common
         public LatLonCoordinates GetNewCoordinates(LatLonCoordinates coordinates)
         {
             double
-                lat = coordinates.Latitude * Math.PI / 180d,
+                lat = coordinates.Latitude.FixCoordinate(true) * Math.PI / 180d,
                 lon = (coordinates.Longitude - this.Longitude).FixCoordinate(false) * Math.PI / 180d;
             double
                 cosLat = Math.Cos(lat);
@@ -145,6 +145,48 @@ namespace CartaMei.Common
             {
                 Latitude = newLat * 180d / Math.PI,
                 Longitude = newLon * 180d / Math.PI
+            };
+        }
+
+        /// <summary>
+        /// Calculates the old coordinates for a point when the current point is the new reference (0, 0) of the sphere.
+        /// This is the inverse operation of <see cref="GetNewCoordinates(LatLonCoordinates)"/>.
+        /// </summary>
+        /// <param name="coordinates">The new coordinates to revert to the old ones.</param>
+        /// <returns>The old coordinates of the point that had coordinates <paramref name="coordinates"/> in the sphere when the reference was the current point.</returns>
+        /// <remarks>This only works for a sphere (don't use it for a geoide)!</remarks>
+        public LatLonCoordinates GetOldCoordinates(LatLonCoordinates coordinates)
+        {
+            double
+                lat = coordinates.Latitude.FixCoordinate(true) * Math.PI / 180d,
+                lon = coordinates.Longitude.FixCoordinate(false) * Math.PI / 180d;
+            double
+                cosLat = Math.Cos(lat);
+
+            double
+                x1 = Math.Cos(lon) * cosLat,
+                y1 = Math.Sin(lon) * cosLat,
+                z1 = Math.Sin(lat);
+
+            double
+                theta = (0 - this.Latitude) * Math.PI / 180d;
+            double
+                cosTheta = Math.Cos(theta),
+                sinTheta = Math.Sin(theta);
+
+            double
+                x2 = cosTheta * x1 + sinTheta * z1,
+                y2 = y1,
+                z2 = cosTheta * z1 - sinTheta * x1;
+
+            double
+                newLat = Math.Asin(z2),
+                newLon = Math.Atan2(y2, x2);
+
+            return new LatLonCoordinates()
+            {
+                Latitude = newLat * 180d / Math.PI,
+                Longitude = newLon * 180d / Math.PI + this.Longitude
             };
         }
 
