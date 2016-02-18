@@ -396,25 +396,62 @@ namespace CartaMei.GSHHG
 
         private void updatePoints(ShorelinePolygonObject polygonObject, RedrawType redrawType, Transform transform)
         {
-            const RedrawType transformRedrawTypes = RedrawType.Translate | RedrawType.Scale | RedrawType.AnimationStepChanged | RedrawType.DisplayTypeChanged | RedrawType.Redraw;
-            if ((redrawType & ~transformRedrawTypes) == RedrawType.None && (polygonObject.PixelPoints?.Any() ?? false))
+            var duplicate = false;
+            var boundaries = polygonObject.Polygon.Header.Boundaries;
+            var crossesLeftToRight = boundaries.CenterLongitude < 180 && boundaries.CenterLongitude + boundaries.LongitudeHalfSpan > this.Map.Boundaries.RightLongitude && boundaries.CenterLongitude + boundaries.LongitudeHalfSpan - 360 > -180;
+            var crossesRightToLeft = boundaries.CenterLongitude > -180 && boundaries.CenterLongitude - boundaries.LongitudeHalfSpan < this.Map.Boundaries.LeftLongitude && boundaries.CenterLongitude - boundaries.LongitudeHalfSpan + 360 < 180;
+            if (crossesLeftToRight || crossesRightToLeft)
             {
-                foreach (var point in polygonObject.PixelPoints)
+                duplicate = true;
+            }
+
+            const RedrawType transformRedrawTypes = RedrawType.Translate | RedrawType.Scale | RedrawType.AnimationStepChanged | RedrawType.DisplayTypeChanged | RedrawType.Redraw;
+            if (!duplicate && (redrawType & ~transformRedrawTypes) == RedrawType.None && (polygonObject.PixelPoints?.Any() ?? false))
+            {
+                foreach (var pixelPoints in polygonObject.PixelPoints)
                 {
-                    var newPoint = transform.Transform(point);
-                    point.X = newPoint.X;
-                    point.Y = newPoint.Y;
+                    foreach (var point in pixelPoints)
+                    {
+                        var newPoint = transform.Transform(point);
+                        point.X = newPoint.X;
+                        point.Y = newPoint.Y;
+                    }
                 }
             }
             else
             {
-                polygonObject.PixelPoints = getPoints(polygonObject);
+                polygonObject.PixelPoints = getPoints(polygonObject, crossesLeftToRight, crossesRightToLeft);
             }
         }
 
-        private IEnumerable<PixelCoordinates> getPoints(ShorelinePolygonObject polygonObject)
+        private IEnumerable<IEnumerable<PixelCoordinates>> getPoints(ShorelinePolygonObject polygonObject, bool crossesLeftToRight, bool crossesRightToLeft)
         {
-            return polygonObject.Polygon.Points?.Select(point => this.Map.Projection.LatLonToPixel(point)).ToList();
+            var points = polygonObject.Polygon.Points;
+            if (points == null)
+            {
+                return new IEnumerable<PixelCoordinates>[0];
+            }
+            else if (!crossesLeftToRight && !crossesRightToLeft)
+            {
+                return new IEnumerable<PixelCoordinates>[]
+                {
+                    points.Select(point => this.Map.Projection.LatLonToPixel(new LatLonCoordinates() { Latitude = point.Latitude, Longitude = point.Longitude.FixCoordinate(false) })).ToList()
+                };
+            }
+            else
+            {
+                var left = new PixelCoordinates[points.Length];
+                var right = new PixelCoordinates[points.Length];
+                for (int i = 0; i < points.Length; i++)
+                {
+                    var point = points[i];
+                    var rightPoint = crossesLeftToRight ? point : new LatLonCoordinates() { Latitude = point.Latitude, Longitude = point.Longitude + 360 };
+                    var leftPoint = crossesRightToLeft ? point : new LatLonCoordinates() { Latitude = point.Latitude, Longitude = point.Longitude - 360 };
+                    right[i] = this.Map.Projection.LatLonToPixel(rightPoint);
+                    left[i] = this.Map.Projection.LatLonToPixel(leftPoint);
+                }
+                return new IEnumerable<PixelCoordinates>[] { right, left };
+            }
         }
 
         #endregion
@@ -434,7 +471,7 @@ namespace CartaMei.GSHHG
         public IPolygon<GSHHG2PolygonHeader, LatLonCoordinates> Polygon { get; set; }
 
         [Browsable(false)]
-        public IEnumerable<PixelCoordinates> PixelPoints { get; internal set; }
+        public IEnumerable<IEnumerable<PixelCoordinates>> PixelPoints { get; internal set; }
 
         #endregion
     }
@@ -512,29 +549,33 @@ namespace CartaMei.GSHHG
 
                 foreach (var item in polygons)
                 {
-                    PathSegment segment;
-                    var points = new PointCollection(item.Value.PixelPoints.Select(point => (Point)point));
-                    if (_layer.UseCurvedLines)
-                    {
-                        segment = new PolyBezierSegment() { Points = points };
-                    }
-                    else
-                    {
-                        segment = new PolyLineSegment() { Points = points };
-                    }
-                    segment.IsSmoothJoin = true;
-                    segment.IsStroked = true;
+                    var figures = new PathFigureCollection();
 
-                    var geometry = new PathGeometry(new PathFigureCollection()
+                    foreach (var pixelPoints in item.Value.PixelPoints)
                     {
-                        new PathFigure()
+                        PathSegment segment;
+                        var points = new PointCollection(pixelPoints.Select(point => (Point)point));
+                        if (_layer.UseCurvedLines)
+                        {
+                            segment = new PolyBezierSegment() { Points = points };
+                        }
+                        else
+                        {
+                            segment = new PolyLineSegment() { Points = points };
+                        }
+                        segment.IsSmoothJoin = true;
+                        segment.IsStroked = true;
+
+                        figures.Add(new PathFigure()
                         {
                             IsClosed = true,
                             IsFilled = true,
                             Segments = new PathSegmentCollection() { segment },
                             StartPoint = points.First()
-                        }
-                    });
+                        });
+                    }
+
+                    var geometry = new PathGeometry(figures);
                     geometry.Freeze();
                     geometries.Add(item.Value, geometry);
                 }
@@ -577,7 +618,7 @@ namespace CartaMei.GSHHG
 
         #region GDI
 
-        private IDictionary<ShorelinePolygonObject, System.Drawing.Drawing2D.GraphicsPath> _paths;
+        private IDictionary<ShorelinePolygonObject, IEnumerable<System.Drawing.Drawing2D.GraphicsPath>> _paths;
 
         private bool _isBitmapInitialized;
         private bool _isBitmapInvalid;
@@ -666,7 +707,7 @@ namespace CartaMei.GSHHG
 
         #endregion
         
-        #region Events
+        #region Render
 
         private void doRender(object sender, DoWorkEventArgs e)
         {
@@ -684,23 +725,28 @@ namespace CartaMei.GSHHG
 
             if (this.IsDirty || _paths == null)
             {
-                var paths = new Dictionary<ShorelinePolygonObject, System.Drawing.Drawing2D.GraphicsPath>();
+                var paths = new Dictionary<ShorelinePolygonObject, IEnumerable<System.Drawing.Drawing2D.GraphicsPath>>();
                 foreach (var item in polygons)
                 {
-                    var path = new System.Drawing.Drawing2D.GraphicsPath()
+                    var polygonPaths = new List<System.Drawing.Drawing2D.GraphicsPath>();
+                    foreach (var pixelPoints in item.Value.PixelPoints)
                     {
-                        FillMode = System.Drawing.Drawing2D.FillMode.Alternate
-                    };
-                    var points = item.Value.PixelPoints.Select(p => p.AsGdiPointF()).ToArray();
-                    if (_layer.UseCurvedLines)
-                    {
-                        path.AddCurve(points);
+                        var path = new System.Drawing.Drawing2D.GraphicsPath()
+                        {
+                            FillMode = System.Drawing.Drawing2D.FillMode.Alternate
+                        };
+                        var points = pixelPoints.Select(p => p.AsGdiPointF()).ToArray();
+                        if (_layer.UseCurvedLines)
+                        {
+                            path.AddCurve(points);
+                        }
+                        else
+                        {
+                            path.AddLines(points);
+                        }
+                        polygonPaths.Add(path);
                     }
-                    else
-                    {
-                        path.AddLines(points);
-                    }
-                    paths[item.Value] = path;
+                    paths[item.Value] = polygonPaths;
                 }
                 _paths = paths;
                 this.IsDirty = false;
@@ -713,10 +759,12 @@ namespace CartaMei.GSHHG
             var water = _layer.WaterFill != null && _layer.WaterFill != Brushes.Transparent ? _layer.WaterFill.AsGdiBrush() : null;
             foreach (var item in _paths)
             {
-                var path = item.Value;
-                var fill = item.Key.Polygon.Header.IsLand ? land : water;
-                if (fill != null) _gdiGraphics.FillPath(fill, path);
-                if (pen != null) _gdiGraphics.DrawPath(pen, path);
+                foreach (var path in item.Value)
+                {
+                    var fill = item.Key.Polygon.Header.IsLand ? land : water;
+                    if (fill != null) _gdiGraphics.FillPath(fill, path);
+                    if (pen != null) _gdiGraphics.DrawPath(pen, path);
+                }
             }
 
             _interopBitmap.Invalidate();

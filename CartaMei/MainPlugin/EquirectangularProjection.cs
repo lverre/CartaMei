@@ -21,7 +21,7 @@ namespace CartaMei.MainPlugin
         {
             return new PixelCoordinates()
             {
-                X = this.Map.Size.Width * (latLonCoordinates.SafeLongitude - this.Map.Boundaries.LeftNotBound) / this.Map.Boundaries.LongitudeSpan,
+                X = this.Map.Size.Width * (latLonCoordinates.Longitude - this.Map.Boundaries.LeftNotBound) / this.Map.Boundaries.LongitudeSpan,
                 Y = this.Map.Size.Height * (this.Map.Boundaries.TopNotBound - latLonCoordinates.Latitude) / this.Map.Boundaries.LatitudeSpan
             };
         }

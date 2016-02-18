@@ -63,24 +63,10 @@ namespace CartaMei.Common
     public class LatLonCoordinates
     {
         #region Properties
-
-        private double _longitude;
-        public double Longitude
-        {
-            get { return _longitude; }
-            set
-            {
-                _longitude = value;
-                var val = value.FixCoordinate(false);
-                if (this.SafeLongitude != val)
-                {
-                    this.SafeLongitude = val;
-                }
-            }
-        }
-        public double SafeLongitude { get; private set; }
         
         public double Latitude { get; set; }
+
+        public double Longitude { get; set; }
 
         #endregion
 
@@ -93,13 +79,13 @@ namespace CartaMei.Common
 
         public override int GetHashCode()
         {
-            return (int)(this.SafeLongitude + this.Latitude * short.MaxValue);
+            return (int)(this.Longitude + this.Latitude * short.MaxValue);
         }
 
         public override bool Equals(object obj)
         {
             var other = obj as LatLonCoordinates;
-            return other != null && other.SafeLongitude == this.SafeLongitude && other.Latitude == this.Latitude;
+            return other != null && other.Longitude == this.Longitude && other.Latitude == this.Latitude;
         }
 
         public static bool operator ==(LatLonCoordinates x, LatLonCoordinates y)
@@ -425,7 +411,7 @@ namespace CartaMei.Common
         {
             return
                 this.CenterLatitude.GetHumanReadable(true) + " +- " + this.LatitudeSpan / 2 + "º / " +
-                this.CenterLongitude.GetHumanReadable(true) + " +- " + this.LongitudeSpan / 2 + "º";
+                this.CenterLongitude.GetHumanReadable(false) + " +- " + this.LongitudeSpan / 2 + "º";
         }
 
         public override int GetHashCode()
@@ -486,6 +472,46 @@ namespace CartaMei.Common
             return
                 Math.Abs(other.CenterLatitude.FixCoordinate(true) - this.CenterLatitude) <= ((this.LatitudeSpan + other.LatitudeSpan) / 2) &&
                 Math.Abs(other.CenterLongitude.FixCoordinate(true) - this.CenterLongitude) <= ((this.LongitudeSpan + other.LongitudeSpan) / 2);
+        }
+
+        public bool CrossesLatitude(double latitude)
+        {
+            return crossesCoordinate(latitude, this.CenterLatitude, this.LatitudeHalfSpan, 90);
+        }
+
+        public bool CrossesLongitude(double longitude)
+        {
+            return crossesCoordinate(longitude, this.CenterLongitude, this.LongitudeHalfSpan, 180);
+        }
+
+        private bool crossesCoordinate(double coordinate, double centerCoordinate, double halfSpan, int maxCoordinate)
+        {
+            var max = centerCoordinate + halfSpan;
+            var min = centerCoordinate - halfSpan;
+            if (coordinate > min && coordinate < max)
+            {
+                return true;
+            }
+            else
+            {
+                if (max > maxCoordinate)
+                {
+                    if (coordinate < maxCoordinate && coordinate > (max - maxCoordinate))
+                    {
+                        return true;
+                    }
+                }
+                var opposideCoordinate = 0 - maxCoordinate;
+                if (min < opposideCoordinate)
+                {
+                    if (coordinate > opposideCoordinate && coordinate < (opposideCoordinate - min))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         public LineCrossType GetLineCrossType(LatLonCoordinates point1, LatLonCoordinates point2)

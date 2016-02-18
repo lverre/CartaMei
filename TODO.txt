@@ -4,5 +4,4 @@ Down is first.
 - fix Mercator!
 - do the TODO in the code...
 - shorelines: display only the points that are shown (to check: test if the lines between P(i-1) and P(i), and between P(i) and P(i+1) cross the display rectangle: if not, we can skip P(i)
-- fix shorelines issue when a polygon crosses the anti-center-longitude line
 - allow the map to be centered anywhere even if we're showing it all

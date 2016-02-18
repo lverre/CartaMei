@@ -133,9 +133,23 @@ namespace CartaMei.GSHHG
             var result = getNewPolygon();
             result.Header = readPolygonHeader(reader);
             var points = new LatLonCoordinates[result.Header.PointsCount];
+            var lastLongitude = Double.NaN;
             for (int i = 0; i < points.Length; i++)
             {
-                points[i] = readPoint(reader);
+                var point = readPoint(reader);
+                if (!Double.IsNaN(lastLongitude) && Math.Abs(point.Longitude - lastLongitude) >= 180)
+                {
+                    point.Longitude = point.Longitude.FixCoordinate(false);
+                }
+                lastLongitude = point.Longitude;
+                points[i] = point;
+            }
+            if (points[0] != points[points.Length - 1])
+            {
+                // Make sure the list is closed
+                var pointsList = new List<LatLonCoordinates>(points);
+                pointsList.Add(new LatLonCoordinates() { Latitude = points[0].Latitude, Longitude = points[0].Longitude });
+                points = pointsList.ToArray();
             }
             result.Points = points;
             return result;
@@ -150,8 +164,8 @@ namespace CartaMei.GSHHG
 
             return new LatLonCoordinates()
             {
-                Longitude = x / 1000000d,
-                Latitude = y / 1000000d
+                Longitude = x / Constants.Million,
+                Latitude = y / Constants.Million
             };
         }
 

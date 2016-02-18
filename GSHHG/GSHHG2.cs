@@ -157,7 +157,13 @@ read and write the data.";
         private int n;          /* Number of points in this polygon */
         private int flag;       /* = level + version << 8 + greenwich << 16 + source << 24 + river << 25 */
         /* flag contains 5 items, as follows:
-         * low byte:    level = flag & 255: Values: 1 land, 2 lake, 3 island_in_lake, 4 pond_in_island_in_lake
+         * low byte:    level = flag & 255: Values: 
+            1 boundary between land and ocean, except Antarctica, 
+            2 boundary between lake and land, 
+            3 boundary between island-in-lake and lake, 
+            4 boundary between pond-in-island-in-lake and island-in-lake, 
+            5 boundary between Antarctica ice and ocean,
+            6 boundary between Antarctica grounding-line and ocean
          * 2nd byte:    version = (flag >> 8) & 255: Values: Should be 12 for GSHHG release 12 (i.e., version 2.2)
          * 3rd byte:    greenwich = (flag >> 16) & 1: Values: Greenwich is 1 if Greenwich is crossed
          * 4th byte:    source = (flag >> 24) & 1: Values: 0 = CIA WDBII, 1 = WVS
@@ -202,19 +208,37 @@ read and write the data.";
 
         public GSHHGFlag Flags { get { return (GSHHGFlag)((uint)this.flag); } }
 
-        public bool IsLand { get { return this.Flags.HasFlag(GSHHGFlag.Land); } }
+        public GSHHGFlag ShorelinesFlags { get { return (GSHHGFlag)((uint)this.flag & 255); } }
+
+        public bool IsLand
+        {
+            get
+            {
+                switch (this.ShorelinesFlags)
+                {
+                    case GSHHGFlag.Land:
+                    case GSHHGFlag.IslandInLake:
+                    case GSHHGFlag.AntarticaGround:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
 
         public bool IsWater { get { return !this.Flags.HasFlag(GSHHGFlag.Land); } }
 
-        public bool IsSea { get { return !this.Flags.HasFlag(GSHHGFlag.Land) && !this.Flags.HasFlag(GSHHGFlag.Lake) && !this.Flags.HasFlag(GSHHGFlag.PondInIslandInLake); } }
+        public bool IsContinent { get { return this.ShorelinesFlags == GSHHGFlag.Land; } }
 
-        public bool IsLake { get { return !this.Flags.HasFlag(GSHHGFlag.Land) && this.Flags.HasFlag(GSHHGFlag.Lake) && !this.Flags.HasFlag(GSHHGFlag.PondInIslandInLake); } }
+        public bool IsLake { get { return this.ShorelinesFlags == GSHHGFlag.Lake; } }
 
-        public bool IsPondInIslandInLake { get { return !this.Flags.HasFlag(GSHHGFlag.Land) && this.Flags.HasFlag(GSHHGFlag.PondInIslandInLake); } }
+        public bool IsIslandInLake { get { return this.ShorelinesFlags == GSHHGFlag.IslandInLake; } }
 
-        public bool IsContinent { get { return this.Flags.HasFlag(GSHHGFlag.Land) && !this.Flags.HasFlag(GSHHGFlag.Lake); } }
+        public bool IsPondInIslandInLake { get { return this.ShorelinesFlags == GSHHGFlag.PondInIslandInLake; } }
 
-        public bool IsIsland { get { return this.Flags.HasFlag(GSHHGFlag.Land) && this.Flags.HasFlag(GSHHGFlag.Lake); } }
+        public bool IsAntarticaIce { get { return this.ShorelinesFlags == GSHHGFlag.AntarticaIce; } }
+
+        public bool IsAntarticaGround { get { return this.ShorelinesFlags == GSHHGFlag.AntarticaGround; } }
 
         public byte Version { get { return (byte)(this.flag >> 8 & 255); } }
 

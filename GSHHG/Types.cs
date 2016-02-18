@@ -97,6 +97,8 @@ namespace CartaMei.GSHHG
         Lake =                  0x00000002,
         IslandInLake =          0x00000003,
         PondInIslandInLake =    0x00000004,
+        AntarticaIce =          0x00000005,
+        AntarticaGround =       0x00000006,
         Bit8 =                  0x00000008,
         Bit10 =                 0x00000010,
         Bit20 =                 0x00000020,
