@@ -136,7 +136,7 @@ namespace CartaMei.Models
         [Description("The datum used on this map (if you don't know which one to chose, use WGS84).")]
         [DisplayName("Datum")]
         [ReadOnly(true)]
-        [PropertyOrder(3)]
+        [PropertyOrder(4)]
         public Datum Datum
         {
             get { return _datum; }
@@ -154,7 +154,7 @@ namespace CartaMei.Models
         [Category("Map")]
         [Description("The projection used on this map (if you don't know which one to chose, use Mercator).")]
         [DisplayName("Projection")]
-        [ReadOnly(true)]
+        [ExpandableObject]
         [PropertyOrder(2)]
         public IProjection Projection
         {
@@ -164,6 +164,27 @@ namespace CartaMei.Models
                 if (_projection != value)
                 {
                     _projection = value;
+                    if (value == null || !value.SupportsReferenceChange) this.RotateReference = false;
+                    onPropetyChanged();
+                }
+            }
+        }
+        
+        private bool _rotateReference;
+        [Category("Map")]
+        [Description("When this option is used, the reference of sphere will be rotated to the center of the map.\nThis makes the shapes more accurate near the center of the map which is especially useful at high latitudes.")]
+        [DisplayName("Rotate Reference")]
+        [PropertyOrder(3)]
+        public bool RotateReference
+        {
+            get { return _rotateReference; }
+            set
+            {
+                if (value != _rotateReference && (!value || (this.Projection?.SupportsReferenceChange ?? false)))
+                {
+                    _rotateReference = value;
+                    this.Boundaries = this.Projection.BoundMap(this.Boundaries.CenterLatitude, this.Boundaries.CenterLongitude, this.Boundaries.LatitudeSpan, this.Boundaries.LongitudeSpan);
+                    this.Container?.Redraw();
                     onPropetyChanged();
                 }
             }
@@ -240,6 +261,9 @@ namespace CartaMei.Models
         #endregion
 
         #region Rendering
+        
+        [Browsable(false)]
+        public IMapContainer Container { get; set; }
 
         private bool _useAntiAliasing;
         [Category("Rendering")]
@@ -397,10 +421,11 @@ namespace CartaMei.Models
                 License = null,
                 Name = this.Name,
                 Size = new PixelSize(),
-                Version = "1.0",
-                UseAntiAliasing = GeneralSettings.Instance.UseAntiAliasing
+                UseAntiAliasing = GeneralSettings.Instance.UseAntiAliasing,
+                Version = "1.0"
             };
             mapModel.Projection = this.Projection.Create(mapModel);
+            mapModel.RotateReference = GeneralSettings.Instance.RotateReference;
             return mapModel;
         }
 

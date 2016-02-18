@@ -187,6 +187,7 @@ namespace CartaMei.Common
 
         #region Properties
 
+        [Browsable(false)]
         public IMap Map { get; private set; }
 
         #endregion

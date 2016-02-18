@@ -15,5 +15,17 @@ namespace CartaMei.Common
         }
 
         #endregion
+
+        #region Tools
+
+        protected void onAllPropertiesChanged()
+        {
+            foreach (var property in this.GetType().GetPublicSetters())
+            {
+                onPropetyChanged(property.Name);
+            }
+        }
+
+        #endregion
     }
 }

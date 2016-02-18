@@ -32,6 +32,8 @@ namespace CartaMei.Common
 
         LatLonBoundaries Boundaries { get; set; }
 
+        bool RotateReference { get; set; }
+
         PixelSize Size { get; set; }
         
         object ActiveObject { get; set; }
@@ -41,6 +43,8 @@ namespace CartaMei.Common
         #region Rendering
 
         bool UseAntiAliasing { get; set; }
+        
+        IMapContainer Container { get; set; }
 
         #endregion
 
@@ -53,5 +57,10 @@ namespace CartaMei.Common
         #endregion
 
         #endregion
+    }
+
+    public interface IMapContainer
+    {
+        void Redraw(RedrawType redrawType = RedrawType.Reset);
     }
 }

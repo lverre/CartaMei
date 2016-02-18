@@ -16,15 +16,28 @@ namespace CartaMei.Common
         public static object GetDefault(this Type type)
         {
             var result = Activator.CreateInstance(type);
-            foreach (var property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty))
+            result.SetDefaults();
+            return result;
+        }
+
+        public static void SetDefaults(this object obj)
+        {
+            if (obj != null)
             {
-                var defaultAttribute = property.GetCustomAttribute<DefaultValueAttribute>(true);
-                if (defaultAttribute != null)
+                foreach (var property in obj.GetType().GetPublicSetters())
                 {
-                    property.SetValue(result, defaultAttribute.Value);
+                    var defaultAttribute = property.GetCustomAttribute<DefaultValueAttribute>(true);
+                    if (defaultAttribute != null)
+                    {
+                        property.SetValue(obj, defaultAttribute.Value);
+                    }
                 }
             }
-            return result;
+        }
+
+        public static PropertyInfo[] GetPublicSetters(this Type type)
+        {
+            return type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty);
         }
 
         public static double FixCoordinate(this double coordinate, bool isLatitude)

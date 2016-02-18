@@ -73,7 +73,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AGSHHG.cs" />
-    <Compile Include="Extensions.cs" />
     <Compile Include="GSHHG2.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="Interfaces.cs" />

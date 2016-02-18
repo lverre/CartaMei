@@ -17,7 +17,7 @@ namespace CartaMei
                 var instance = CartaMei.Properties.Settings.Default.GeneralSettings;
                 if (instance == null)
                 {
-                    instance = Common.Tools.GetDefault<GeneralSettings>();
+                    instance = new GeneralSettings();
                     CartaMei.Properties.Settings.Default.GeneralSettings = instance;
                 }
                 return instance;
@@ -26,9 +26,18 @@ namespace CartaMei
 
         #endregion
 
+        #region Constructor
+
+        public GeneralSettings()
+        {
+            this.SetDefaults();
+        }
+
+        #endregion
+
         #region Properties
 
-        private bool _UseAntiAliasing;
+        private bool _useAntiAliasing;
         [DefaultValue(true)]
         [Category("Map")]
         [Description("Use anti-aliasing for the map.")]
@@ -36,12 +45,31 @@ namespace CartaMei
         [PropertyOrder(0)]
         public bool UseAntiAliasing
         {
-            get { return _UseAntiAliasing; }
+            get { return _useAntiAliasing; }
             set
             {
-                if (_UseAntiAliasing != value)
+                if (_useAntiAliasing != value)
                 {
-                    _UseAntiAliasing = value;
+                    _useAntiAliasing = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private bool _rotateReference;
+        [DefaultValue(false)]
+        [Category("Map")]
+        [Description("When this option is used, the reference of sphere will be rotated to the center of the map.\nThis makes the shapes more accurate near the center of the map which is especially useful at high latitudes.")]
+        [DisplayName("Rotate Reference")]
+        [PropertyOrder(1)]
+        public bool RotateReference
+        {
+            get { return _rotateReference; }
+            set
+            {
+                if (value != _rotateReference)
+                {
+                    _rotateReference = value;
                     onPropetyChanged();
                 }
             }

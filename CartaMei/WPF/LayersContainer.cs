@@ -12,7 +12,7 @@ using System.Windows.Media;
 
 namespace CartaMei.WPF
 {
-    public class LayersContainer : Canvas
+    public class LayersContainer : Canvas, IMapContainer
     {
         #region Fields
 
@@ -50,11 +50,20 @@ namespace CartaMei.WPF
             _cumulativeTransform = new MatrixTransform(Matrix.Identity);
             this.Background = Brushes.Transparent;// Needed to get the mouse events
         }
+        
+        #endregion
+
+        #region IMapContainer
+
+        public void Redraw(RedrawType redrawType)
+        {
+            draw(redrawType);
+        }
 
         #endregion
 
         #region FrameworkElement
-        
+
         #region Events
 
         protected override void OnInitialized(EventArgs e)
@@ -99,6 +108,7 @@ namespace CartaMei.WPF
             _map = this.DataContext as IMap;
             if (_map != null)
             {
+                _map.Container = this;
                 _map.PropertyChanged += mapPropertyChanged;
             }
             mapPropertyChanged(this, new PropertyChangedEventArgs(nameof(IMap.Layers)));

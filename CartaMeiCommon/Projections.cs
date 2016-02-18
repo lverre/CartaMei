@@ -7,7 +7,9 @@ namespace CartaMei.Common
         #region Properties
         
         IMap Map { get; set; }
-        
+
+        bool SupportsReferenceChange { get; }
+
         #endregion
 
         #region Functions
@@ -19,6 +21,8 @@ namespace CartaMei.Common
         LatLonCoordinates GetLatLonCenterForZoom(PixelCoordinates fixedPoint, double newLonSpan, double newLatSpan, double lonFactor, double latFactor);
 
         LatLonBoundaries BoundMap(double centerLatitude, double centerLongitude, double latitudeSpan, double longitudeSpan);
+
+        bool IsInMap(LatLonBoundaries rectangle);
 
         // TODO: we need a function to draw a line as well (the line gets distorted with the projection)
 

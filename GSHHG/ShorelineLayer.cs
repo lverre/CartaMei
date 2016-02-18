@@ -280,7 +280,7 @@ namespace CartaMei.GSHHG
                                 var id = item.Key;
                                 var polygonObject = _polygonObjects.ContainsKey(id) ? _polygonObjects[id] : null;
                                 // TODO: lazy read the files and add a function: LoadIfIntersects(context.Boundaries, context.Projection)
-                                if (item.Value.Intersects(context.Boundaries, context.Projection))
+                                if (context.Projection.IsInMap(item.Value.Header.Boundaries))
                                 {
                                     if (polygonObject != null)
                                     {
@@ -398,8 +398,10 @@ namespace CartaMei.GSHHG
         {
             var duplicate = false;
             var boundaries = polygonObject.Polygon.Header.Boundaries;
-            var crossesLeftToRight = boundaries.CenterLongitude < 180 && boundaries.CenterLongitude + boundaries.LongitudeHalfSpan > this.Map.Boundaries.RightLongitude && boundaries.CenterLongitude + boundaries.LongitudeHalfSpan - 360 > -180;
-            var crossesRightToLeft = boundaries.CenterLongitude > -180 && boundaries.CenterLongitude - boundaries.LongitudeHalfSpan < this.Map.Boundaries.LeftLongitude && boundaries.CenterLongitude - boundaries.LongitudeHalfSpan + 360 < 180;
+            var boundaryCenter = boundaries.Center;
+            if (this.Map.RotateReference) boundaryCenter = this.Map.Boundaries.Center.GetNewCoordinates(boundaryCenter);
+            var crossesLeftToRight = boundaryCenter.Longitude < 180 && boundaryCenter.Longitude + boundaries.LongitudeHalfSpan > this.Map.Boundaries.RightLongitude && boundaryCenter.Longitude + boundaries.LongitudeHalfSpan - 360 > -180;
+            var crossesRightToLeft = boundaryCenter.Longitude > -180 && boundaryCenter.Longitude - boundaries.LongitudeHalfSpan < this.Map.Boundaries.LeftLongitude && boundaryCenter.Longitude - boundaries.LongitudeHalfSpan + 360 < 180;
             if (crossesLeftToRight || crossesRightToLeft)
             {
                 duplicate = true;

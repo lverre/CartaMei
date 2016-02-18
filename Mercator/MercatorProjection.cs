@@ -1,6 +1,7 @@
 ﻿using CartaMei.Common;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -78,7 +79,13 @@ namespace CartaMei.Mercator
         #region IProjection
 
         public virtual string Name { get { return ProjectionName; } }
-        
+
+        [Browsable(false)]
+        public virtual bool SupportsReferenceChange
+        {
+            get { return false; }
+        }
+
         private IMap _map;
         public virtual IMap Map
         {
@@ -162,6 +169,11 @@ namespace CartaMei.Mercator
             }
 
             return new LatLonBoundaries(centerLatitude, centerLongitude, latitudeSpan, longitudeSpan);
+        }
+
+        public virtual bool IsInMap(LatLonBoundaries rectangle)
+        {
+            return rectangle.Intersects(this.Map.Boundaries);
         }
 
         #endregion

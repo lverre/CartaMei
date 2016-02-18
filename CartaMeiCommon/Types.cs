@@ -104,6 +104,51 @@ namespace CartaMei.Common
         }
 
         #endregion
+
+        #region Functions
+        
+        /// <summary>
+        /// Calculates the new coordinates for a point when the current point is the new reference (0, 0) of the sphere.
+        /// </summary>
+        /// <param name="coordinates">The coordinates to transform.</param>
+        /// <returns>The new coordinates of the point that had coordinates <paramref name="coordinates"/> in the sphere when the reference was (0, 0), when the new reference is the current point.</returns>
+        /// <remarks>This only works for a sphere (don't use it for a geoide)!</remarks>
+        public LatLonCoordinates GetNewCoordinates(LatLonCoordinates coordinates)
+        {
+            double
+                lat = coordinates.Latitude * Math.PI / 180d,
+                lon = (coordinates.Longitude - this.Longitude).FixCoordinate(false) * Math.PI / 180d;
+            double
+                cosLat = Math.Cos(lat);
+
+            double
+                x1 = Math.Cos(lon) * cosLat,
+                y1 = Math.Sin(lon) * cosLat,
+                z1 = Math.Sin(lat);
+
+            double 
+                theta = this.Latitude * Math.PI / 180d;
+            double
+                cosTheta = Math.Cos(theta),
+                sinTheta = Math.Sin(theta);
+
+            double
+                x2 = cosTheta * x1 + sinTheta * z1,
+                y2 = y1,
+                z2 = cosTheta * z1 - sinTheta * x1;
+
+            double
+                newLat = Math.Asin(z2),
+                newLon = Math.Atan2(y2, x2);
+
+            return new LatLonCoordinates()
+            {
+                Latitude = newLat * 180d / Math.PI,
+                Longitude = newLon * 180d / Math.PI
+            };
+        }
+
+        #endregion
     }
 
     public class PixelSize : NotifyPropertyChangedBase
@@ -211,12 +256,15 @@ namespace CartaMei.Common
 
         #region Constructors
 
-        public LatLonBoundaries() { }
+        public LatLonBoundaries() : this(0, 0, MaxLatitudeSpan, MaxLongitudeSpan) { }
 
         public LatLonBoundaries(double centerLatitude, double centerLongitude, double latitudeSpan, double longitudeSpan)
         {
-            _centerLatitude = centerLatitude;
-            _centerLongitude = centerLongitude;
+            this.Center = new LatLonCoordinates()
+            {
+                Latitude = centerLatitude,
+                Longitude = centerLongitude
+            };
             _latitudeSpan = latitudeSpan;
             _longitudeSpan = longitudeSpan;
             updateCardinalPoints();
@@ -226,38 +274,39 @@ namespace CartaMei.Common
 
         #region Properties
 
-        private double _centerLatitude;
+        [Browsable(false)]
+        public LatLonCoordinates Center { get; private set; }
+        
         [Description("The latitude at the center of the map.")]
         [DisplayName("Center Latitude")]
         [PropertyOrder(0)]
         public double CenterLatitude
         {
-            get { return _centerLatitude; }
+            get { return this.Center.Latitude; }
             set
             {
                 var val = value.FixCoordinate(true);
-                if (_centerLatitude != val)
+                if (this.Center.Latitude != val)
                 {
-                    _centerLatitude = val;
+                    this.Center.Latitude = val;
                     onPropetyChanged();
                     updateCardinalPoints();
                 }
             }
         }
-
-        private double _centerLongitude;
+        
         [Description("The longitude at the center of the map.")]
         [DisplayName("Center Longitude")]
         [PropertyOrder(2)]
         public double CenterLongitude
         {
-            get { return _centerLongitude; }
+            get { return this.Center.Longitude; }
             set
             {
                 var val = value.FixCoordinate(false);
-                if (_centerLongitude != val)
+                if (this.Center.Longitude != val)
                 {
-                    _centerLongitude = val;
+                    this.Center.Longitude = val;
                     onPropetyChanged();
                     updateCardinalPoints();
                 }

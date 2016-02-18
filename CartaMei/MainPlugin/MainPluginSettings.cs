@@ -16,7 +16,7 @@ namespace CartaMei.MainPlugin
                 var instance = CartaMei.Properties.Settings.Default.MainPluginSettings;
                 if (instance == null)
                 {
-                    instance = Common.Tools.GetDefault<MainPluginSettings>();
+                    instance = new MainPluginSettings();
                     CartaMei.Properties.Settings.Default.MainPluginSettings = instance;
                 }
                 return instance;
@@ -25,8 +25,17 @@ namespace CartaMei.MainPlugin
 
         #endregion
 
+        #region Constructor
+
+        public MainPluginSettings()
+        {
+            this.SetDefaults();
+        }
+
+        #endregion
+
         #region Properties
-        
+
         #endregion
     }
 }

@@ -18,7 +18,7 @@ namespace CartaMei.GSHHG
                 var instance = CartaMei.GSHHG.Properties.Settings.Default.PluginSettings;
                 if (instance == null)
                 {
-                    instance = Common.Tools.GetDefault<PluginSettings>();
+                    instance = new PluginSettings();
                     CartaMei.GSHHG.Properties.Settings.Default.PluginSettings = instance;
                 }
                 return instance;
@@ -26,7 +26,16 @@ namespace CartaMei.GSHHG
         }
 
         #endregion
-        
+
+        #region Constructor
+
+        public PluginSettings()
+        {
+            this.SetDefaults();
+        }
+
+        #endregion
+
         #region Properties
 
         #region General
