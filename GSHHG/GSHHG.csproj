@@ -84,6 +84,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="AGSHHGLayer.cs" />
     <Compile Include="ShorelineLayer.cs" />
     <Compile Include="Types.cs" />
     <Compile Include="Utils.cs" />
