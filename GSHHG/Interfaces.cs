@@ -36,7 +36,7 @@ namespace CartaMei.GSHHG
     {
         #region Functions
 
-        IPolygonDatabase<THeader, TPoint> Read(string fileName, PolygonType type, Resolution resolution);
+        IPolygonDatabase<THeader, TPoint> Read(string fileName, PolygonType type, Resolution resolution, bool closePolygons);
         
         #endregion
     }

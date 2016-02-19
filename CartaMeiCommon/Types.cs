@@ -300,6 +300,8 @@ namespace CartaMei.Common
 
         public LatLonBoundaries() : this(0, 0, MaxLatitudeSpan, MaxLongitudeSpan) { }
 
+        public LatLonBoundaries(LatLonBoundaries boundaries) : this(boundaries.CenterLatitude, boundaries.CenterLongitude, boundaries.LatitudeSpan, boundaries.LongitudeSpan) { }
+
         public LatLonBoundaries(double centerLatitude, double centerLongitude, double latitudeSpan, double longitudeSpan)
         {
             this.Center = new LatLonCoordinates()
@@ -403,6 +405,10 @@ namespace CartaMei.Common
         public double LeftNotBound { get; set; }
         [ReadOnly(true)]
         public double TopNotBound { get; set; }
+        [ReadOnly(true)]
+        public double RightNotBound { get; set; }
+        [ReadOnly(true)]
+        public double BottomNotBound { get; set; }
 
         private double _topLatitude;
         [Description("The latitude at the top of the map.")]
@@ -552,6 +558,18 @@ namespace CartaMei.Common
         }
 
         /// <summary>
+        /// Checks whether a rectangle is completely inside this one.
+        /// </summary>
+        /// <param name="other">The rectangle to test.</param>
+        /// <returns>true if <paramref name="other"/> is completely inside this one, false otherwise.</returns>
+        public bool Contains(LatLonBoundaries other)
+        {
+            return other != null &&
+                other.LeftNotBound >= this.LeftNotBound && other.RightNotBound <= this.RightNotBound &&
+                other.BottomNotBound >= this.BottomNotBound && other.TopNotBound <= this.TopNotBound;
+        }
+
+        /// <summary>
         /// Checks whether a rectangle intersects with this one.
         /// </summary>
         /// <param name="other">The rectangle to test.</param>
@@ -635,7 +653,9 @@ namespace CartaMei.Common
                 this.LatitudeHalfSpan = this.LatitudeSpan / 2;
                 this.LongitudeHalfSpan = this.LongitudeSpan / 2;
                 this.TopNotBound = this.CenterLatitude + this.LatitudeHalfSpan;
+                this.BottomNotBound = this.CenterLatitude - this.LatitudeHalfSpan;
                 this.LeftNotBound = this.CenterLongitude - this.LongitudeHalfSpan;
+                this.RightNotBound = this.CenterLongitude + this.LongitudeHalfSpan;
                 this.TopLatitude = this.CenterLatitude + this.LatitudeHalfSpan;
                 this.BottomLatitude = this.CenterLatitude - this.LatitudeHalfSpan;
                 this.LeftLongitude = this.CenterLongitude - this.LongitudeHalfSpan;

@@ -113,9 +113,10 @@ namespace CartaMei.Common
         Redraw = 2,
         Translate = 4,
         Scale = 8,
-        Zoom = 16,
-        DisplayTypeChanged = 32,
-        AnimationStepChanged = 64
+        ZoomIn = 16,
+        ZoomOut = 32,
+        DisplayTypeChanged = 64,
+        AnimationStepChanged = 128
     }
 
     public abstract class ALayer : MapObject, ILayer
@@ -145,7 +146,7 @@ namespace CartaMei.Common
         [Browsable(false)]
         public virtual RedrawType HandledRedrawTypes
         {
-            get { return RedrawType.Redraw | RedrawType.Reset | RedrawType.Scale | RedrawType.Translate | RedrawType.Zoom; }
+            get { return RedrawType.Redraw | RedrawType.Reset | RedrawType.Scale | RedrawType.Translate | RedrawType.ZoomIn | RedrawType.ZoomOut; }
         }
 
         public virtual void SetLayerAdded(int layerIndex) { }

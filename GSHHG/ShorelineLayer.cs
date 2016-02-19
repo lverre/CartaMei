@@ -11,7 +11,7 @@ using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace CartaMei.GSHHG
 {
-    public class ShorelineLayer : AGshhgLayer<ShorelinePolygonObject>
+    public class ShorelineLayer : AGshhgLayer<PolygonObject>
     {
         #region Constants
 
@@ -177,18 +177,18 @@ namespace CartaMei.GSHHG
 
         #region AGshhgLayer
 
-        protected override PolygonType PolygonType { get { return PolygonType.ShoreLine; } }
+        public override PolygonType PolygonType { get { return PolygonType.ShoreLine; } }
 
-        protected override IGshhgContainer<ShorelinePolygonObject> getNewContainer()
+        protected override IGshhgContainer<PolygonObject> getNewContainer()
         {
-            var result = new GdiGshhgContainer<ShorelinePolygonObject>(this);
+            var result = new GdiGshhgContainer<PolygonObject>(this);
             result.MouseMove += mouseMove;
             return result;
         }
 
-        protected override ShorelinePolygonObject getNewPolygonObject(int id, IPolygon<GSHHG2PolygonHeader, LatLonCoordinates> polygon)
+        protected override PolygonObject getNewPolygonObject(int id, IPolygon<GSHHG2PolygonHeader, LatLonCoordinates> polygon)
         {
-            return new ShorelinePolygonObject()
+            return new PolygonObject()
             {
                 Id = id,
                 Polygon = polygon,
@@ -198,7 +198,7 @@ namespace CartaMei.GSHHG
             };
         }
 
-        protected override void updateVisual(ShorelinePolygonObject item)
+        protected override void updateVisual(PolygonObject item)
         {
             switch (item.Polygon.Header.ShorelinesFlags)
             {
@@ -237,6 +237,4 @@ namespace CartaMei.GSHHG
         
         #endregion
     }
-
-    public class ShorelinePolygonObject : PolygonObject { }
 }

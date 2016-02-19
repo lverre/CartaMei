@@ -11,7 +11,20 @@ using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace CartaMei.GSHHG
 {
-    public abstract class AGshhgLayer<TPolygonObject> : ALayer
+    public interface IGshhgLayer : ILayer
+    {
+        Resolution Resolution { get; }
+
+        bool UseCurvedLines { get; }
+
+        double StrokeThickness { get; }
+
+        Brush StrokeBrush { get; }
+
+        PolygonType PolygonType { get; }
+    }
+
+    public abstract class AGshhgLayer<TPolygonObject> : ALayer, IGshhgLayer
         where TPolygonObject : PolygonObject
     {
         #region Fields
@@ -38,9 +51,18 @@ namespace CartaMei.GSHHG
             : base(map)
         {
             _loadedResolution = (Resolution)int.MaxValue;// Invalid value
-            
-            _resolution = PluginSettings.Instance.Resolution;
+
             _useCurvedLines = PluginSettings.Instance.UseCurvedLines;
+            _resolution = PluginSettings.Instance.Resolution;
+            foreach (var layer in this.Map.Layers)
+            {
+                var gshhgLayer = layer as IGshhgLayer;
+                if (gshhgLayer != null)
+                {
+                    _useCurvedLines = gshhgLayer.UseCurvedLines;
+                    _resolution = gshhgLayer.Resolution;
+                }
+            }
 
             _strokeThickness = PluginSettings.Instance.StrokeThickness;
             _strokeBrush = PluginSettings.Instance.StrokeBrush.GetFrozenCopy();
@@ -51,6 +73,9 @@ namespace CartaMei.GSHHG
         #endregion
 
         #region Properties
+
+        [Browsable(false)]
+        protected virtual bool ClosePolygons { get { return true; } }
 
         private Resolution _resolution;
         [Description("The resolution to use.")]
@@ -145,7 +170,7 @@ namespace CartaMei.GSHHG
             {
                 lock (_drawLocker)
                 {
-                    const RedrawType noNewPointTypes = RedrawType.Scale | RedrawType.Zoom | RedrawType.AnimationStepChanged | RedrawType.DisplayTypeChanged | RedrawType.Redraw;
+                    const RedrawType noNewPointTypes = RedrawType.Scale | RedrawType.ZoomIn | RedrawType.AnimationStepChanged | RedrawType.DisplayTypeChanged | RedrawType.Redraw;
                     if ((_polygonObjects?.Any() ?? false) && ((context.RedrawType & ~noNewPointTypes) == RedrawType.None))
                     {
                         foreach (var polygonObject in _polygonObjects.Values)
@@ -205,7 +230,8 @@ namespace CartaMei.GSHHG
             {
                 case RedrawType.Reset:
                 case RedrawType.Redraw:
-                case RedrawType.Zoom:
+                case RedrawType.ZoomIn:
+                case RedrawType.ZoomOut:
                 case RedrawType.Scale:
                     _container.IsDirty = true;
                     _container.Update(context);
@@ -222,7 +248,8 @@ namespace CartaMei.GSHHG
 
         #region Abstract
 
-        protected abstract PolygonType PolygonType { get; }
+        [Browsable(false)]
+        public abstract PolygonType PolygonType { get; }
 
         protected abstract IGshhgContainer<TPolygonObject> getNewContainer();
 
@@ -240,9 +267,13 @@ namespace CartaMei.GSHHG
             {
                 lock (_drawLocker)
                 {
-                    foreach (var item in _polygonObjects.Values)
+                    var polygons = _polygonObjects?.Values;
+                    if (polygons != null)
                     {
-                        updateVisual(item);
+                        foreach (var item in _polygonObjects.Values)
+                        {
+                            updateVisual(item);
+                        }
                     }
                 }
             }
@@ -263,12 +294,12 @@ namespace CartaMei.GSHHG
                 
                     _mapsDir = mapsDir;
 
-                    var ownsStatus = Utils.Instance.SetStatus("Loading map...", true, true, 0, true);
+                    var ownsStatus = Utils.Instance.SetStatus("Loading " + this.PolygonType.ToString().ToLower() +  " data...", true, true, 0, true);
                     var watch = System.Diagnostics.Stopwatch.StartNew();
                     var reader = new GSHHG2Reader();
                     // TODO: lazy load
                     // TODO: handle cancellation
-                    _polygons = reader.Read(PluginSettings.Instance.MapsDirectory, this.PolygonType, this.Resolution).Polygons;
+                    _polygons = reader.Read(PluginSettings.Instance.MapsDirectory, this.PolygonType, this.Resolution, this.ClosePolygons).Polygons;
                     var time = watch.ElapsedMilliseconds;
                     if (ownsStatus) Utils.Instance.HideStatus();
                     _polygonObjects = new Dictionary<int, TPolygonObject>();
@@ -687,9 +718,13 @@ namespace CartaMei.GSHHG
             {
                 foreach (var path in item.Value)
                 {
-                    var fill = item.Key.Fill != null && item.Key.Fill != Brushes.Transparent ? item.Key.Fill.AsGdiBrush() : null;
-                    if (fill != null) _gdiGraphics.FillPath(fill, path);
-                    if (pen != null) _gdiGraphics.DrawPath(pen, path);
+                    try
+                    {
+                        var fill = item.Key.Fill != null && item.Key.Fill != Brushes.Transparent ? item.Key.Fill.AsGdiBrush() : null;
+                        if (fill != null) _gdiGraphics.FillPath(fill, path);
+                        if (pen != null) _gdiGraphics.DrawPath(pen, path);
+                    }
+                    catch { }
                 }
             }
 

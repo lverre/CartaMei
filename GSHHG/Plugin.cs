@@ -31,7 +31,17 @@ namespace CartaMei.GSHHG
                         return new ShorelineLayer(map);
                     }
                 };
-                // TODO: provide other kind of layers provided by gshhg data
+                yield return new PluginItemProvider<ILayer>()
+                {
+                    Name = RiverLayer.LayerName,
+                    Description = RiverLayer.LayerDescription,
+                    Create = delegate (IMap map)
+                    {
+                        checkMapsDirectory();
+                        return new RiverLayer(map);
+                    }
+                };
+                // TODO: countries layer
                 yield break;
             }
         }

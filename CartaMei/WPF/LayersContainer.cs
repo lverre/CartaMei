@@ -18,6 +18,7 @@ namespace CartaMei.WPF
 
         private IMap _map;
 
+        private LatLonBoundaries _previousBoundaries;
         private LatLonBoundaries _boundaries;
 
         private ObservableCollection<ILayer> _layers;
@@ -72,7 +73,19 @@ namespace CartaMei.WPF
 
             PropertyChangedEventHandler boudariesChanged = delegate (object s3, PropertyChangedEventArgs e3)
             {
-                draw(RedrawType.Zoom);
+                RedrawType redrawType;
+                if (_boundaries != null)
+                {
+                    redrawType = _previousBoundaries != null && _previousBoundaries.Contains(_boundaries)
+                       ? RedrawType.ZoomIn
+                       : RedrawType.ZoomOut;
+                }
+                else
+                {
+                    redrawType = RedrawType.Reset;
+                }
+                _previousBoundaries = new LatLonBoundaries(_boundaries);
+                draw(redrawType);
             };
             PropertyChangedEventHandler mapPropertyChanged = delegate (object s2, PropertyChangedEventArgs e2)
             {

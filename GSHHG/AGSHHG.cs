@@ -10,7 +10,7 @@ namespace CartaMei.GSHHG
     {
         #region IGSHHGReader
 
-        public IPolygonDatabase<TPolygonHeader, LatLonCoordinates> Read(string fileName, PolygonType type, Resolution resolution)
+        public IPolygonDatabase<TPolygonHeader, LatLonCoordinates> Read(string fileName, PolygonType type, Resolution resolution, bool closePolygons)
         {
             if (!File.Exists(fileName) && Directory.Exists(fileName))
             {
@@ -35,7 +35,7 @@ namespace CartaMei.GSHHG
                     var children = new List<IPolygon<TPolygonHeader>>();
                     while (reader.BaseStream.Length - reader.BaseStream.Position >= this.HeaderSize)
                     {
-                        var item = readPolygon(reader);
+                        var item = readPolygon(reader, closePolygons);
                         item.Children = new List<IPolygon<TPolygonHeader>>();
                         polygons.Add(item.Header.Id, item);
                         if (item.Header.HasContainer())
@@ -128,7 +128,7 @@ namespace CartaMei.GSHHG
             return new Polygon<TPolygonHeader>();
         }
 
-        protected virtual IPolygon<TPolygonHeader> readPolygon(BinaryReader reader)
+        protected virtual IPolygon<TPolygonHeader> readPolygon(BinaryReader reader, bool closePolygons)
         {
             var result = getNewPolygon();
             result.Header = readPolygonHeader(reader);
@@ -144,7 +144,7 @@ namespace CartaMei.GSHHG
                 lastLongitude = point.Longitude;
                 points[i] = point;
             }
-            if (points[0] != points[points.Length - 1])
+            if (closePolygons && points[0] != points[points.Length - 1])
             {
                 // Make sure the list is closed
                 var pointsList = new List<LatLonCoordinates>(points);
