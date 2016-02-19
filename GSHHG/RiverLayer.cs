@@ -14,12 +14,8 @@ namespace CartaMei.GSHHG
         #region Constructor
 
         public RiverLayer(IMap map)
-            : base(map)
-        {
-            this.StrokeBrush = PluginSettings.Instance.ShorelinesWaterFill.GetFrozenCopy();
-
-            this.Name = RiverLayer.LayerName;
-        }
+            : base(map, RiverLayer.LayerName, PluginSettings.Instance.RiverThickness, PluginSettings.Instance.RiverBrush)
+        { }
 
         #endregion
         

@@ -23,17 +23,15 @@ namespace CartaMei.GSHHG
         #region Constructor
 
         public ShorelineLayer(IMap map)
-            : base(map)
+            : base(map, ShorelineLayer.LayerName, PluginSettings.Instance.ShorelineThickness, PluginSettings.Instance.ShorelineBrush)
         {
             _useWaterForBackground = PluginSettings.Instance.ShorelinesUseWaterForBackground;
-            _backgroundFill = PluginSettings.Instance.ShorelinesBackground.GetFrozenCopy();
-            _waterFill = PluginSettings.Instance.ShorelinesWaterFill.GetFrozenCopy();
-            _landFill = PluginSettings.Instance.ShorelinesLandFill.GetFrozenCopy();
-            _antarcticaFill = PluginSettings.Instance.AntarcticaFill.GetFrozenCopy();
-            _antarcticaIceFrontFill = PluginSettings.Instance.AntarcticaIceFrontFill.GetFrozenCopy();
-
-            this.Name = ShorelineLayer.LayerName;
-
+            _backgroundFill = PluginSettings.Instance.ShorelinesBackground;
+            _waterFill = PluginSettings.Instance.ShorelinesWaterFill;
+            _landFill = PluginSettings.Instance.ShorelinesLandFill;
+            _antarcticaFill = PluginSettings.Instance.AntarcticaFill;
+            _antarcticaIceFrontFill = PluginSettings.Instance.AntarcticaIceFrontFill;
+            
             _container.MouseMove += mouseMove;
             resetBackground();
         }
@@ -62,17 +60,16 @@ namespace CartaMei.GSHHG
             }
         }
 
-        private Brush _backgroundFill;
+        private Color _backgroundFill;
         [Description("The brush used to fill the background.")]
         [DisplayName("Background")]
         [Category("Look")]
         [PropertyOrder(999)]
-        public Brush BackgroundFill
+        public Color BackgroundFill
         {
             get { return _backgroundFill; }
             set
             {
-                value.SafeFreeze();
                 if (_backgroundFill != value)
                 {
                     _backgroundFill = value;
@@ -83,17 +80,16 @@ namespace CartaMei.GSHHG
             }
         }
         
-        private Brush _waterFill;
+        private Color _waterFill;
         [Description("The brush used to fill water areas.")]
         [DisplayName("Water Fill")]
         [Category("Look")]
         [PropertyOrder(1002)]
-        public Brush WaterFill
+        public Color WaterFill
         {
             get { return _waterFill; }
             set
             {
-                value.SafeFreeze();
                 if (_waterFill != value)
                 {
                     _waterFill = value;
@@ -104,17 +100,16 @@ namespace CartaMei.GSHHG
             }
         }
 
-        private Brush _landFill;
+        private Color _landFill;
         [Description("The brush used to fill land areas.")]
         [DisplayName("Land Fill")]
         [Category("Look")]
         [PropertyOrder(1003)]
-        public Brush LandFill
+        public Color LandFill
         {
             get { return _landFill; }
             set
             {
-                value.SafeFreeze();
                 if (_landFill != value)
                 {
                     _landFill = value;
@@ -124,17 +119,16 @@ namespace CartaMei.GSHHG
             }
         }
 
-        private Brush _antarcticaFill;
+        private Color _antarcticaFill;
         [Description("The brush used to fill Antarctica.")]
         [DisplayName("Antarctica Fill")]
         [Category("Look")]
         [PropertyOrder(1004)]
-        public Brush AntarcticaFill
+        public Color AntarcticaFill
         {
             get { return _antarcticaFill; }
             set
             {
-                value.SafeFreeze();
                 if (_antarcticaFill != value)
                 {
                     _antarcticaFill = value;
@@ -144,17 +138,16 @@ namespace CartaMei.GSHHG
             }
         }
 
-        private Brush _antarcticaIceFrontFill;
+        private Color _antarcticaIceFrontFill;
         [Description("The brush used to fill the Antarctica ice front.")]
         [DisplayName("Antarctica Ice Front Fill")]
         [Category("Look")]
         [PropertyOrder(1005)]
-        public Brush AntarcticaIceFrontFill
+        public Color AntarcticaIceFrontFill
         {
             get { return _antarcticaIceFrontFill; }
             set
             {
-                value.SafeFreeze();
                 if (_antarcticaIceFrontFill != value)
                 {
                     _antarcticaIceFrontFill = value;
@@ -215,7 +208,7 @@ namespace CartaMei.GSHHG
         private void resetBackground()
         {
             var container = _container;
-            if (container != null) container.Background = this.UseSeaForBackground ? this.WaterFill : this.BackgroundFill;
+            if (container != null) container.Background = new SolidColorBrush(this.UseSeaForBackground ? this.WaterFill : this.BackgroundFill);
         }
         
         #endregion

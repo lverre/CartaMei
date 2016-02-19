@@ -96,54 +96,54 @@ namespace CartaMei.GSHHG
             }
         }
 
-        private double _strokeThickness;
-        [DefaultValue(1)]
-        [Description("The thickness of the contour of the objects.")]
-        [DisplayName("Stroke Thickness")]
-        [Category("General")]
-        [PropertyOrder(3)]
-        public double StrokeThickness
-        {
-            get { return _strokeThickness; }
-            set
-            {
-                if (_strokeThickness != value)
-                {
-                    _strokeThickness = value;
-                    onPropetyChanged();
-                }
-            }
-        }
-
-        private Brush _strokeBrush;
-        [DefaultValue(typeof(SolidColorBrush), "#FF000000")]
-        [Description("The brush used to draw the contour of the objects.")]
-        [DisplayName("Stroke Brush")]
-        [Category("General")]
-        [PropertyOrder(4)]
-        public Brush StrokeBrush
-        {
-            get { return _strokeBrush; }
-            set
-            {
-                if (_strokeBrush != value)
-                {
-                    _strokeBrush = value;
-                    onPropetyChanged();
-                }
-            }
-        }
-
         #endregion
 
         #region Shorelines
+
+        private double _shorelineThickness;
+        [DefaultValue(1)]
+        [Description("The thickness of the contour of the shorelines.")]
+        [DisplayName("Shoreline Thickness")]
+        [Category("Shorelines")]
+        [PropertyOrder(0)]
+        public double ShorelineThickness
+        {
+            get { return _shorelineThickness; }
+            set
+            {
+                if (_shorelineThickness != value)
+                {
+                    _shorelineThickness = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private Color _shorelineBrush;
+        [DefaultValue(typeof(Color), "#FF000000")]
+        [Description("The Color used to draw the contour of the shorelines.")]
+        [DisplayName("Shoreline Brush")]
+        [Category("Shorelines")]
+        [PropertyOrder(1)]
+        public Color ShorelineBrush
+        {
+            get { return _shorelineBrush; }
+            set
+            {
+                if (_shorelineBrush != value)
+                {
+                    _shorelineBrush = value;
+                    onPropetyChanged();
+                }
+            }
+        }
 
         private bool _shorelinesUseWaterForBackground;
         [DefaultValue(true)]
         [Description("Choose this option if you want the background of the shorelines layers to always match that of the water.\nNote that this will be automatically set only if the layer is added first.")]
         [DisplayName("Shorelines Background Is Water")]
         [Category("Shorelines")]
-        [PropertyOrder(0)]
+        [PropertyOrder(2)]
         public bool ShorelinesUseWaterForBackground
         {
             get { return _shorelinesUseWaterForBackground; }
@@ -157,13 +157,13 @@ namespace CartaMei.GSHHG
             }
         }
 
-        private Brush _shorelinesBackground;
-        [DefaultValue(typeof(SolidColorBrush), "#00000000")]
-        [Description("The brush used to fill the background of the shorelines layers.")]
+        private Color _shorelinesBackground;
+        [DefaultValue(typeof(Color), "#00000000")]
+        [Description("The Color used to fill the background of the shorelines layers.")]
         [DisplayName("Shorelines Background")]
         [Category("Shorelines")]
-        [PropertyOrder(1)]
-        public Brush ShorelinesBackground
+        [PropertyOrder(3)]
+        public Color ShorelinesBackground
         {
             get { return _shorelinesBackground; }
             set
@@ -176,13 +176,13 @@ namespace CartaMei.GSHHG
             }
         }
 
-        private Brush _shorelinesWaterFill;
-        [DefaultValue(typeof(SolidColorBrush), "#FFF0F8FF")]
-        [Description("The brush used to fill water areas.")]
+        private Color _shorelinesWaterFill;
+        [DefaultValue(typeof(Color), "#FFF0F8FF")]
+        [Description("The Color used to fill water areas.")]
         [DisplayName("Water Fill")]
         [Category("Shorelines")]
-        [PropertyOrder(2)]
-        public Brush ShorelinesWaterFill
+        [PropertyOrder(4)]
+        public Color ShorelinesWaterFill
         {
             get { return _shorelinesWaterFill; }
             set
@@ -195,13 +195,13 @@ namespace CartaMei.GSHHG
             }
         }
 
-        private Brush _shorelinesLandFill;
-        [DefaultValue(typeof(SolidColorBrush), "#FFF4A460")]
-        [Description("The brush used to fill land areas.")]
+        private Color _shorelinesLandFill;
+        [DefaultValue(typeof(Color), "#FFF4A460")]
+        [Description("The Color used to fill land areas.")]
         [DisplayName("Land Fill")]
         [Category("Shorelines")]
-        [PropertyOrder(3)]
-        public Brush ShorelinesLandFill
+        [PropertyOrder(5)]
+        public Color ShorelinesLandFill
         {
             get { return _shorelinesLandFill; }
             set
@@ -214,13 +214,13 @@ namespace CartaMei.GSHHG
             }
         }
 
-        private Brush _antarcticaFill;
-        [DefaultValue(typeof(SolidColorBrush), "#FFF4A460")]
-        [Description("The brush used to fill Antarctica.")]
+        private Color _antarcticaFill;
+        [DefaultValue(typeof(Color), "#FFF4A460")]
+        [Description("The Color used to fill Antarctica.")]
         [DisplayName("Antarctica Fill")]
         [Category("Shorelines")]
-        [PropertyOrder(4)]
-        public Brush AntarcticaFill
+        [PropertyOrder(6)]
+        public Color AntarcticaFill
         {
             get { return _antarcticaFill; }
             set
@@ -233,13 +233,13 @@ namespace CartaMei.GSHHG
             }
         }
 
-        private Brush _antarcticaIceFrontFill;
-        [DefaultValue(typeof(SolidColorBrush), "#FFFFFFFF")]
-        [Description("The brush used to fill the Antarctica ice front.")]
+        private Color _antarcticaIceFrontFill;
+        [DefaultValue(typeof(Color), "#FFFFFFFF")]
+        [Description("The Color used to fill the Antarctica ice front.")]
         [DisplayName("Antarctica Ice Front Fill")]
         [Category("Shorelines")]
-        [PropertyOrder(5)]
-        public Brush AntarcticaIceFrontFill
+        [PropertyOrder(7)]
+        public Color AntarcticaIceFrontFill
         {
             get { return _antarcticaIceFrontFill; }
             set
@@ -247,6 +247,90 @@ namespace CartaMei.GSHHG
                 if (_antarcticaIceFrontFill != value)
                 {
                     _antarcticaIceFrontFill = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        #endregion
+
+        #region Rivers
+
+        private double _riverThickness;
+        [DefaultValue(2)]
+        [Description("The thickness of the contour of the rivers.")]
+        [DisplayName("River Thickness")]
+        [Category("Rivers")]
+        [PropertyOrder(0)]
+        public double RiverThickness
+        {
+            get { return _riverThickness; }
+            set
+            {
+                if (_riverThickness != value)
+                {
+                    _riverThickness = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private Color _riverBrush;
+        [DefaultValue(typeof(Color), "#FFF0F8FF")]
+        [Description("The Color used to draw the contour of the rivers.")]
+        [DisplayName("River Brush")]
+        [Category("Rivers")]
+        [PropertyOrder(1)]
+        public Color RiverBrush
+        {
+            get { return _riverBrush; }
+            set
+            {
+                if (_riverBrush != value)
+                {
+                    _riverBrush = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        #endregion
+
+        #region Border
+
+        private double _borderThickness;
+        [DefaultValue(1)]
+        [Description("The thickness of the contour of the borders.")]
+        [DisplayName("Border Thickness")]
+        [Category("Borders")]
+        [PropertyOrder(0)]
+        public double BorderThickness
+        {
+            get { return _borderThickness; }
+            set
+            {
+                if (_borderThickness != value)
+                {
+                    _borderThickness = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private Color _borderBrush;
+        [DefaultValue(typeof(Color), "#FF000000")]
+        [Description("The Color used to draw the contour of the borders.")]
+        [DisplayName("Border Brush")]
+        [Category("Borders")]
+        [PropertyOrder(1)]
+        public Color BorderBrush
+        {
+            get { return _borderBrush; }
+            set
+            {
+                if (_borderBrush != value)
+                {
+                    _borderBrush = value;
                     onPropetyChanged();
                 }
             }

@@ -19,7 +19,7 @@ namespace CartaMei.GSHHG
 
         double StrokeThickness { get; }
 
-        Brush StrokeBrush { get; }
+        Color StrokeColor { get; }
 
         PolygonType PolygonType { get; }
     }
@@ -63,10 +63,16 @@ namespace CartaMei.GSHHG
                 }
             }
 
-            _strokeThickness = PluginSettings.Instance.StrokeThickness;
-            _strokeBrush = PluginSettings.Instance.StrokeBrush.GetFrozenCopy();
-
             _container = new GshhgContainer(this);
+        }
+
+        public AGshhgLayer(IMap map, string name, double strokeThickness, Color strokeColor)
+            : this(map)
+        {
+            _strokeThickness = strokeThickness;
+            _strokeColor = strokeColor;
+
+            this.Name = name;
         }
 
         #endregion
@@ -81,7 +87,7 @@ namespace CartaMei.GSHHG
         [DisplayName("Resolution")]
         [Category("Look")]
         [PropertyOrder(0)]
-        public Resolution Resolution
+        public virtual Resolution Resolution
         {
             get { return _resolution; }
             set
@@ -100,7 +106,7 @@ namespace CartaMei.GSHHG
         [DisplayName("Curved Lines")]
         [Category("Look")]
         [PropertyOrder(1)]
-        public bool UseCurvedLines
+        public virtual bool UseCurvedLines
         {
             get { return _useCurvedLines; }
             set
@@ -119,7 +125,7 @@ namespace CartaMei.GSHHG
         [DisplayName("Stroke Thickness")]
         [Category("Look")]
         [PropertyOrder(1000)]
-        public double StrokeThickness
+        public virtual double StrokeThickness
         {
             get { return _strokeThickness; }
             set
@@ -133,20 +139,19 @@ namespace CartaMei.GSHHG
             }
         }
 
-        private Brush _strokeBrush;
+        private Color _strokeColor;
         [Description("The brush used to draw the contour of the objects.")]
         [DisplayName("Stroke Brush")]
         [Category("Look")]
         [PropertyOrder(1001)]
-        public Brush StrokeBrush
+        public virtual Color StrokeColor
         {
-            get { return _strokeBrush; }
+            get { return _strokeColor; }
             set
             {
-                value.SafeFreeze();
-                if (_strokeBrush != value)
+                if (_strokeColor != value)
                 {
-                    _strokeBrush = value;
+                    _strokeColor = value;
                     redraw(false);
                     onPropetyChanged();
                 }
@@ -435,7 +440,7 @@ namespace CartaMei.GSHHG
         public virtual IEnumerable<IEnumerable<PixelCoordinates>> PixelPoints { get; internal set; }
 
         [ReadOnly(true)]
-        public virtual Brush Fill { get; set; }
+        public virtual Color Fill { get; set; }
         
         #endregion
     }
@@ -594,8 +599,8 @@ namespace CartaMei.GSHHG
                 this.IsDirty = false;
             }
             
-            var pen = _layer.StrokeBrush != null && _layer.StrokeBrush != Brushes.Transparent && _layer.StrokeThickness > 0
-                ? new System.Drawing.Pen(_layer.StrokeBrush.AsGdiBrush(), (float)_layer.StrokeThickness)
+            var pen = _layer.StrokeColor != null && _layer.StrokeColor != Colors.Transparent && _layer.StrokeThickness > 0
+                ? new System.Drawing.Pen(_layer.StrokeColor.AsGdiBrush(), (float)_layer.StrokeThickness)
                 : null;
             foreach (var item in _paths)
             {
@@ -603,7 +608,7 @@ namespace CartaMei.GSHHG
                 {
                     try
                     {
-                        var fill = item.Key.Fill != null && item.Key.Fill != Brushes.Transparent ? item.Key.Fill.AsGdiBrush() : null;
+                        var fill = item.Key.Fill != null && item.Key.Fill != Colors.Transparent ? item.Key.Fill.AsGdiBrush() : null;
                         if (fill != null) _gdiGraphics.FillPath(fill, path);
                         if (pen != null) _gdiGraphics.DrawPath(pen, path);
                     }

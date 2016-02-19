@@ -10,14 +10,12 @@ namespace CartaMei.GSHHG
         public const string LayerDescription = "Borders from GSHHG data";
 
         #endregion
-        
+
         #region Constructor
 
         public BorderLayer(IMap map)
-            : base(map)
-        {
-            this.Name = BorderLayer.LayerName;
-        }
+            : base(map, BorderLayer.LayerName, PluginSettings.Instance.BorderThickness, PluginSettings.Instance.BorderBrush)
+        { }
 
         #endregion
 
