@@ -10,6 +10,8 @@ namespace CartaMei.Common
 
         bool SupportsReferenceChange { get; }
 
+        bool CanUseTransformForTranslate { get; }
+
         #endregion
 
         #region Functions

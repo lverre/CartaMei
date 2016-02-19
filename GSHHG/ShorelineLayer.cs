@@ -48,14 +48,16 @@ namespace CartaMei.GSHHG
         {
             _loadedResolution = (Resolution)int.MaxValue;// Invalid value
 
+            _resolution = PluginSettings.Instance.Resolution;
+            _useCurvedLines = PluginSettings.Instance.UseCurvedLines;
+            _useWaterForBackground = PluginSettings.Instance.ShorelinesUseWaterForBackground;
+            _backgroundFill = PluginSettings.Instance.ShorelinesBackground.GetFrozenCopy();
             _shorelinesThickness = PluginSettings.Instance.ShorelinesThickness;
             _shorelinesBrush = PluginSettings.Instance.ShorelinesBrush.GetFrozenCopy();
             _waterFill = PluginSettings.Instance.ShorelinesWaterFill.GetFrozenCopy();
             _landFill = PluginSettings.Instance.ShorelinesLandFill.GetFrozenCopy();
-            _useWaterForBackground = PluginSettings.Instance.ShorelinesUseWaterForBackground;
-            _backgroundFill = PluginSettings.Instance.ShorelinesBackground.GetFrozenCopy();
-            _resolution = PluginSettings.Instance.Resolution;
-            _useCurvedLines = PluginSettings.Instance.UseCurvedLines;
+            _antarcticaFill = PluginSettings.Instance.AntarcticaFill.GetFrozenCopy();
+            _antarcticaIceFrontFill = PluginSettings.Instance.AntarcticaIceFrontFill.GetFrozenCopy();
 
             var container = new GdiShorelineContainer(this);
             container.MouseMove += mouseMove;
@@ -70,11 +72,90 @@ namespace CartaMei.GSHHG
 
         #region Properties
 
+        private Resolution _resolution;
+        [Description("The resolution to use.")]
+        [DisplayName("Resolution")]
+        [Category("Shorelines")]
+        [PropertyOrder(0)]
+        public Resolution Resolution
+        {
+            get { return _resolution; }
+            set
+            {
+                if (value != _resolution)
+                {
+                    _resolution = value;
+                    redraw(true);
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private bool _useCurvedLines;
+        [Description("When enabled, this feature display curved (bezier) lines instead of straight lines.")]
+        [DisplayName("Curved Lines")]
+        [Category("Shorelines")]
+        [PropertyOrder(1)]
+        public bool UseCurvedLines
+        {
+            get { return _useCurvedLines; }
+            set
+            {
+                if (value != _useCurvedLines)
+                {
+                    _useCurvedLines = value;
+                    redraw(true);
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private bool _useWaterForBackground;
+        [Description("Choose this option if you want the background to always match that of the sea.")]
+        [DisplayName("Background Is Sea")]
+        [Category("Shorelines")]
+        [PropertyOrder(2)]
+        public bool UseSeaForBackground
+        {
+            get { return _useWaterForBackground; }
+            set
+            {
+                if (_useWaterForBackground != value)
+                {
+                    _useWaterForBackground = value;
+                    resetBackground();
+                    redraw(false);
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private Brush _backgroundFill;
+        [Description("The brush used to fill the background.")]
+        [DisplayName("Background")]
+        [Category("Shorelines")]
+        [PropertyOrder(3)]
+        public Brush BackgroundFill
+        {
+            get { return _backgroundFill; }
+            set
+            {
+                value.SafeFreeze();
+                if (_backgroundFill != value)
+                {
+                    _backgroundFill = value;
+                    resetBackground();
+                    redraw(false);
+                    onPropetyChanged();
+                }
+            }
+        }
+
         private double _shorelinesThickness;
         [Description("The thickness of the contour of the shorelines.")]
         [DisplayName("Shorelines Thickness")]
         [Category("Shorelines")]
-        [PropertyOrder(0)]
+        [PropertyOrder(4)]
         public double ShorelinesThickness
         {
             get { return _shorelinesThickness; }
@@ -93,7 +174,7 @@ namespace CartaMei.GSHHG
         [Description("The brush used to draw the contour of the shorelines.")]
         [DisplayName("Shorelines Brush")]
         [Category("Shorelines")]
-        [PropertyOrder(1)]
+        [PropertyOrder(5)]
         public Brush ShorelinesBrush
         {
             get { return _shorelinesBrush; }
@@ -113,7 +194,7 @@ namespace CartaMei.GSHHG
         [Description("The brush used to fill water areas.")]
         [DisplayName("Water Fill")]
         [Category("Shorelines")]
-        [PropertyOrder(2)]
+        [PropertyOrder(6)]
         public Brush WaterFill
         {
             get { return _waterFill; }
@@ -134,7 +215,7 @@ namespace CartaMei.GSHHG
         [Description("The brush used to fill land areas.")]
         [DisplayName("Land Fill")]
         [Category("Shorelines")]
-        [PropertyOrder(3)]
+        [PropertyOrder(7)]
         public Brush LandFill
         {
             get { return _landFill; }
@@ -150,80 +231,41 @@ namespace CartaMei.GSHHG
             }
         }
 
-        private bool _useWaterForBackground;
-        [Description("Choose this option if you want the background to always match that of the water.")]
-        [DisplayName("Background Is Water")]
+        private Brush _antarcticaFill;
+        [Description("The brush used to fill Antarctica.")]
+        [DisplayName("Antarctica Fill")]
         [Category("Shorelines")]
-        [PropertyOrder(4)]
-        public bool UseWaterForBackground
+        [PropertyOrder(8)]
+        public Brush AntarcticaFill
         {
-            get { return _useWaterForBackground; }
-            set
-            {
-                if (_useWaterForBackground != value)
-                {
-                    _useWaterForBackground = value;
-                    resetBackground();
-                    redraw(false);
-                    onPropetyChanged();
-                }
-            }
-        }
-
-        private Brush _backgroundFill;
-        [Description("The brush used to fill the background.")]
-        [DisplayName("Background")]
-        [Category("Shorelines")]
-        [PropertyOrder(5)]
-        public Brush BackgroundFill
-        {
-            get { return _backgroundFill; }
+            get { return _antarcticaFill; }
             set
             {
                 value.SafeFreeze();
-                if (_backgroundFill != value)
+                if (_antarcticaFill != value)
                 {
-                    _backgroundFill = value;
-                    resetBackground();
+                    _antarcticaFill = value;
                     redraw(false);
                     onPropetyChanged();
                 }
             }
         }
 
-        private Resolution _resolution;
-        [Description("The resolution to use.")]
-        [DisplayName("Resolution")]
+        private Brush _antarcticaIceFrontFill;
+        [Description("The brush used to fill the Antarctica ice front.")]
+        [DisplayName("Antarctica Ice Front Fill")]
         [Category("Shorelines")]
-        [PropertyOrder(6)]
-        public Resolution Resolution
+        [PropertyOrder(9)]
+        public Brush AntarcticaIceFrontFill
         {
-            get { return _resolution; }
+            get { return _antarcticaIceFrontFill; }
             set
             {
-                if (value != _resolution)
+                value.SafeFreeze();
+                if (_antarcticaIceFrontFill != value)
                 {
-                    _resolution = value;
-                    redraw(true);
-                    onPropetyChanged();
-                }
-            }
-        }
-
-        private bool _useCurvedLines;
-        [Description("When enabled, this feature display curved (bezier) lines instead of straight lines.")]
-        [DisplayName("Curved Lines")]
-        [Category("Shorelines")]
-        [PropertyOrder(7)]
-        public bool UseCurvedLines
-        {
-            get { return _useCurvedLines; }
-            set
-            {
-                if (value != _useCurvedLines)
-                {
-                    _useCurvedLines = value;
-                    redraw(true);
+                    _antarcticaIceFrontFill = value;
+                    redraw(false);
                     onPropetyChanged();
                 }
             }
@@ -237,7 +279,7 @@ namespace CartaMei.GSHHG
 
         public override void SetLayerAdded(int layerIndex)
         {
-            if (layerIndex > 0) this.UseWaterForBackground = false;
+            if (layerIndex > 0) this.UseSeaForBackground = false;
         }
 
         public override void Draw(IDrawContext context, CancellationToken cancellation)
@@ -346,7 +388,7 @@ namespace CartaMei.GSHHG
 
         private void resetBackground()
         {
-            _container.Background = this.UseWaterForBackground ? this.WaterFill : this.BackgroundFill;
+            _container.Background = this.UseSeaForBackground ? this.WaterFill : this.BackgroundFill;
         }
 
         private void redraw(bool reset)
@@ -407,8 +449,31 @@ namespace CartaMei.GSHHG
                 duplicate = true;
             }
 
-            const RedrawType transformRedrawTypes = RedrawType.Translate | RedrawType.Scale | RedrawType.AnimationStepChanged | RedrawType.DisplayTypeChanged | RedrawType.Redraw;
-            if (!duplicate && (redrawType & ~transformRedrawTypes) == RedrawType.None && (polygonObject.PixelPoints?.Any() ?? false))
+            var useTransform = true;
+            if (duplicate)
+            {
+                useTransform = false;
+            }
+            else if (polygonObject.PixelPoints?.Any() ?? false)
+            {
+                useTransform = false;
+            }
+            else
+            {
+                const RedrawType transformRedrawTypes = RedrawType.Translate | RedrawType.Scale | RedrawType.AnimationStepChanged | RedrawType.DisplayTypeChanged | RedrawType.Redraw;
+                switch (redrawType & ~transformRedrawTypes)
+                {
+                    case RedrawType.None:
+                        break;
+                    case RedrawType.Translate:
+                        useTransform = this.Map.Projection.CanUseTransformForTranslate;
+                        break;
+                    default:
+                        useTransform = false;
+                        break;
+                }
+            }
+            if (useTransform)
             {
                 foreach (var pixelPoints in polygonObject.PixelPoints)
                 {
@@ -592,7 +657,19 @@ namespace CartaMei.GSHHG
 
             foreach (var item in this.Geometries)
             {
-                var fill = item.Key.Polygon.Header.IsLand ? _layer.LandFill : _layer.WaterFill;
+                Brush fill;
+                switch (item.Key.Polygon.Header.ShorelinesFlags)
+                {
+                    case GSHHGFlag.AntarticaGround:
+                        fill = _layer.AntarcticaFill;
+                        break;
+                    case GSHHGFlag.AntarticaIce:
+                        fill = _layer.AntarcticaIceFrontFill;
+                        break;
+                    default:
+                        fill = item.Key.Polygon.Header.IsLand ? _layer.LandFill : _layer.WaterFill;
+                        break;
+                }
                 drawingContext.DrawGeometry(fill, pen, item.Value);
             }
         }
@@ -759,11 +836,25 @@ namespace CartaMei.GSHHG
                 : null;
             var land = _layer.LandFill != null && _layer.LandFill != Brushes.Transparent ? _layer.LandFill.AsGdiBrush() : null;
             var water = _layer.WaterFill != null && _layer.WaterFill != Brushes.Transparent ? _layer.WaterFill.AsGdiBrush() : null;
+            var antarctica = _layer.AntarcticaFill != null && _layer.AntarcticaFill != Brushes.Transparent ? _layer.AntarcticaFill.AsGdiBrush() : null;
+            var antarcticaIce = _layer.AntarcticaIceFrontFill != null && _layer.AntarcticaIceFrontFill != Brushes.Transparent ? _layer.AntarcticaIceFrontFill.AsGdiBrush() : null;
             foreach (var item in _paths)
             {
                 foreach (var path in item.Value)
                 {
-                    var fill = item.Key.Polygon.Header.IsLand ? land : water;
+                    System.Drawing.Brush fill;
+                    switch (item.Key.Polygon.Header.ShorelinesFlags)
+                    {
+                        case GSHHGFlag.AntarticaGround:
+                            fill = antarctica;
+                            break;
+                        case GSHHGFlag.AntarticaIce:
+                            fill = antarcticaIce;
+                            break;
+                        default:
+                            fill = item.Key.Polygon.Header.IsLand ? land : water;
+                            break;
+                    }
                     if (fill != null) _gdiGraphics.FillPath(fill, path);
                     if (pen != null) _gdiGraphics.DrawPath(pen, path);
                 }

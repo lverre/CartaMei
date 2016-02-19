@@ -31,6 +31,12 @@ namespace CartaMei.MainPlugin
             get { return true; }
         }
 
+        [Browsable(false)]
+        public virtual bool CanUseTransformForTranslate
+        {
+            get { return !this.Map.RotateReference; }
+        }
+
         public virtual PixelCoordinates LatLonToPixel(LatLonCoordinates latLonCoordinates)
         {
             if (this.Map.RotateReference)

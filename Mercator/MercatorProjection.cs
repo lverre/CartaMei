@@ -86,6 +86,12 @@ namespace CartaMei.Mercator
             get { return false; }
         }
 
+        [Browsable(false)]
+        public virtual bool CanUseTransformForTranslate
+        {
+            get { return !this.Map.RotateReference; }
+        }
+
         private IMap _map;
         public virtual IMap Map
         {

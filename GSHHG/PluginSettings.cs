@@ -100,88 +100,12 @@ namespace CartaMei.GSHHG
 
         #region Shorelines
 
-        private double _shorelinesThickness;
-        [DefaultValue(1)]
-        [Description("The thickness of the contour of the shorelines.")]
-        [DisplayName("Shorelines Thickness")]
-        [Category("Shorelines")]
-        [PropertyOrder(0)]
-        public double ShorelinesThickness
-        {
-            get { return _shorelinesThickness; }
-            set
-            {
-                if (_shorelinesThickness != value)
-                {
-                    _shorelinesThickness = value;
-                    onPropetyChanged();
-                }
-            }
-        }
-
-        private Brush _shorelinesBrush;
-        [DefaultValue(typeof(SolidColorBrush), "#FF000000")]
-        [Description("The brush used to draw the contour of the shorelines.")]
-        [DisplayName("Shorelines Brush")]
-        [Category("Shorelines")]
-        [PropertyOrder(1)]
-        public Brush ShorelinesBrush
-        {
-            get { return _shorelinesBrush; }
-            set
-            {
-                if (_shorelinesBrush != value)
-                {
-                    _shorelinesBrush = value;
-                    onPropetyChanged();
-                }
-            }
-        }
-
-        private Brush _shorelinesWaterFill;
-        [DefaultValue(typeof(SolidColorBrush), "#FFF0F8FF")]
-        [Description("The brush used to fill water areas.")]
-        [DisplayName("Water Fill")]
-        [Category("Shorelines")]
-        [PropertyOrder(2)]
-        public Brush ShorelinesWaterFill
-        {
-            get { return _shorelinesWaterFill; }
-            set
-            {
-                if (_shorelinesWaterFill != value)
-                {
-                    _shorelinesWaterFill = value;
-                    onPropetyChanged();
-                }
-            }
-        }
-
-        private Brush _shorelinesLandFill;
-        [DefaultValue(typeof(SolidColorBrush), "#FFF4A460")]
-        [Description("The brush used to fill land areas.")]
-        [DisplayName("Land Fill")]
-        [Category("Shorelines")]
-        [PropertyOrder(3)]
-        public Brush ShorelinesLandFill
-        {
-            get { return _shorelinesLandFill; }
-            set
-            {
-                if (_shorelinesLandFill != value)
-                {
-                    _shorelinesLandFill = value;
-                    onPropetyChanged();
-                }
-            }
-        }
-
         private bool _shorelinesUseWaterForBackground;
         [DefaultValue(true)]
         [Description("Choose this option if you want the background of the shorelines layers to always match that of the water.\nNote that this will be automatically set only if the layer is added first.")]
         [DisplayName("Shorelines Background Is Water")]
         [Category("Shorelines")]
-        [PropertyOrder(4)]
+        [PropertyOrder(0)]
         public bool ShorelinesUseWaterForBackground
         {
             get { return _shorelinesUseWaterForBackground; }
@@ -200,7 +124,7 @@ namespace CartaMei.GSHHG
         [Description("The brush used to fill the background of the shorelines layers.")]
         [DisplayName("Shorelines Background")]
         [Category("Shorelines")]
-        [PropertyOrder(5)]
+        [PropertyOrder(1)]
         public Brush ShorelinesBackground
         {
             get { return _shorelinesBackground; }
@@ -209,6 +133,120 @@ namespace CartaMei.GSHHG
                 if (_shorelinesBackground != value)
                 {
                     _shorelinesBackground = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private double _shorelinesThickness;
+        [DefaultValue(1)]
+        [Description("The thickness of the contour of the shorelines.")]
+        [DisplayName("Shorelines Thickness")]
+        [Category("Shorelines")]
+        [PropertyOrder(2)]
+        public double ShorelinesThickness
+        {
+            get { return _shorelinesThickness; }
+            set
+            {
+                if (_shorelinesThickness != value)
+                {
+                    _shorelinesThickness = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private Brush _shorelinesBrush;
+        [DefaultValue(typeof(SolidColorBrush), "#FF000000")]
+        [Description("The brush used to draw the contour of the shorelines.")]
+        [DisplayName("Shorelines Brush")]
+        [Category("Shorelines")]
+        [PropertyOrder(3)]
+        public Brush ShorelinesBrush
+        {
+            get { return _shorelinesBrush; }
+            set
+            {
+                if (_shorelinesBrush != value)
+                {
+                    _shorelinesBrush = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private Brush _shorelinesWaterFill;
+        [DefaultValue(typeof(SolidColorBrush), "#FFF0F8FF")]
+        [Description("The brush used to fill water areas.")]
+        [DisplayName("Water Fill")]
+        [Category("Shorelines")]
+        [PropertyOrder(4)]
+        public Brush ShorelinesWaterFill
+        {
+            get { return _shorelinesWaterFill; }
+            set
+            {
+                if (_shorelinesWaterFill != value)
+                {
+                    _shorelinesWaterFill = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private Brush _shorelinesLandFill;
+        [DefaultValue(typeof(SolidColorBrush), "#FFF4A460")]
+        [Description("The brush used to fill land areas.")]
+        [DisplayName("Land Fill")]
+        [Category("Shorelines")]
+        [PropertyOrder(5)]
+        public Brush ShorelinesLandFill
+        {
+            get { return _shorelinesLandFill; }
+            set
+            {
+                if (_shorelinesLandFill != value)
+                {
+                    _shorelinesLandFill = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private Brush _antarcticaFill;
+        [DefaultValue(typeof(SolidColorBrush), "#FFF4A460")]
+        [Description("The brush used to fill Antarctica.")]
+        [DisplayName("Antarctica Fill")]
+        [Category("Shorelines")]
+        [PropertyOrder(5)]
+        public Brush AntarcticaFill
+        {
+            get { return _antarcticaFill; }
+            set
+            {
+                if (_antarcticaFill != value)
+                {
+                    _antarcticaFill = value;
+                    onPropetyChanged();
+                }
+            }
+        }
+
+        private Brush _antarcticaIceFrontFill;
+        [DefaultValue(typeof(SolidColorBrush), "#FFFFFFFF")]
+        [Description("The brush used to fill the Antarctica ice front.")]
+        [DisplayName("Antarctica Ice Front Fill")]
+        [Category("Shorelines")]
+        [PropertyOrder(7)]
+        public Brush AntarcticaIceFrontFill
+        {
+            get { return _antarcticaIceFrontFill; }
+            set
+            {
+                if (_antarcticaIceFrontFill != value)
+                {
+                    _antarcticaIceFrontFill = value;
                     onPropetyChanged();
                 }
             }
