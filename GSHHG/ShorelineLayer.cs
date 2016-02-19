@@ -11,7 +11,7 @@ using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
 
 namespace CartaMei.GSHHG
 {
-    public class ShorelineLayer : AGshhgLayer<PolygonObject>
+    public class ShorelineLayer : AGshhgLayer
     {
         #region Constants
 
@@ -33,8 +33,8 @@ namespace CartaMei.GSHHG
             _antarcticaIceFrontFill = PluginSettings.Instance.AntarcticaIceFrontFill.GetFrozenCopy();
 
             this.Name = ShorelineLayer.LayerName;
-            this.Items = null;
 
+            _container.MouseMove += mouseMove;
             resetBackground();
         }
 
@@ -179,25 +179,8 @@ namespace CartaMei.GSHHG
 
         public override PolygonType PolygonType { get { return PolygonType.ShoreLine; } }
 
-        protected override IGshhgContainer<PolygonObject> getNewContainer()
-        {
-            var result = new GdiGshhgContainer<PolygonObject>(this);
-            result.MouseMove += mouseMove;
-            return result;
-        }
-
-        protected override PolygonObject getNewPolygonObject(int id, IPolygon<GSHHG2PolygonHeader, LatLonCoordinates> polygon)
-        {
-            return new PolygonObject()
-            {
-                Id = id,
-                Polygon = polygon,
-                IsActive = true,
-                Layer = this,
-                Name = "Polygon #" + id
-            };
-        }
-
+        protected override bool ClosePolygons { get { return true; } }
+        
         protected override void updateVisual(PolygonObject item)
         {
             switch (item.Polygon.Header.ShorelinesFlags)

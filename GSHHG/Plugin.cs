@@ -41,7 +41,16 @@ namespace CartaMei.GSHHG
                         return new RiverLayer(map);
                     }
                 };
-                // TODO: countries layer
+                yield return new PluginItemProvider<ILayer>()
+                {
+                    Name = BorderLayer.LayerName,
+                    Description = BorderLayer.LayerDescription,
+                    Create = delegate (IMap map)
+                    {
+                        checkMapsDirectory();
+                        return new BorderLayer(map);
+                    }
+                };
                 yield break;
             }
         }

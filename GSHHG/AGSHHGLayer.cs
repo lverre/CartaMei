@@ -24,8 +24,7 @@ namespace CartaMei.GSHHG
         PolygonType PolygonType { get; }
     }
 
-    public abstract class AGshhgLayer<TPolygonObject> : ALayer, IGshhgLayer
-        where TPolygonObject : PolygonObject
+    public abstract class AGshhgLayer : ALayer, IGshhgLayer
     {
         #region Fields
         
@@ -37,9 +36,9 @@ namespace CartaMei.GSHHG
 
         protected IDictionary<int, IPolygon<GSHHG2PolygonHeader, LatLonCoordinates>> _polygons = null;
 
-        protected IDictionary<int, TPolygonObject> _polygonObjects = null;
+        protected IDictionary<int, PolygonObject> _polygonObjects = null;
 
-        protected IGshhgContainer<TPolygonObject> _container = null;
+        protected GshhgContainer _container = null;
         
         private readonly object _drawLocker = new object();
 
@@ -67,7 +66,7 @@ namespace CartaMei.GSHHG
             _strokeThickness = PluginSettings.Instance.StrokeThickness;
             _strokeBrush = PluginSettings.Instance.StrokeBrush.GetFrozenCopy();
 
-            _container = getNewContainer();
+            _container = new GshhgContainer(this);
         }
 
         #endregion
@@ -75,7 +74,7 @@ namespace CartaMei.GSHHG
         #region Properties
 
         [Browsable(false)]
-        protected virtual bool ClosePolygons { get { return true; } }
+        protected virtual bool ClosePolygons { get { return false; } }
 
         private Resolution _resolution;
         [Description("The resolution to use.")]
@@ -219,7 +218,7 @@ namespace CartaMei.GSHHG
 
                         removeChildren(toRemove);
 
-                        _container.Polygons = new Dictionary<int, TPolygonObject>(_polygonObjects);
+                        _container.Polygons = new Dictionary<int, PolygonObject>(_polygonObjects);
                     }
                 }
             }
@@ -250,13 +249,7 @@ namespace CartaMei.GSHHG
 
         [Browsable(false)]
         public abstract PolygonType PolygonType { get; }
-
-        protected abstract IGshhgContainer<TPolygonObject> getNewContainer();
-
-        protected abstract TPolygonObject getNewPolygonObject(int id, IPolygon<GSHHG2PolygonHeader, LatLonCoordinates> polygon);
-
-        protected abstract void updateVisual(TPolygonObject item);
-
+        
         #endregion
 
         #region Tools
@@ -302,7 +295,7 @@ namespace CartaMei.GSHHG
                     _polygons = reader.Read(PluginSettings.Instance.MapsDirectory, this.PolygonType, this.Resolution, this.ClosePolygons).Polygons;
                     var time = watch.ElapsedMilliseconds;
                     if (ownsStatus) Utils.Instance.HideStatus();
-                    _polygonObjects = new Dictionary<int, TPolygonObject>();
+                    _polygonObjects = new Dictionary<int, PolygonObject>();
                     _loadedResolution = this.Resolution;
                 }
             }
@@ -321,9 +314,9 @@ namespace CartaMei.GSHHG
             }
         }
 
-        protected virtual void removeChild(TPolygonObject item) { }
+        protected virtual void removeChild(PolygonObject item) { }
 
-        private void updatePoints(TPolygonObject polygonObject, RedrawType redrawType, Transform transform)
+        private void updatePoints(PolygonObject polygonObject, RedrawType redrawType, Transform transform)
         {
             var duplicate = false;
             var boundaries = polygonObject.Polygon.Header.Boundaries;
@@ -378,7 +371,7 @@ namespace CartaMei.GSHHG
             }
         }
 
-        private IEnumerable<IEnumerable<PixelCoordinates>> getPoints(TPolygonObject polygonObject, bool crossesLeftToRight, bool crossesRightToLeft)
+        private IEnumerable<IEnumerable<PixelCoordinates>> getPoints(PolygonObject polygonObject, bool crossesLeftToRight, bool crossesRightToLeft)
         {
             var points = polygonObject.Polygon.Points;
             if (points == null)
@@ -408,6 +401,20 @@ namespace CartaMei.GSHHG
             }
         }
 
+        protected virtual PolygonObject getNewPolygonObject(int id, IPolygon<GSHHG2PolygonHeader, LatLonCoordinates> polygon)
+        {
+            return new PolygonObject()
+            {
+                Id = id,
+                Polygon = polygon,
+                IsActive = true,
+                Layer = this,
+                Name = this.PolygonType.ToString() + " #" + id
+            };
+        }
+
+        protected virtual void updateVisual(PolygonObject item) { }
+
         #endregion
     }
 
@@ -432,130 +439,7 @@ namespace CartaMei.GSHHG
         
         #endregion
     }
-
-    public interface IGshhgContainer<TPolygonObject>
-        where TPolygonObject : PolygonObject
-    {
-        Brush Background { get; set; }
-
-        bool IsDirty { get; set; }
-        
-        IDictionary<int, TPolygonObject> Polygons { get; set; }
-
-        void Update(IDrawContext drawContext);
-    }
-
-    /// <summary>
-    /// GSHHG container that draws using OnRender / Geometry.
-    /// </summary>
-    public class WpfGshhgContainer<TPolygonObject> : FrameworkElement, IGshhgContainer<TPolygonObject>
-        where TPolygonObject : PolygonObject
-    {
-        #region Fields
-
-        private AGshhgLayer<TPolygonObject> _layer;
-
-        #endregion
-
-        #region Constructor
-
-        public WpfGshhgContainer(AGshhgLayer<TPolygonObject> layer)
-        {
-            _layer = layer;
-        }
-
-        #endregion
-
-        #region IGshhgContainer
-
-        public Brush Background { get; set; }
-
-        public bool IsDirty { get; set; }
-        
-        public IDictionary<int, TPolygonObject> Polygons { get; set; }
-
-        public void Update(IDrawContext drawContext)
-        {
-            this.SafeInvalidate();
-        }
-
-        #endregion
-
-        #region Properties
-
-        private IDictionary<TPolygonObject, Geometry> Geometries { get; set; }
-
-        #endregion
-
-        #region Overrides
-
-        protected override void OnRender(DrawingContext drawingContext)
-        {
-            base.OnRender(drawingContext);
-
-            var background = this.Background;
-            if (background != null && background != Brushes.Transparent)
-            {
-                drawingContext.DrawRectangle(background, null, new Rect(0, 0, this.Width, this.Height));
-            }
-
-            var polygons = this.Polygons;
-            if (polygons == null) return;
-
-            if (this.IsDirty || this.Geometries == null)
-            {
-                var geometries = new Dictionary<TPolygonObject, Geometry>();
-
-                foreach (var item in polygons)
-                {
-                    var figures = new PathFigureCollection();
-
-                    foreach (var pixelPoints in item.Value.PixelPoints)
-                    {
-                        PathSegment segment;
-                        var points = new PointCollection(pixelPoints.Select(point => (Point)point));
-                        if (_layer.UseCurvedLines)
-                        {
-                            segment = new PolyBezierSegment() { Points = points };
-                        }
-                        else
-                        {
-                            segment = new PolyLineSegment() { Points = points };
-                        }
-                        segment.IsSmoothJoin = true;
-                        segment.IsStroked = true;
-
-                        figures.Add(new PathFigure()
-                        {
-                            IsClosed = true,
-                            IsFilled = true,
-                            Segments = new PathSegmentCollection() { segment },
-                            StartPoint = points.First()
-                        });
-                    }
-
-                    var geometry = new PathGeometry(figures);
-                    geometry.Freeze();
-                    geometries.Add(item.Value, geometry);
-                }
-
-                this.Geometries = geometries;
-                this.IsDirty = false;
-            }
-
-            var pen = new Pen(_layer.StrokeBrush, _layer.StrokeThickness);
-            pen.Freeze();
-            var isCurve = _layer.UseCurvedLines;
-
-            foreach (var item in this.Geometries)
-            {
-                drawingContext.DrawGeometry(item.Key.Fill, pen, item.Value);
-            }
-        }
-        
-        #endregion
-    }
-
+    
     /// <summary>
     /// GSHHG container that draws into an image using GDI+.
     /// </summary>
@@ -563,12 +447,11 @@ namespace CartaMei.GSHHG
     /// <para>Adapted from <see href="http://www.newyyz.com/blog/2012/02/14/fast-line-rendering-in-wpf/">Sean Hopen's solution</see>.</para>
     /// <para>This solution does most of the work in another thread, which should make the UI much more responsive (it just has to display a bitmap).</para>
     /// </remarks>
-    public class GdiGshhgContainer<TPolygonObject> : Grid, IGshhgContainer<TPolygonObject>
-        where TPolygonObject : PolygonObject
+    public class GshhgContainer : Grid
     {
         #region Fields
         
-        private AGshhgLayer<TPolygonObject> _layer;
+        private AGshhgLayer _layer;
 
         private Image _image;
 
@@ -577,7 +460,7 @@ namespace CartaMei.GSHHG
 
         #region GDI
 
-        private IDictionary<TPolygonObject, IEnumerable<System.Drawing.Drawing2D.GraphicsPath>> _paths;
+        private IDictionary<PolygonObject, IEnumerable<System.Drawing.Drawing2D.GraphicsPath>> _paths;
 
         private bool _isBitmapInitialized;
         private bool _isBitmapInvalid;
@@ -609,7 +492,7 @@ namespace CartaMei.GSHHG
 
         #region Constructors
 
-        public GdiGshhgContainer(AGshhgLayer<TPolygonObject> layer)
+        public GshhgContainer(AGshhgLayer layer)
         {
             _layer = layer;
 
@@ -646,7 +529,7 @@ namespace CartaMei.GSHHG
 
         public bool IsDirty { get; set; }
         
-        public IDictionary<int, TPolygonObject> Polygons { get; set; }
+        public IDictionary<int, PolygonObject> Polygons { get; set; }
 
         public void Update(IDrawContext drawContext)
         {
@@ -684,7 +567,7 @@ namespace CartaMei.GSHHG
 
             if (this.IsDirty || _paths == null)
             {
-                var paths = new Dictionary<TPolygonObject, IEnumerable<System.Drawing.Drawing2D.GraphicsPath>>();
+                var paths = new Dictionary<PolygonObject, IEnumerable<System.Drawing.Drawing2D.GraphicsPath>>();
                 foreach (var item in polygons)
                 {
                     var polygonPaths = new List<System.Drawing.Drawing2D.GraphicsPath>();

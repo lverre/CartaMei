@@ -85,6 +85,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="AGSHHGLayer.cs" />
+    <Compile Include="BorderLayer.cs" />
     <Compile Include="RiverLayer.cs" />
     <Compile Include="ShorelineLayer.cs" />
     <Compile Include="Types.cs" />
